@@ -2,26 +2,9 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ServiceCard from "../components/ServiceCard";
 import CategoryRail from "../components/CategoryRail";
+import BannerRail from "../components/BannerRail";
 import Reveal from "../components/Reveal";
-
-const MOCK = [
-  { _id: "1", name: "Home Deep Cleaning", category: "Cleaning", price: 1499, rating: 4.8, duration: "4 hrs", image: "https://picsum.photos/seed/uc-cleaning-1/500/340" },
-  { _id: "2", name: "Bathroom Cleaning", category: "Cleaning", price: 699, rating: 4.6, duration: "1.5 hrs", image: "https://picsum.photos/seed/uc-cleaning-2/500/340" },
-  { _id: "3", name: "AC Service & Repair", category: "Appliance", price: 599, rating: 4.6, duration: "1 hr", image: "https://picsum.photos/seed/uc-ac-1/500/340" },
-  { _id: "4", name: "Washing Machine Repair", category: "Appliance", price: 449, rating: 4.5, duration: "1 hr", image: "https://picsum.photos/seed/uc-appliance-2/500/340" },
-  { _id: "5", name: "Tap & Pipe Repair", category: "Plumbing", price: 349, rating: 4.7, duration: "45 min", image: "https://picsum.photos/seed/uc-plumbing-1/500/340" },
-  { _id: "6", name: "Water Tank Cleaning", category: "Plumbing", price: 799, rating: 4.6, duration: "2 hrs", image: "https://picsum.photos/seed/uc-plumbing-2/500/340" },
-  { _id: "7", name: "Salon for Women", category: "Beauty", price: 899, rating: 4.9, duration: "2 hrs", image: "https://picsum.photos/seed/uc-beauty-1/500/340" },
-  { _id: "8", name: "Men's Grooming", category: "Beauty", price: 599, rating: 4.7, duration: "1 hr", image: "https://picsum.photos/seed/uc-beauty-2/500/340" },
-];
-
-const CATEGORIES = [
-  { name: "All", icon: "✨", color: "linear-gradient(135deg,#7c3aed,#db2777)" },
-  { name: "Cleaning", icon: "🧹", color: "linear-gradient(135deg,#34d399,#059669)" },
-  { name: "Appliance", icon: "🔌", color: "linear-gradient(135deg,#60a5fa,#2563eb)" },
-  { name: "Plumbing", icon: "🚿", color: "linear-gradient(135deg,#fbbf24,#d97706)" },
-  { name: "Beauty", icon: "💅", color: "linear-gradient(135deg,#f472b6,#db2777)" },
-];
+import { SERVICES, CATEGORIES, COLLECTIONS } from "../data/catalog";
 
 const gridVariants = {
   hidden: {},
@@ -38,7 +21,7 @@ export default function Services() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setServices(MOCK);
+      setServices(SERVICES);
       setLoading(false);
     }, 400);
     return () => clearTimeout(timer);
@@ -84,6 +67,8 @@ export default function Services() {
       />
 
       <CategoryRail categories={CATEGORIES} active={activeCategory} onSelect={setActiveCategory} />
+
+      <BannerRail banners={COLLECTIONS} />
 
       <AnimatePresence mode="wait">
         {loading ? (

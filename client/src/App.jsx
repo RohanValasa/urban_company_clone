@@ -7,8 +7,10 @@ import SignUp from "./pages/SignUp";
 import Cart from "./pages/Cart";
 import Bookings from "./pages/Bookings";
 import ProfessionalDashboard from "./pages/ProfessionalDashboard";
+import Collection from "./pages/Collection";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollProgress from "./components/ScrollProgress";
+import Footer from "./components/Footer";
 import { CartProvider, useCart } from "./context/CartContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import "./App.css";
@@ -112,6 +114,7 @@ export default function App() {
           <Nav />
           <Routes>
             <Route path="/" element={<Services />} />
+            <Route path="/collection/:slug" element={<Collection />} />
             <Route path="/login" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/cart" element={<Cart />} />
@@ -132,6 +135,7 @@ export default function App() {
               }
             />
           </Routes>
+          <Footer />
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
