@@ -34,7 +34,7 @@ export default function Collection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
-        <img src={collection.hero} alt="" className="banner-bg" />
+        <img src={collection.image} alt="" className="banner-bg" />
         <div className="banner-content">
           <span className="banner-eyebrow">{collection.eyebrow}</span>
           <h1>{collection.headline}</h1>
