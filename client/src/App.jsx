@@ -6,6 +6,7 @@ import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import Collection from "./pages/Collection";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollProgress from "./components/ScrollProgress";
+import CursorBubble from "./components/CursorBubble";
 import Footer from "./components/Footer";
 import Nav from "./components/Nav";
 import AuthModal from "./components/AuthModal";
@@ -21,6 +22,7 @@ export default function App() {
         <UIProvider>
           <CartProvider>
             <ScrollProgress />
+            <CursorBubble />
             <Nav />
             <AuthModal />
             <Routes>

@@ -915,3 +915,69 @@ a.see-all { text-decoration: none; display: inline-flex; align-items: center; }
   .blob, .hero-aura { animation: none; }
   html { scroll-behavior: auto; }
 }
+
+/* ================= Bubble cursor ================= */
+body.cursor-hidden,
+body.cursor-hidden * { cursor: none !important; }
+
+.cursor-bubble,
+.cursor-core {
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  pointer-events: none; will-change: transform;
+}
+
+.cursor-bubble {
+  width: 42px; height: 42px; margin: -21px 0 0 -21px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255,255,255,.95) 0 9%, rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 70% 78%, rgba(244,114,182,.35), rgba(244,114,182,0) 55%),
+    radial-gradient(circle at 50% 50%, rgba(167,139,250,.22), rgba(124,58,237,.1) 62%, rgba(255,255,255,.02) 100%);
+  border: 1.4px solid rgba(139,92,246,.5);
+  box-shadow:
+    inset -5px -7px 14px rgba(124,58,237,.22),
+    inset 5px 7px 14px rgba(255,255,255,.55),
+    0 10px 24px -12px rgba(124,58,237,.6);
+  backdrop-filter: blur(.6px) saturate(150%);
+  -webkit-backdrop-filter: blur(.6px) saturate(150%);
+  transition: border-color .3s;
+}
+.cursor-bubble.cursor-hot { border-color: rgba(219,39,119,.45); }
+
+.cursor-film,
+.cursor-shine { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; }
+
+.cursor-film {
+  background: conic-gradient(
+    from 0deg,
+    rgba(255,255,255,0) 0deg,
+    rgba(196,181,253,.5) 70deg,
+    rgba(255,255,255,0) 140deg,
+    rgba(251,207,232,.5) 220deg,
+    rgba(255,255,255,0) 300deg
+  );
+  mix-blend-mode: screen; opacity: .85;
+  animation: bubble-spin 6s linear infinite;
+}
+
+.cursor-shine {
+  background: radial-gradient(circle at 34% 28%, rgba(255,255,255,.95) 0 14%, rgba(255,255,255,0) 40%);
+  animation: bubble-wobble 5s ease-in-out infinite;
+}
+
+.cursor-core {
+  width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+  background: var(--brand);
+  box-shadow: 0 0 10px rgba(124,58,237,.7);
+}
+
+@keyframes bubble-spin { to { transform: rotate(360deg); } }
+@keyframes bubble-wobble {
+  0%, 100% { transform: scale(1) translate(0, 0); }
+  33%      { transform: scale(1.04) translate(1px, -1px); }
+  66%      { transform: scale(.97) translate(-1px, 1px); }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .cursor-bubble, .cursor-core { display: none; }
+}
