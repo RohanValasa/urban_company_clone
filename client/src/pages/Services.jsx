@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import ServiceCard from "../components/ServiceCard";
 import CategoryRail from "../components/CategoryRail";
 import BannerRail from "../components/BannerRail";
 import Reveal from "../components/Reveal";
 import { SERVICES, CATEGORIES, COLLECTIONS } from "../data/catalog";
+import { useUI } from "../context/UIContext";
 
 const gridVariants = {
   hidden: {},
@@ -16,8 +18,19 @@ const gridVariants = {
 export default function Services() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [query, setQuery] = useState("");
+  const [params, setParams] = useSearchParams();
+  const { city } = useUI();
+  const activeCategory = params.get("category") || "All";
+  const query = params.get("q") || "";
+
+  const patchParams = (patch) => {
+    const next = new URLSearchParams(params);
+    Object.entries(patch).forEach(([k, v]) => (v && v !== "All" ? next.set(k, v) : next.delete(k)));
+    setParams(next, { replace: true });
+  };
+
+  const setActiveCategory = (category) => patchParams({ category });
+  const setQuery = (q) => patchParams({ q });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -44,7 +57,7 @@ export default function Services() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        📍 Delivering to <strong>Hyderabad</strong>
+        📍 Delivering to <strong>{city}</strong>
       </motion.div>
 
       <motion.h1
