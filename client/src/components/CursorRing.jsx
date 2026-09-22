@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
-const BUBBLE = { stiffness: 130, damping: 15, mass: 0.6 };
-const CORE = { stiffness: 900, damping: 42, mass: 0.3 };
+const RING = { stiffness: 320, damping: 26, mass: 0.35 };
+const DOT = { stiffness: 1200, damping: 45, mass: 0.2 };
 const INTERACTIVE =
   "a, button, input, textarea, select, label, [role='button'], .tile, .chip, .card, .cat-item, .promo";
+const TEXTUAL = "input, textarea, [contenteditable='true']";
 
-export default function CursorBubble() {
+export default function CursorRing() {
   const reduced = useReducedMotion();
   const [supported] = useState(
     () =>
@@ -14,15 +15,15 @@ export default function CursorBubble() {
       window.matchMedia("(hover: hover) and (pointer: fine)").matches
   );
   const [visible, setVisible] = useState(false);
-  const [hot, setHot] = useState(false);
+  const [mode, setMode] = useState("idle"); // idle | hot | text
   const [down, setDown] = useState(false);
 
   const x = useMotionValue(-300);
   const y = useMotionValue(-300);
-  const bubbleX = useSpring(x, BUBBLE);
-  const bubbleY = useSpring(y, BUBBLE);
-  const coreX = useSpring(x, CORE);
-  const coreY = useSpring(y, CORE);
+  const ringX = useSpring(x, RING);
+  const ringY = useSpring(y, RING);
+  const dotX = useSpring(x, DOT);
+  const dotY = useSpring(y, DOT);
 
   const active = supported && !reduced;
 
@@ -35,7 +36,10 @@ export default function CursorBubble() {
       x.set(e.clientX);
       y.set(e.clientY);
       setVisible(true);
-      setHot(Boolean(e.target?.closest?.(INTERACTIVE)));
+      const target = e.target;
+      if (target?.closest?.(TEXTUAL)) setMode("text");
+      else if (target?.closest?.(INTERACTIVE)) setMode("hot");
+      else setMode("idle");
     };
     const leave = () => setVisible(false);
     const press = () => setDown(true);
@@ -57,30 +61,32 @@ export default function CursorBubble() {
 
   if (!active) return null;
 
+  const ring =
+    mode === "text"
+      ? { scaleX: 0.12, scaleY: 1.5, opacity: visible ? 1 : 0 }
+      : {
+          scaleX: down ? 0.82 : mode === "hot" ? 1.45 : 1,
+          scaleY: down ? 0.82 : mode === "hot" ? 1.45 : 1,
+          opacity: visible ? 1 : 0,
+        };
+
   return (
     <>
       <motion.div
-        className={`cursor-bubble ${hot ? "cursor-hot" : ""}`}
-        style={{ x: bubbleX, y: bubbleY }}
-        animate={{
-          scale: down ? 0.75 : hot ? 2.05 : 1,
-          opacity: visible ? 1 : 0,
-        }}
-        transition={{ type: "spring", stiffness: 260, damping: 20, mass: 0.5 }}
+        className={`cursor-ring ${mode === "hot" ? "is-hot" : ""}`}
+        style={{ x: ringX, y: ringY }}
+        animate={ring}
+        transition={{ type: "spring", stiffness: 380, damping: 26, mass: 0.4 }}
         aria-hidden="true"
-      >
-        <span className="cursor-film" />
-        <span className="cursor-shine" />
-      </motion.div>
-
+      />
       <motion.div
-        className="cursor-core"
-        style={{ x: coreX, y: coreY }}
+        className="cursor-dot"
+        style={{ x: dotX, y: dotY }}
         animate={{
-          scale: down ? 1.6 : hot ? 0.35 : 1,
-          opacity: visible ? 1 : 0,
+          scale: mode === "hot" ? 0.4 : down ? 1.5 : 1,
+          opacity: visible && mode !== "text" ? 1 : 0,
         }}
-        transition={{ type: "spring", stiffness: 400, damping: 24 }}
+        transition={{ type: "spring", stiffness: 500, damping: 28 }}
         aria-hidden="true"
       />
     </>
