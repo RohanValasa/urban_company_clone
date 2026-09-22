@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { findSub } from "../data/services";
 
@@ -33,7 +34,7 @@ export default function CategorySheet({ group, onClose, onPick }) {
     };
   }, [group, onClose]);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {group && (
         <motion.div
@@ -50,7 +51,7 @@ export default function CategorySheet({ group, onClose, onPick }) {
             aria-label="Close"
             initial={{ opacity: 0, scale: 0.6, rotate: -90 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            exit={{ opacity: 0, scale: 0.6 }}
+            exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.14 } }}
             transition={{ delay: 0.1, type: "spring", stiffness: 260, damping: 18 }}
             whileHover={{ scale: 1.1, rotate: 90 }}
             whileTap={{ scale: 0.9 }}
@@ -106,6 +107,7 @@ export default function CategorySheet({ group, onClose, onPick }) {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
