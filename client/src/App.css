@@ -916,34 +916,3 @@ a.see-all { text-decoration: none; display: inline-flex; align-items: center; }
   .blob, .hero-aura { animation: none; }
   html { scroll-behavior: auto; }
 }
-
-/* ================= Cursor ================= */
-body.cursor-hidden,
-body.cursor-hidden * { cursor: none !important; }
-
-.cursor-ring,
-.cursor-dot {
-  position: fixed; top: 0; left: 0; z-index: 9999;
-  pointer-events: none; will-change: transform;
-}
-
-/* thin outline only - never covers what is underneath */
-.cursor-ring {
-  width: 30px; height: 30px; margin: -15px 0 0 -15px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(109, 40, 217, .55);
-  transition: border-color .25s, background .25s;
-}
-.cursor-ring.is-hot {
-  border-color: rgba(219, 39, 119, .6);
-  background: rgba(124, 58, 237, .06);
-}
-
-.cursor-dot {
-  width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
-  background: var(--brand);
-}
-
-@media (hover: none), (pointer: coarse) {
-  .cursor-ring, .cursor-dot { display: none; }
-}

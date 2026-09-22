@@ -6,7 +6,6 @@ import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import Collection from "./pages/Collection";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollProgress from "./components/ScrollProgress";
-import CursorRing from "./components/CursorRing";
 import Footer from "./components/Footer";
 import Nav from "./components/Nav";
 import AuthModal from "./components/AuthModal";
@@ -22,7 +21,6 @@ export default function App() {
         <UIProvider>
           <CartProvider>
             <ScrollProgress />
-            <CursorRing />
             <Nav />
             <AuthModal />
             <Routes>
