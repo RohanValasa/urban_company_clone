@@ -1,8 +1,10 @@
-import { useRef } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from "framer-motion";
 import SplitHeading from "./motion/SplitHeading";
+import CategorySheet from "./CategorySheet";
 import { CATEGORY_TILES, SMART_TILES, HERO_SHOTS } from "../data/catalog";
+import { findGroup } from "../data/services";
 import { useUI } from "../context/UIContext";
 
 const SOFT = { stiffness: 120, damping: 24, mass: 0.5 };
@@ -22,6 +24,8 @@ const tile = {
 export default function Hero() {
   const ref = useRef(null);
   const reduced = useReducedMotion();
+  const navigate = useNavigate();
+  const [group, setGroup] = useState(null);
   const { city } = useUI();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
 
@@ -32,6 +36,15 @@ export default function Hero() {
 
   return (
     <section className="hero" ref={ref}>
+      <CategorySheet
+        group={group}
+        onClose={() => setGroup(null)}
+        onPick={(slug) => {
+          setGroup(null);
+          navigate(`/s/${slug}`);
+        }}
+      />
+
       <div className="hero-aura hero-aura-a" />
       <div className="hero-aura hero-aura-b" />
 
@@ -56,12 +69,12 @@ export default function Hero() {
           <div className="tile-grid">
             {CATEGORY_TILES.map((t) => (
               <motion.div variants={tile} key={t.label}>
-                <Link to={t.to} className="tile">
+                <button type="button" className="tile" onClick={() => setGroup(findGroup(t.group))}>
                   <span className="tile-art" style={{ background: t.tone }}>
                     <span>{t.icon}</span>
                   </span>
                   <span className="tile-label">{t.label}</span>
-                </Link>
+                </button>
               </motion.div>
             ))}
           </div>

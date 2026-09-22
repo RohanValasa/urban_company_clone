@@ -4,6 +4,7 @@ import Cart from "./pages/Cart";
 import Bookings from "./pages/Bookings";
 import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import Collection from "./pages/Collection";
+import ServicePage from "./pages/ServicePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollProgress from "./components/ScrollProgress";
 import Footer from "./components/Footer";
@@ -26,6 +27,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/collection/:slug" element={<Collection />} />
+              <Route path="/s/:slug" element={<ServicePage />} />
               <Route path="/cart" element={<Cart />} />
               <Route
                 path="/bookings"

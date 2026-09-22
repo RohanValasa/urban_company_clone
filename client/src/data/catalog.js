@@ -46,14 +46,14 @@ export const CATEGORIES = [
 ];
 
 export const CATEGORY_TILES = [
-  { label: "Women's Salon & Spa", icon: "💆‍♀️", tone: "#fce7f3", to: "/?category=Beauty" },
-  { label: "Men's Salon & Massage", icon: "💈", tone: "#e0e7ff", to: "/?category=Beauty" },
-  { label: "Cleaning & Pest Control", icon: "🧽", tone: "#dcfce7", to: "/?category=Cleaning" },
-  { label: "AC & Appliance Repair", icon: "❄️", tone: "#e0f2fe", to: "/?category=Appliance" },
-  { label: "Electrician & Plumber", icon: "🔌", tone: "#fef3c7", to: "/?category=Plumbing" },
-  { label: "Painting & Waterproofing", icon: "🎨", tone: "#ede9fe", to: "/?category=Plumbing" },
-  { label: "Carpenter & Repairs", icon: "🪚", tone: "#ffe4e6", to: "/?category=Plumbing" },
-  { label: "Water Purifier Care", icon: "💧", tone: "#cffafe", to: "/?category=Appliance" },
+  { label: "Women's Salon & Spa", icon: "💆‍♀️", tone: "#fce7f3", group: "salon-women-group" },
+  { label: "Men's Salon & Massage", icon: "💈", tone: "#e0e7ff", group: "salon-men-group" },
+  { label: "Cleaning & Pest Control", icon: "🧽", tone: "#dcfce7", group: "cleaning-pest" },
+  { label: "AC & Appliance Repair", icon: "❄️", tone: "#e0f2fe", group: "appliance-group" },
+  { label: "Electrician & Plumber", icon: "🔌", tone: "#fef3c7", group: "repair-group" },
+  { label: "Painting & Waterproofing", icon: "🎨", tone: "#ede9fe", group: "painting-group" },
+  { label: "Carpenter & Repairs", icon: "🪚", tone: "#ffe4e6", group: "carpenter-group" },
+  { label: "Water Purifier Care", icon: "💧", tone: "#cffafe", group: "purifier-group" },
 ];
 
 export const SMART_TILES = [
