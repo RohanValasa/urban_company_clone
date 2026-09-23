@@ -96,6 +96,7 @@ export default function CategorySheet({ group, onClose, onPick }) {
                           >
                             {s.icon}
                           </motion.span>
+                          {s.eta && <em className="sheet-eta">{s.eta.replace(/^In /, "")}</em>}
                         </span>
                         <span className="sheet-label">{s.label}</span>
                       </motion.button>

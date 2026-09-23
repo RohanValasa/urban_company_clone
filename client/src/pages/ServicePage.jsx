@@ -78,7 +78,7 @@ export default function ServicePage() {
             ★ {sub.rating} <span>({sub.bookings})</span>
           </motion.p>
 
-          <Tilt className="sp-picker" max={6} lift={4}>
+          <div className="sp-picker">
             <p className="sp-picker-head">Select a service</p>
             <motion.div className="sp-tabs" variants={listVariants} initial="hidden" animate="show">
               {sub.tabs.map((t) => (
@@ -98,7 +98,7 @@ export default function ServicePage() {
                 </motion.button>
               ))}
             </motion.div>
-          </Tilt>
+          </div>
         </motion.div>
 
         <motion.div className="sp-stage-wrap" style={{ y: stageY, rotate: stageRotate }}>

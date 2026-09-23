@@ -956,8 +956,13 @@ a.see-all { text-decoration: none; display: inline-flex; align-items: center; }
   font-family: inherit; transform-style: preserve-3d;
 }
 .sheet-art {
-  width: 100%; aspect-ratio: 1 / 1; border-radius: 12px;
+  position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 12px;
   display: flex; align-items: center; justify-content: center; font-size: 30px;
+}
+.sheet-eta {
+  position: absolute; left: 6px; bottom: 6px; font-style: normal;
+  font-size: 9.5px; font-weight: 700; color: #166534;
+  background: #fff; border: 1px solid #d1fae5; padding: 2px 6px; border-radius: 6px;
 }
 .sheet-label { font-size: 12px; font-weight: 600; color: var(--ink); text-align: center; line-height: 1.3; }
 
@@ -1026,7 +1031,8 @@ a.see-all { text-decoration: none; display: inline-flex; align-items: center; }
   line-height: 1.25; text-align: center; min-height: 29px;
 }
 .sp-tab.is-active .sp-tab-label { color: var(--ink); font-weight: 700; }
-.sp-tab-underline { width: 62%; height: 2px; border-radius: 2px; background: var(--ink); }
+/* the layout animation flies this between tabs - it must never eat a click */
+.sp-tab-underline { width: 62%; height: 2px; border-radius: 2px; background: var(--ink); pointer-events: none; }
 
 .sp-stage-wrap { transform-style: preserve-3d; }
 .sp-stage { box-shadow: 0 30px 60px -34px rgba(16,12,40,.6); }
