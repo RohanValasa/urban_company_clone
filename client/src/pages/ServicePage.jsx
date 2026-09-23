@@ -59,13 +59,13 @@ export default function ServicePage() {
           <div className="sp-title-row">
             <SplitHeading as="h1" text={sub.label} className="sp-title" />
             <motion.span
-              className="sp-earliest"
+              className="sp-instant"
               initial={{ opacity: 0, scale: 0.8, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ delay: 0.25, type: "spring", stiffness: 240, damping: 18 }}
             >
-              <i /> Earliest
-              <strong>{sub.earliest}</strong>
+              <em>⚡ Instant</em>
+              <strong>{sub.eta}</strong>
             </motion.span>
           </div>
 
@@ -91,10 +91,10 @@ export default function ServicePage() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <span className="sp-tab-art">
-                    {t.tag ? <em>{t.tag}</em> : <b>{t.icon || sub.icon}</b>}
-                    {tab === t.id && <motion.span className="sp-tab-ring" layoutId="sp-tab-ring" />}
+                    {t.tag ? <em>{t.tag}</em> : <img src={t.image} alt="" loading="lazy" />}
                   </span>
                   <span className="sp-tab-label">{t.label}</span>
+                  {tab === t.id && <motion.span className="sp-tab-underline" layoutId="sp-tab-underline" />}
                 </motion.button>
               ))}
             </motion.div>

@@ -87,7 +87,7 @@ function sub(spec) {
     ],
     rating: 4.83,
     bookings: "8.5 M bookings",
-    earliest: "Wed, 8:00 AM",
+    eta: "In 55 mins",
     areas: [
       { label: "Floor cleaning machine", seed: "area-floor" },
       { label: "Toilet seat inside & out", seed: "area-seat" },
@@ -125,6 +125,7 @@ function sub(spec) {
     ...spec,
   };
 
+  base.tabs = base.tabs.map((t) => ({ ...t, image: img(`tab-${base.slug}-${t.id}`, 300, 300) }));
   base.areas = base.areas.map((a) => ({ ...a, image: img(a.seed, 400, 300) }));
   base.equipment = base.equipment.map((e) => ({ ...e, image: img(e.seed, 400, 300) }));
   base.packages = base.packageSpecs.map((p) => pkg(base, p));

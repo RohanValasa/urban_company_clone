@@ -987,14 +987,16 @@ a.see-all { text-decoration: none; display: inline-flex; align-items: center; }
 }
 .sp-title-row { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .sp-title { font-size: 40px; font-weight: 800; letter-spacing: -1.6px; line-height: 1.05; color: #140f2e; }
-.sp-earliest {
-  display: inline-flex; flex-direction: column; gap: 2px;
-  background: #fff; border: 1px solid var(--line); border-radius: 12px;
-  padding: 8px 14px; font-size: 11.5px; font-weight: 700; color: var(--ink-soft);
+.sp-instant {
+  display: inline-flex; flex-direction: column; overflow: hidden; flex: 0 0 auto;
+  background: #fff; border: 1px solid var(--line); border-radius: 10px;
   box-shadow: 0 10px 24px -18px rgba(16,12,40,.6);
 }
-.sp-earliest i { width: 7px; height: 7px; border-radius: 50%; background: #16a34a; display: inline-block; }
-.sp-earliest strong { font-size: 13px; color: var(--ink); }
+.sp-instant em {
+  font-style: normal; background: #166534; color: #fff;
+  font-size: 12.5px; font-weight: 800; padding: 6px 14px; text-align: center;
+}
+.sp-instant strong { font-size: 12.5px; font-weight: 700; color: var(--ink); padding: 6px 14px; text-align: center; }
 .sp-rating { font-size: 14px; font-weight: 700; margin: 12px 0 22px; }
 .sp-rating span { color: var(--ink-soft); font-weight: 600; text-decoration: underline; }
 
@@ -1003,32 +1005,29 @@ a.see-all { text-decoration: none; display: inline-flex; align-items: center; }
   padding: 18px; box-shadow: 0 22px 46px -34px rgba(16,12,40,.6);
 }
 .sp-picker-head { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); margin-bottom: 14px; }
-/* scrolls sideways so a service with ten tabs still fits the picker */
+/* three per row, wrapping onto as many rows as the service needs */
 .sp-tabs {
-  display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none;
-  padding-bottom: 4px; perspective: 700px;
+  display: grid; gap: 18px 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); perspective: 700px;
 }
-.sp-tabs::-webkit-scrollbar { display: none; }
 .sp-tab {
   position: relative; background: none; border: none; cursor: pointer; padding: 0;
   font-family: inherit; display: flex; flex-direction: column; gap: 8px; align-items: center;
-  flex: 0 0 88px; scroll-snap-align: start;
+  gap: 9px;
 }
 .sp-tab-art {
   position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; background: #f4f2f8;
-  display: flex; align-items: center; justify-content: center; text-align: center;
+  display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden;
 }
-.sp-tab-art em { font-style: normal; font-size: 10.5px; font-weight: 800; color: #16a34a; line-height: 1.2; padding: 0 6px; }
-.sp-tab-art b { font-size: 24px; }
+.sp-tab-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sp-tab-art em { font-style: normal; font-size: 12px; font-weight: 800; color: #166534; line-height: 1.15; padding: 0 8px; }
 .sp-tab-label {
   font-size: 11.5px; font-weight: 600; color: var(--ink-soft);
   line-height: 1.25; text-align: center; min-height: 29px;
 }
-.sp-tab.is-active .sp-tab-label { color: var(--brand); font-weight: 800; }
-.sp-tab-ring {
-  position: absolute; inset: -5px; border-radius: 15px;
-  border: 2px solid var(--brand); pointer-events: none;
-}
+.sp-tab.is-active .sp-tab-label { color: var(--ink); font-weight: 700; }
+.sp-tab-underline { width: 62%; height: 2px; border-radius: 2px; background: var(--ink); }
+
 .sp-stage-wrap { transform-style: preserve-3d; }
 .sp-stage { box-shadow: 0 30px 60px -34px rgba(16,12,40,.6); }
 
