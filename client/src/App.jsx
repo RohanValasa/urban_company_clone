@@ -10,6 +10,7 @@ import ScrollProgress from "./components/ScrollProgress";
 import Footer from "./components/Footer";
 import Nav from "./components/Nav";
 import AuthModal from "./components/AuthModal";
+import LocationModal from "./components/LocationModal";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { UIProvider } from "./context/UIContext";
@@ -24,6 +25,7 @@ export default function App() {
             <ScrollProgress />
             <Nav />
             <AuthModal />
+            <LocationModal />
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/collection/:slug" element={<Collection />} />

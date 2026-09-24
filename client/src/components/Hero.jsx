@@ -26,7 +26,7 @@ export default function Hero() {
   const reduced = useReducedMotion();
   const navigate = useNavigate();
   const [group, setGroup] = useState(null);
-  const { city } = useUI();
+  const { location, openLocation } = useUI();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
 
   const copyY = useSpring(useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 90]), SOFT);
@@ -49,14 +49,16 @@ export default function Hero() {
       <div className="hero-aura hero-aura-b" />
 
       <motion.div className="hero-copy" style={{ y: copyY, opacity: copyFade }}>
-        <motion.div
+        <motion.button
+          type="button"
           className="location-pill"
+          onClick={openLocation}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
         >
-          📍 Delivering to <strong>{city}</strong>
-        </motion.div>
+          📍 Delivering to <strong>{location.title}</strong>
+        </motion.button>
 
         <SplitHeading text="Home services at your doorstep" className="hero-title" />
 

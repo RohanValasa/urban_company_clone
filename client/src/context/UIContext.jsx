@@ -1,26 +1,34 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { DEFAULT_LOCATION, inHyderabad } from "../lib/places";
 
 const UIContext = createContext(null);
-const CITY_KEY = "uc_city";
+const LOCATION_KEY = "uc_location";
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const CITIES = ["Hyderabad", "Bengaluru", "Mumbai", "Delhi NCR", "Chennai", "Pune"];
+const loadLocation = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LOCATION_KEY));
+    return saved?.title && inHyderabad(saved) ? saved : DEFAULT_LOCATION;
+  } catch {
+    return DEFAULT_LOCATION;
+  }
+};
 
 export function UIProvider({ children }) {
   const [authMode, setAuthMode] = useState(null);
-  const [city, setCityState] = useState(() => localStorage.getItem(CITY_KEY) || CITIES[0]);
+  const [location, setLocationState] = useState(loadLocation);
+  const [locationOpen, setLocationOpen] = useState(false);
 
-  const setCity = (next) => {
-    setCityState(next);
-    localStorage.setItem(CITY_KEY, next);
+  const setLocation = (next) => {
+    setLocationState(next);
+    localStorage.setItem(LOCATION_KEY, JSON.stringify(next));
   };
 
   useEffect(() => {
-    document.body.style.overflow = authMode ? "hidden" : "";
+    document.body.style.overflow = authMode || locationOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [authMode]);
+  }, [authMode, locationOpen]);
 
   return (
     <UIContext.Provider
@@ -28,8 +36,11 @@ export function UIProvider({ children }) {
         authMode,
         openAuth: setAuthMode,
         closeAuth: () => setAuthMode(null),
-        city,
-        setCity,
+        location,
+        setLocation,
+        locationOpen,
+        openLocation: () => setLocationOpen(true),
+        closeLocation: () => setLocationOpen(false),
       }}
     >
       {children}

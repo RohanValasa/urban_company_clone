@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import { useUI, CITIES } from "../context/UIContext";
+import { useUI } from "../context/UIContext";
 
 const SERVICE_LINKS = [
   { label: "Salon", category: "Beauty" },
@@ -13,12 +13,11 @@ const SERVICE_LINKS = [
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [cityOpen, setCityOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [term, setTerm] = useState("");
   const { count } = useCart();
   const { user, logout } = useAuth();
-  const { city, setCity, openAuth } = useUI();
+  const { location, openLocation, openAuth } = useUI();
   const navigate = useNavigate();
   const menusRef = useRef(null);
 
@@ -32,7 +31,6 @@ export default function Nav() {
   useEffect(() => {
     const onClick = (e) => {
       if (menusRef.current && !menusRef.current.contains(e.target)) {
-        setCityOpen(false);
         setUserOpen(false);
       }
     };
@@ -74,33 +72,15 @@ export default function Nav() {
 
       <div className="nav-tools" ref={menusRef}>
         <div className="nav-select">
-          <button className="nav-field" onClick={() => { setCityOpen((v) => !v); setUserOpen(false); }}>
+          <button
+            className="nav-field nav-location"
+            onClick={() => { openLocation(); setUserOpen(false); }}
+            title={location.subtitle || location.title}
+          >
             <span className="nav-field-icon">📍</span>
-            <span className="nav-field-text">{city}</span>
+            <span className="nav-field-text">{location.title}</span>
             <span className="nav-caret">▾</span>
           </button>
-          <AnimatePresence>
-            {cityOpen && (
-              <motion.ul
-                className="nav-dropdown"
-                initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                transition={{ duration: 0.16 }}
-              >
-                {CITIES.map((c) => (
-                  <li key={c}>
-                    <button
-                      className={c === city ? "active" : ""}
-                      onClick={() => { setCity(c); setCityOpen(false); }}
-                    >
-                      {c}
-                    </button>
-                  </li>
-                ))}
-              </motion.ul>
-            )}
-          </AnimatePresence>
         </div>
 
         <form className="nav-field nav-search" onSubmit={search}>
@@ -132,7 +112,7 @@ export default function Nav() {
         <div className="nav-select">
           <button
             className={`nav-icon-btn ${user ? "nav-avatar" : ""}`}
-            onClick={() => { setUserOpen((v) => !v); setCityOpen(false); }}
+            onClick={() => setUserOpen((v) => !v)}
             aria-label="Account"
           >
             {user ? user.name.charAt(0).toUpperCase() : "👤"}
