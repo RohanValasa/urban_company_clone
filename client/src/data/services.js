@@ -161,6 +161,44 @@ const APPLIANCE = {
   ],
 };
 
+// Shared copy for the electrician / plumber / carpenter style jobs.
+const HANDYMAN = {
+  areas: [
+    { label: "Verified professional", seed: "area-pro" },
+    { label: "Tools & safety kit", seed: "area-kit" },
+    { label: "Tested before handover", seed: "area-test" },
+    { label: "Clean-up after the job", seed: "area-clean" },
+  ],
+  faqs: [
+    {
+      q: "Is material included in the price?",
+      a: "Prices cover labour. If a part is needed, the professional shows you the rate card before buying it — or you can use your own.",
+    },
+    {
+      q: "What if the problem comes back?",
+      a: "Every job carries a 30-day warranty. Raise a request from your bookings and a professional comes back at no extra cost.",
+    },
+  ],
+};
+
+/**
+ * Turns compact rows into package specs for one tab.
+ * Each row is [name, price, duration?, extra?]; a row whose name starts
+ * with "Combo" is tagged as a combo automatically.
+ */
+const jobs = (prefix, tab, rows) =>
+  rows.map(([name, price, duration = "45 min", extra = {}], i) => ({
+    id: `${prefix}-${tab}-${i + 1}`,
+    name,
+    tab,
+    price,
+    duration,
+    seed: `${prefix}${tab}${i + 1}`,
+    bullets: ["Labour only, parts at rate-card price"],
+    ...(name.startsWith("Combo") && { badge: "COMBO", mrp: Math.round(price * 1.2), bullets: ["Bundle of the most booked jobs in this tab"] }),
+    ...extra,
+  }));
+
 export const SUBCATEGORIES = {
   "bathroom-cleaning": sub({
     slug: "bathroom-cleaning",
@@ -697,7 +735,20 @@ export const SUBCATEGORIES = {
     caption: "Sparks, sorted.",
     rating: 4.75,
     bookings: "176K bookings",
-    tabs: [{ id: "value", label: "Popular jobs", tag: "MOST BOOKED" }, { id: "deep", label: "Wiring", icon: "🔌" }, { id: "mini", label: "Quick fixes", icon: "⚡" }],
+    eta: "In 38 mins",
+    tabs: [
+      { id: "switch", label: "Switch & socket" },
+      { id: "fan", label: "Fan" },
+      { id: "light", label: "Light" },
+      { id: "wiring", label: "Wiring" },
+      { id: "mcb", label: "MCB, fuse & inverter" },
+      { id: "door", label: "Doorbell & security" },
+      { id: "tv", label: "TV & speaker" },
+      { id: "festive", label: "Festive lights" },
+      { id: "ev", label: "EV plug installation" },
+      { id: "consult", label: "Book a consultation" },
+    ],
+    ...HANDYMAN,
     covered: ["Fault diagnosis and safe isolation", "Switch, socket and MCB work", "Fan and light installation", "Testing after the job", "30-day warranty on workmanship"],
     notCovered: ["Material cost unless agreed", "Work on the building's main panel", "Wall chiselling and repainting"],
     equipment: [
@@ -707,9 +758,73 @@ export const SUBCATEGORIES = {
       { label: "Ladder", seed: "eq-ladder" },
     ],
     packageSpecs: [
-      { id: "elec-visit", name: "Electrician consultation", price: 49, duration: "30 min", seed: "elec1", bullets: ["Visit fee adjusted against the job"] },
-      { id: "elec-fan", name: "Ceiling fan replace / install", price: 99, duration: "45 min", seed: "elec2", bullets: ["Includes down-rod fitting"] },
-      { id: "elec-switch", name: "Switchboard repair", tab: "mini", price: 199, duration: "45 min", seed: "elec3", bullets: ["Loose contacts and burnt sockets"] },
+      ...jobs("elec", "switch", [
+        ["Combo for switches & sockets", 249, "1 hr"],
+        ["Switch replace / install", 69, "20 min"],
+        ["Socket replace / install", 79, "20 min"],
+        ["Full switchboard replace / install", 249, "1 hr"],
+        ["Fan regulator replace / install", 99, "30 min"],
+        ["Plug replacement", 59, "15 min"],
+      ]),
+      ...jobs("elec", "fan", [
+        ["Combo for fans", 349, "1.5 hrs"],
+        ["Fan repair", 149],
+        ["Regular ceiling fan replace / install", 119],
+        ["Smart / BLDC ceiling fan replace / install", 199, "1 hr"],
+        ["Decorative fan replace / install", 299, "1 hr"],
+        ["Exhaust fan replace / install", 149],
+        ["Wall / table fan replace / install", 99, "30 min"],
+      ]),
+      ...jobs("elec", "light", [
+        ["Combo for lights", 299, "1 hr"],
+        ["Tube light replace / install", 79, "30 min"],
+        ["Ceiling lights replace / install", 129],
+        ["Bulb & holder replace / install", 59, "20 min"],
+        ["Wall mounted lights replace / install", 99, "30 min"],
+        ["Outdoor lights replace / install", 149],
+        ["Hanging lights replace / install", 199, "1 hr"],
+        ["Chandelier replace / install", 599, "2 hrs"],
+      ]),
+      ...jobs("elec", "wiring", [
+        ["External with clips (per 5m)", 199, "45 min"],
+        ["External with casing (per 5m)", 299, "1 hr"],
+        ["Internal", 499, "2 hrs", { bullets: ["Concealed wiring through existing conduits"] }],
+      ]),
+      ...jobs("elec", "mcb", [
+        ["MCB switch replace / install", 149],
+        ["Main board replace / install", 699, "2 hrs"],
+        ["Submeter installation", 449, "1 hr"],
+        ["Inverter check-up / service / install / uninstall", 299, "1 hr"],
+        ["Stabiliser installation", 199, "30 min"],
+      ]),
+      ...jobs("elec", "door", [
+        ["Doorbell replace / install", 99, "30 min"],
+        ["Video door phone (without display)", 399, "1 hr"],
+        ["Video door phone (with display)", 599, "1.5 hrs"],
+        ["Wireless CCTV install / uninstall", 349, "1 hr"],
+      ]),
+      ...jobs("elec", "tv", [
+        ["TV installation", 399, "1 hr"],
+        ["TV uninstallation", 249],
+        ["TV socket installation", 149],
+        ["Sound bar installation", 349, "1 hr"],
+        ["Home theatre installation", 699, "2 hrs"],
+      ]),
+      ...jobs("elec", "festive", [
+        ["Light installation (per string)", 49, "15 min"],
+        ["Light uninstallation (per light)", 29, "10 min"],
+        ["Balcony lights installation (starry)", 399, "1 hr"],
+        ["Balcony lights installation (string)", 299, "1 hr"],
+        ["Railing lights installation (rope)", 349, "1 hr"],
+        ["Railing lights installation (string)", 249, "45 min"],
+      ]),
+      ...jobs("elec", "ev", [
+        ["2-wheeler EV charger installation", 499, "1 hr"],
+        ["4-wheeler EV charger installation", 1499, "2.5 hrs", { bullets: ["Dedicated line from the meter board"] }],
+      ]),
+      ...jobs("elec", "consult", [
+        ["Electrician consultation", 49, "30 min", { bullets: ["Visit fee adjusted against the job"] }],
+      ]),
     ],
   }),
 
@@ -722,7 +837,19 @@ export const SUBCATEGORIES = {
     caption: "Leaks stop here.",
     rating: 4.74,
     bookings: "214K bookings",
-    tabs: [{ id: "value", label: "Popular jobs", tag: "MOST BOOKED" }, { id: "deep", label: "Bathroom fittings", icon: "🚿" }, { id: "mini", label: "Quick fixes", icon: "⚡" }],
+    eta: "In 42 mins",
+    tabs: [
+      { id: "tap", label: "Tap & mixer" },
+      { id: "toilet", label: "Toilet" },
+      { id: "bath", label: "Bath & shower" },
+      { id: "acc", label: "Bath accessories" },
+      { id: "basin", label: "Basin & sink" },
+      { id: "drain", label: "Drainage & blockage" },
+      { id: "appliance", label: "Appliance connection" },
+      { id: "tank", label: "Water tank & motor" },
+      { id: "consult", label: "At home consultation" },
+    ],
+    ...HANDYMAN,
     covered: ["Leak tracing and sealing", "Tap, mixer and shower fitting", "Flush tank repair", "Drain unclogging", "30-day warranty on workmanship"],
     notCovered: ["Material cost unless agreed", "Breaking of tiles or slabs", "Common building pipeline work"],
     equipment: [
@@ -732,9 +859,61 @@ export const SUBCATEGORIES = {
       { label: "Bucket & mat", seed: "eq-mat" },
     ],
     packageSpecs: [
-      { id: "plumb-visit", name: "Plumber consultation", price: 49, duration: "30 min", seed: "plumb1", bullets: ["Visit fee adjusted against the job"] },
-      { id: "plumb-flush", name: "Flush tank repair", price: 199, duration: "45 min", seed: "plumb2", bullets: ["Valve, float and seal"] },
-      { id: "plumb-drain", name: "Drain unclogging", tab: "mini", price: 299, duration: "1 hr", seed: "plumb3", bullets: ["Machine assisted"] },
+      ...jobs("plumb", "tap", [
+        ["Combo for tap & mixer", 249, "1 hr"],
+        ["Tap repair", 99, "30 min"],
+        ["Tap installation / replacement", 129, "30 min"],
+        ["Tap accessory installation", 79, "20 min"],
+      ]),
+      ...jobs("plumb", "toilet", [
+        ["Combo for toilet", 399, "1.5 hrs"],
+        ["Jet spray repair / replacement", 99, "30 min"],
+        ["Toilet seat cover installation", 149, "30 min"],
+        ["Flush tank repair", 199],
+        ["External flush tank replacement", 349, "1 hr"],
+        ["Toilet repair", 249, "1 hr"],
+        ["Toilet replacement", 1299, "3 hrs"],
+        ["Pot blockage", 349, "1 hr", { bullets: ["Machine assisted"] }],
+      ]),
+      ...jobs("plumb", "bath", [
+        ["Shower repair", 149],
+        ["Shower installation", 199],
+        ["Shower filter installation", 149, "30 min"],
+        ["Shower mixer tap installation", 299, "1 hr"],
+      ]),
+      ...jobs("plumb", "acc", [
+        ["Combo for bath accessories", 249, "1 hr"],
+        ["Soap holder installation", 79, "20 min"],
+        ["Towel holder installation", 99, "20 min"],
+        ["Shelf installation", 119, "30 min"],
+      ]),
+      ...jobs("plumb", "basin", [
+        ["Wash basin leakage repair", 149],
+        ["Wash basin blockage removal", 199],
+        ["Wash basin installation", 599, "1.5 hrs"],
+        ["Waste coupling installation", 129, "30 min"],
+      ]),
+      ...jobs("plumb", "drain", [
+        ["Combo for drainage & blockage", 399, "1.5 hrs"],
+        ["Drain cover installation", 99, "20 min"],
+        ["Drain blockage removal", 249, "1 hr", { bullets: ["Machine assisted"] }],
+      ]),
+      ...jobs("plumb", "appliance", [
+        ["Connection hose installation", 99, "20 min"],
+        ["Washing machine inlet installation", 149, "30 min"],
+        ["RO water connection installation", 199],
+        ["Geyser connection leakage repair", 199],
+        ["Shut-off valve leakage repair", 149, "30 min"],
+      ]),
+      ...jobs("plumb", "tank", [
+        ["Combo for water tank & motor", 699, "2 hrs"],
+        ["Overhead water tank installation", 999, "3 hrs"],
+        ["Water tank repair", 349, "1 hr"],
+        ["Motor installation", 599, "1.5 hrs"],
+      ]),
+      ...jobs("plumb", "consult", [
+        ["Plumber consultation", 49, "30 min", { bullets: ["Visit fee adjusted against the job"] }],
+      ]),
     ],
   }),
 
@@ -748,6 +927,7 @@ export const SUBCATEGORIES = {
     rating: 4.66,
     bookings: "191K bookings",
     tabs: [{ id: "value", label: "Popular jobs", tag: "MOST BOOKED" }, { id: "deep", label: "Furniture", icon: "🪑" }, { id: "mini", label: "Quick fixes", icon: "⚡" }],
+    ...HANDYMAN,
     covered: ["Door, drawer and hinge repair", "Furniture assembly", "Curtain rod and shelf mounting", "Alignment and lubrication", "30-day warranty on workmanship"],
     notCovered: ["Material and hardware cost", "Polishing and painting", "Custom furniture making"],
     equipment: [
@@ -760,6 +940,164 @@ export const SUBCATEGORIES = {
       { id: "carp-visit", name: "Book a carpenter", price: 49, duration: "30 min", seed: "carp1", bullets: ["Visit fee adjusted against the job"] },
       { id: "carp-hinge", name: "Door hinge repair", price: 199, duration: "45 min", seed: "carp2", bullets: ["Up to 2 doors"] },
       { id: "carp-assemble", name: "Furniture assembly", tab: "deep", price: 599, duration: "1.5 hrs", seed: "carp3", bullets: ["Flat-pack beds and wardrobes"] },
+    ],
+  }),
+
+  "furniture-assembly": sub({
+    slug: "furniture-assembly",
+    label: "Furniture Assembly",
+    icon: "🗄️",
+    tone: "#fef3c7",
+    hero: "assembly-hero",
+    caption: "Out of the box, into the room.",
+    rating: 4.78,
+    bookings: "95K bookings",
+    eta: "In 60 mins",
+    tabs: [
+      { id: "assemble", label: "Assembly" },
+      { id: "dismantle", label: "Dismantling" },
+    ],
+    ...HANDYMAN,
+    covered: ["Assembly as per the maker's manual", "Wall anchoring for tall units", "Levelling and door alignment", "Packaging cleared to one spot", "30-day warranty on workmanship"],
+    notCovered: ["Missing parts from the seller", "Cutting or modifying panels", "Carrying up stairs beyond one floor"],
+    equipment: [
+      { label: "Cordless drill", seed: "eq-cdrill" },
+      { label: "Allen key set", seed: "eq-allen" },
+      { label: "Spirit level", seed: "eq-level" },
+      { label: "Dust sheet", seed: "eq-dust" },
+    ],
+    packageSpecs: [
+      ...jobs("fa", "assemble", [
+        ["Bed assembly", 699, "1.5 hrs"],
+        ["Wardrobe assembly", 899, "2 hrs"],
+        ["Table / desk assembly", 399, "1 hr"],
+        ["Chair / stool assembly", 149, "20 min"],
+      ]),
+      ...jobs("fa", "dismantle", [
+        ["Bed dismantling", 499, "1 hr"],
+        ["Wardrobe dismantling", 599, "1.5 hrs"],
+      ]),
+    ],
+  }),
+
+  "flatpack-assembly": sub({
+    slug: "flatpack-assembly",
+    label: "Flat-pack Furniture Assembly",
+    icon: "📦",
+    tone: "#e0f2fe",
+    hero: "flatpack-hero",
+    caption: "Every screw, accounted for.",
+    rating: 4.8,
+    bookings: "40K bookings",
+    eta: "In 60 mins",
+    tabs: [{ id: "flatpack", label: "Flat-pack assembly" }],
+    ...HANDYMAN,
+    covered: ["Assembly as per the maker's manual", "Wall anchoring for tall units", "Levelling and door alignment", "Packaging cleared to one spot", "30-day warranty on workmanship"],
+    notCovered: ["Missing parts from the seller", "Cutting or modifying panels", "Carrying up stairs beyond one floor"],
+    equipment: [
+      { label: "Cordless drill", seed: "eq-cdrill" },
+      { label: "Allen key set", seed: "eq-allen" },
+      { label: "Spirit level", seed: "eq-level" },
+      { label: "Dust sheet", seed: "eq-dust" },
+    ],
+    packageSpecs: jobs("fp", "flatpack", [
+      ["Flat-pack bed", 649, "1.5 hrs"],
+      ["Flat-pack wardrobe", 849, "2 hrs"],
+      ["Flat-pack chest of drawers", 449, "1 hr"],
+      ["Flat-pack bookshelf", 299, "45 min"],
+    ]),
+  }),
+
+  "tile-grouting": sub({
+    slug: "tile-grouting",
+    label: "Tile Grouting",
+    icon: "🧱",
+    tone: "#ffe4e6",
+    hero: "grout-hero",
+    caption: "Lines like new.",
+    rating: 4.7,
+    bookings: "30K bookings",
+    eta: "In 90 mins",
+    tabs: [{ id: "grout", label: "Tile grouting" }],
+    ...HANDYMAN,
+    covered: ["Old grout raked out", "Epoxy or cement grout as chosen", "Excess wiped from the tiles", "24-hour curing guidance", "30-day warranty on workmanship"],
+    notCovered: ["Replacing cracked tiles", "Waterproofing below the tiles", "Grout colour matching to the original"],
+    equipment: [
+      { label: "Grout rake", seed: "eq-rake" },
+      { label: "Rubber float", seed: "eq-float" },
+      { label: "Epoxy kit", seed: "eq-epoxy" },
+      { label: "Dust sheet", seed: "eq-dust" },
+    ],
+    packageSpecs: jobs("tg", "grout", [
+      ["Bathroom floor grouting", 899, "2 hrs"],
+      ["Bathroom wall & floor grouting", 1799, "4 hrs"],
+      ["Kitchen backsplash grouting", 999, "2.5 hrs"],
+      ["Floor grouting (per 100 sq ft)", 699, "2 hrs"],
+    ]),
+  }),
+
+  "festive-lights": sub({
+    slug: "festive-lights",
+    label: "Festive Lights Installation",
+    icon: "✨",
+    tone: "#fef9c3",
+    hero: "festive-hero",
+    caption: "Light up the whole block.",
+    rating: 4.79,
+    bookings: "25K bookings",
+    eta: "In 45 mins",
+    tabs: [{ id: "festive", label: "Festive lights" }],
+    ...HANDYMAN,
+    covered: ["Safe routing along railings and walls", "Timer or switch hook-up", "Load check on the socket", "Take-down on request", "30-day warranty on workmanship"],
+    notCovered: ["Light strings and fixtures", "Work above two floors outside", "Permanent wiring"],
+    equipment: [
+      { label: "Tester & meter", seed: "eq-tester" },
+      { label: "Cable clips", seed: "eq-clips" },
+      { label: "Insulated tools", seed: "eq-insul" },
+      { label: "Ladder", seed: "eq-ladder" },
+    ],
+    packageSpecs: jobs("fl", "festive", [
+      ["Light installation (per string)", 49, "15 min"],
+      ["Light uninstallation (per light)", 29, "10 min"],
+      ["Balcony lights installation (starry)", 399, "1 hr"],
+      ["Balcony lights installation (string)", 299, "1 hr"],
+      ["Railing lights installation (rope)", 349, "1 hr"],
+      ["Railing lights installation (string)", 249, "45 min"],
+    ]),
+  }),
+
+  "wall-panels": sub({
+    slug: "wall-panels",
+    label: "Wall Panels",
+    icon: "🪵",
+    tone: "#ede9fe",
+    hero: "panel-hero",
+    caption: "A new wall in a day.",
+    rating: 4.82,
+    bookings: "12K bookings",
+    eta: "In 90 mins",
+    tabs: [
+      { id: "panels", label: "Wall panels" },
+      { id: "consult", label: "Design consultation" },
+    ],
+    ...HANDYMAN,
+    covered: ["Measurement and layout marking", "Panel cutting on site", "Edge trims and finishing", "Site cleaned after fitting", "1-year workmanship warranty"],
+    notCovered: ["Electrical point shifting", "Wall repair before fitting", "Painting of adjoining walls"],
+    equipment: [
+      { label: "Laser level", seed: "eq-laser" },
+      { label: "Panel saw", seed: "eq-saw" },
+      { label: "Adhesive gun", seed: "eq-glue" },
+      { label: "Dust sheet", seed: "eq-dust" },
+    ],
+    packageSpecs: [
+      ...jobs("wp", "panels", [
+        ["Fluted panels (per 10 sq ft)", 1499, "1 day"],
+        ["Louvre panels (per 10 sq ft)", 1299, "1 day"],
+        ["Marble-finish sheets (per 10 sq ft)", 1799, "1 day"],
+      ]),
+      ...jobs("wp", "consult", [
+        ["Wall panel design consultation", 199, "45 min", { bullets: ["Samples, measurement and a written quote"] }],
+      ]),
     ],
   }),
 
@@ -827,8 +1165,8 @@ export const CATEGORY_GROUPS = {
     slug: "repair-group",
     title: "Electrician, Plumber & Carpenter",
     sections: [
-      { title: "On-demand pros", items: ["electrician", "plumber", "carpenter"] },
-      { title: "Also booked", items: ["painting"] },
+      { title: "Home repairs", items: ["electrician", "plumber", "carpenter"] },
+      { title: "Home installation", items: ["furniture-assembly", "geyser", "flatpack-assembly", "tile-grouting", "festive-lights", "wall-panels"] },
     ],
   },
   "painting-group": {
