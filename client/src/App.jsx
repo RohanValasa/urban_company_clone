@@ -1,20 +1,57 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Services from "./pages/Services";
+import Cart from "./pages/Cart";
+import Bookings from "./pages/Bookings";
+import ProfessionalDashboard from "./pages/ProfessionalDashboard";
+import Collection from "./pages/Collection";
+import ServicePage from "./pages/ServicePage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ScrollProgress from "./components/ScrollProgress";
+import Footer from "./components/Footer";
+import Nav from "./components/Nav";
+import AuthModal from "./components/AuthModal";
+import LocationModal from "./components/LocationModal";
+import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import { UIProvider } from "./context/UIContext";
 import "./App.css";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <nav className="nav">
-        <Link to="/" className="logo">UrbanClone</Link>
-        <div className="nav-links">
-          <Link to="/">Services</Link>
-          <Link to="/bookings">My Bookings</Link>
-        </div>
-      </nav>
-      <Routes>
-        <Route path="/" element={<Services />} />
-      </Routes>
+      <AuthProvider>
+        <UIProvider>
+          <CartProvider>
+            <ScrollProgress />
+            <Nav />
+            <AuthModal />
+            <LocationModal />
+            <Routes>
+              <Route path="/" element={<Services />} />
+              <Route path="/collection/:slug" element={<Collection />} />
+              <Route path="/s/:slug" element={<ServicePage />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route
+                path="/bookings"
+                element={
+                  <ProtectedRoute role="customer">
+                    <Bookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/professional/dashboard"
+                element={
+                  <ProtectedRoute role="professional">
+                    <ProfessionalDashboard />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+            <Footer />
+          </CartProvider>
+        </UIProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
