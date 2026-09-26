@@ -72,7 +72,7 @@ export default function Hero() {
             {CATEGORY_TILES.map((t) => (
               <motion.div variants={tile} key={t.label}>
                 <button type="button" className="tile" onClick={() => setGroup(findGroup(t.group))}>
-                  <span className="tile-art" style={{ background: t.tone }}>
+                  <span className="tile-art">
                     <span>{t.icon}</span>
                   </span>
                   <span className="tile-label">{t.label}</span>
@@ -86,7 +86,7 @@ export default function Hero() {
             {SMART_TILES.map((t) => (
               <motion.div variants={tile} key={t.label}>
                 <Link to="/?category=Appliance" className="tile">
-                  <span className="tile-art" style={{ background: t.tone }}>
+                  <span className="tile-art">
                     <span>{t.icon}</span>
                     <em className="tile-badge">{t.badge}</em>
                   </span>

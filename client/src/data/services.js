@@ -1031,6 +1031,44 @@ export const SUBCATEGORIES = {
     ],
   }),
 
+  "insta-help": sub({
+    slug: "insta-help",
+    label: "Instant Help",
+    icon: "🙋‍♀️",
+    tone: "#fce7f3",
+    hero: "insta-hero",
+    caption: "An extra pair of hands, fast.",
+    rating: 4.76,
+    bookings: "120K bookings",
+    eta: "In 15 mins",
+    tabs: [
+      { id: "hourly", label: "Hourly help" },
+      { id: "tasks", label: "Quick tasks" },
+    ],
+    ...HANDYMAN,
+    covered: ["Verified, trained helper", "Dishes, laundry, dusting or kitchen prep", "You choose the tasks on arrival", "Cleaning supplies from your home", "Extend by the hour if needed"],
+    notCovered: ["Deep cleaning or machine work", "Cooking full meals", "Heavy lifting or shifting furniture"],
+    equipment: [
+      { label: "Microfibre cloths", seed: "eq-cloth" },
+      { label: "Gloves & apron", seed: "eq-gloves" },
+      { label: "Spray bottle", seed: "eq-spray" },
+      { label: "Shoe covers", seed: "eq-shoes" },
+    ],
+    packageSpecs: [
+      ...jobs("ih", "hourly", [
+        ["1 hour of help", 199, "1 hr", { bullets: ["Any mix of light household tasks"] }],
+        ["2 hours of help", 379, "2 hrs", { mrp: 398, bullets: ["Any mix of light household tasks"] }],
+        ["3 hours of help", 549, "3 hrs", { mrp: 597, bullets: ["Any mix of light household tasks"] }],
+      ]),
+      ...jobs("ih", "tasks", [
+        ["Dishwashing", 149, "45 min"],
+        ["Laundry & folding", 179, "1 hr"],
+        ["Kitchen prep", 199, "1 hr"],
+        ["Dusting & tidying", 169, "1 hr"],
+      ]),
+    ],
+  }),
+
   "furniture-assembly": sub({
     slug: "furniture-assembly",
     label: "Furniture Assembly",
@@ -1265,20 +1303,20 @@ export const CATEGORY_GROUPS = {
       { title: "Repairs before painting", items: ["carpenter", "plumber"] },
     ],
   },
-  "carpenter-group": {
-    slug: "carpenter-group",
-    title: "Carpenter & Repairs",
+  "insta-group": {
+    slug: "insta-group",
+    title: "Instant Help",
     sections: [
-      { title: "Carpentry", items: ["carpenter"] },
-      { title: "Also booked", items: ["electrician", "plumber"] },
+      { title: "Help at home", items: ["insta-help"] },
+      { title: "Also booked", items: ["bathroom-cleaning", "kitchen-cleaning"] },
     ],
   },
-  "purifier-group": {
-    slug: "purifier-group",
-    title: "Water Purifier Care",
+  "wall-panels-group": {
+    slug: "wall-panels-group",
+    title: "Wall Panels",
     sections: [
-      { title: "Purifier", items: ["water-purifier"] },
-      { title: "Also booked", items: ["geyser", "ac"] },
+      { title: "Wall panels", items: ["wall-panels"] },
+      { title: "Also booked", items: ["painting", "carpenter"] },
     ],
   },
 };
