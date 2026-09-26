@@ -167,7 +167,7 @@ export default function AuthModal() {
                   </motion.button>
 
                   <motion.p className="modal-switch" variants={field}>
-                    New to UrbanClone?{" "}
+                    New to Servify?{" "}
                     <button type="button" onClick={() => switchTo("signup")}>Create an account</button>
                   </motion.p>
                 </motion.form>

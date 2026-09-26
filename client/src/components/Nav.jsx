@@ -58,7 +58,7 @@ export default function Nav() {
     >
       <Link to="/" className="logo">
         <motion.span whileHover={{ rotate: [0, -6, 6, -3, 0] }} transition={{ duration: 0.5 }}>
-          UrbanClone
+          Servify
         </motion.span>
       </Link>
 

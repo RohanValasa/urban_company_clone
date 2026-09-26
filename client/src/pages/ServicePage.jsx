@@ -177,7 +177,7 @@ export default function ServicePage() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="sp-promise-head">
-              <h3>UrbanClone Promise</h3>
+              <h3>Servify Promise</h3>
               <span className="sp-seal">QUALITY<br />ASSURED</span>
             </div>
             {["Verified professionals", "Hassle free booking", "Transparent pricing"].map((t, i) => (

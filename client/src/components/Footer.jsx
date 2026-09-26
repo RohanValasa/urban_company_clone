@@ -51,8 +51,8 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-inner">
         <Link to="/" className="footer-brand">
-          <span className="footer-mark">UC</span>
-          <span className="footer-name">Urban<br />Clone</span>
+          <span className="footer-mark">S</span>
+          <span className="footer-name">Servify</span>
         </Link>
 
         <div className="footer-cols">
@@ -99,7 +99,7 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <p>* Prices shown are indicative and vary by city.</p>
-          <p>© 2026 UrbanClone — a personal learning project. Not affiliated with, or endorsed by, any real home-services company.</p>
+          <p>© 2026 Servify — a personal learning project. Not affiliated with, or endorsed by, any real home-services company.</p>
         </div>
       </div>
     </footer>
