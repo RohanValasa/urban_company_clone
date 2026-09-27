@@ -186,7 +186,9 @@ const HANDYMAN = {
  * Each row is [name, price, duration?, extra?]; a row whose name starts
  * with "Combo" is tagged as a combo automatically.
  */
-const jobs = (prefix, tab, rows) =>
+// Builds a tab's rows from [name, price, duration, extra] tuples; `bullet` is
+// the default line under each row.
+const menu = (bullet) => (prefix, tab, rows) =>
   rows.map(([name, price, duration = "45 min", extra = {}], i) => ({
     id: `${prefix}-${tab}-${i + 1}`,
     name,
@@ -194,10 +196,42 @@ const jobs = (prefix, tab, rows) =>
     price,
     duration,
     seed: `${prefix}${tab}${i + 1}`,
-    bullets: ["Labour only, parts at rate-card price"],
-    ...(name.startsWith("Combo") && { badge: "COMBO", mrp: Math.round(price * 1.2), bullets: ["Bundle of the most booked jobs in this tab"] }),
+    bullets: [bullet],
+    ...(name.startsWith("Combo") && { badge: "COMBO", mrp: Math.round(price * 1.2), bullets: ["Bundle of the most booked services in this tab"] }),
     ...extra,
   }));
+
+const jobs = menu("Labour only, parts at rate-card price");
+const treatments = menu("Single-use kit, products opened in front of you");
+
+// Shared copy for the salon, spa and massage services.
+const SALON = {
+  areas: [
+    { label: "Single-use kit", seed: "area-kit" },
+    { label: "Branded products", seed: "area-brand" },
+    { label: "Sanitised tools", seed: "area-tools" },
+    { label: "Professional setup", seed: "area-bed" },
+  ],
+  covered: ["Single-use disposable kit for every booking", "Branded products, seals opened in front of you", "Trained and background-verified professional", "Setup and clean-up included", "Free reschedule up to 2 hours before"],
+  notCovered: ["Services with products you supply", "Treatment of skin or scalp conditions", "Services for clients under 12"],
+  equipment: [
+    { label: "Steamer", seed: "eq-steamer" },
+    { label: "Wax heater", seed: "eq-wax" },
+    { label: "Sanitised tool kit", seed: "eq-kit" },
+    { label: "Disposable sheets", seed: "eq-sheets" },
+  ],
+  faqs: [
+    { q: "What do I need to arrange?", a: "Just a well-lit spot near a power socket. The professional brings everything else, including sheets for the floor." },
+    { q: "Are the products safe for sensitive skin?", a: "Tell the professional before starting and they will patch test or switch to a gentler product." },
+  ],
+};
+
+const MASSAGE_EQUIPMENT = [
+  { label: "Foldable massage bed", seed: "eq-bed" },
+  { label: "Massage oils", seed: "eq-oil" },
+  { label: "Fresh towels", seed: "eq-towel" },
+  { label: "Disposable sheets", seed: "eq-sheets" },
+];
 
 export const SUBCATEGORIES = {
   "bathroom-cleaning": sub({
@@ -433,47 +467,213 @@ export const SUBCATEGORIES = {
   "salon-women": sub({
     slug: "salon-women",
     label: "Salon for Women",
-    icon: "💆‍♀️",
-    tone: "#fce7f3",
+    icon: "🧖‍♀️",
     hero: "salonw-hero",
     caption: "Salon-grade, at home.",
     rating: 4.86,
     bookings: "2.1 M bookings",
-    tabs: [{ id: "value", label: "Packages", tag: "COMBO DEALS" }, { id: "deep", label: "Facial & cleanup", icon: "🧖‍♀️" }, { id: "mini", label: "Quick services", icon: "⚡" }],
-    areas: [
-      { label: "Single-use kit", seed: "area-kit" },
-      { label: "Branded products", seed: "area-brand" },
-      { label: "Sanitised tools", seed: "area-tools" },
-      { label: "Professional bed", seed: "area-bed" },
+    slot: "Mon, 9:30 AM",
+    tabs: [
+      { id: "packages", label: "Packages" },
+      { id: "waxing", label: "Waxing" },
+      { id: "facial", label: "Facials" },
+      { id: "cleanup", label: "Cleanup" },
+      { id: "mani", label: "Manicure" },
+      { id: "pedi", label: "Pedicure" },
+      { id: "threading", label: "Threading & face waxing" },
+      { id: "bleach", label: "Bleach & detan" },
     ],
-    covered: ["Single-use disposable kit for every booking", "Branded products, seals opened in front of you", "Trained and background-verified beautician", "Setup and clean-up included", "Free reschedule up to 2 hours before"],
-    notCovered: ["Bridal or party makeup", "Hair colouring with your own product", "Services for clients under 12"],
-    equipment: [
-      { label: "Steamer", seed: "eq-steamer" },
-      { label: "Wax heater", seed: "eq-wax" },
-      { label: "Sanitised tool kit", seed: "eq-kit" },
-      { label: "Disposable sheets", seed: "eq-sheets" },
-    ],
+    ...SALON,
     packageSpecs: [
-      { id: "salon-wax", name: "Waxing (full arms + underarms)", price: 649, duration: "1 hr", seed: "wax1", bullets: ["Roll-on wax, single use"] },
-      { id: "salon-facial", name: "Facial & cleanup", tab: "deep", price: 1099, mrp: 1399, duration: "1.5 hrs", seed: "facial1", bullets: ["Includes steam and massage"] },
-      { id: "salon-mani", name: "Manicure & pedicure", price: 1049, mrp: 1249, duration: "1.5 hrs", seed: "mani1", bullets: ["Scrub, mask and polish"] },
-      { id: "salon-thread", name: "Threading & face care", tab: "mini", price: 249, duration: "30 min", seed: "thread1", bullets: ["Eyebrows, upper lip and chin"] },
+      ...treatments("sw", "packages", [
+        ["Combo: waxing, facial & threading", 1999, "2.5 hrs"],
+        ["Combo: manicure & pedicure", 1049, "1.5 hrs"],
+        ["Combo: full body waxing", 1499, "1.5 hrs"],
+      ]),
+      ...treatments("sw", "waxing", [
+        ["Full arms (incl. underarms)", 399, "30 min"],
+        ["Full legs", 499, "40 min"],
+        ["Underarms", 99, "10 min"],
+        ["Half legs", 299, "20 min"],
+        ["Stomach", 249, "15 min"],
+        ["Full body", 1299, "1.5 hrs"],
+      ]),
+      ...treatments("sw", "facial", [
+        ["Hydrating facial", 1199, "1 hr"],
+        ["Brightening facial", 1399, "1 hr"],
+        ["Anti-ageing facial", 1699, "1.25 hrs"],
+      ]),
+      ...treatments("sw", "cleanup", [
+        ["Classic cleanup", 599, "40 min"],
+        ["Fruit cleanup", 699, "45 min"],
+        ["Charcoal cleanup", 799, "45 min"],
+      ]),
+      ...treatments("sw", "mani", [
+        ["Classic manicure", 499, "40 min"],
+        ["Gel polish manicure", 799, "1 hr"],
+      ]),
+      ...treatments("sw", "pedi", [
+        ["Classic pedicure", 599, "45 min"],
+        ["Spa pedicure", 899, "1 hr"],
+      ]),
+      ...treatments("sw", "threading", [
+        ["Eyebrows", 49, "10 min"],
+        ["Upper lip", 29, "5 min"],
+        ["Full face threading", 199, "20 min"],
+        ["Full face waxing", 299, "20 min"],
+      ]),
+      ...treatments("sw", "bleach", [
+        ["Face & neck bleach", 349, "30 min"],
+        ["Face detan", 299, "30 min"],
+        ["Full arms detan", 399, "30 min"],
+      ]),
+    ],
+  }),
+
+  "spa-women": sub({
+    slug: "spa-women",
+    label: "Spa for Women",
+    icon: "💆‍♀️",
+    hero: "spaw-hero",
+    caption: "Unwind without stepping out.",
+    rating: 4.85,
+    bookings: "1.2 M bookings",
+    slot: "Mon, 10:00 AM",
+    tabs: [
+      { id: "stress", label: "Stress relief" },
+      { id: "pain", label: "Pain relief" },
+      { id: "scrub", label: "Scrubs & polishing" },
+      { id: "addon", label: "Add-ons" },
+    ],
+    ...SALON,
+    equipment: MASSAGE_EQUIPMENT,
+    packageSpecs: [
+      ...treatments("spw", "stress", [
+        ["Swedish massage (60 min)", 1299, "1 hr"],
+        ["Balinese massage (60 min)", 1499, "1 hr"],
+        ["Aromatherapy massage (60 min)", 1399, "1 hr"],
+      ]),
+      ...treatments("spw", "pain", [
+        ["Deep tissue massage (60 min)", 1599, "1 hr"],
+        ["Back & shoulder massage (30 min)", 899, "30 min"],
+        ["Foot reflexology (30 min)", 699, "30 min"],
+      ]),
+      ...treatments("spw", "scrub", [
+        ["Full body scrub", 1499, "45 min"],
+        ["Body polishing", 1799, "1 hr"],
+      ]),
+      ...treatments("spw", "addon", [
+        ["Head massage (15 min)", 299, "15 min"],
+        ["Hot stone upgrade", 399, "15 min"],
+      ]),
+    ],
+  }),
+
+  "hair-studio-women": sub({
+    slug: "hair-studio-women",
+    label: "Hair Studio for Women",
+    icon: "💇‍♀️",
+    hero: "hairw-hero",
+    caption: "Cuts, colour and care.",
+    rating: 4.84,
+    bookings: "640K bookings",
+    slot: "Mon, 11:00 AM",
+    tabs: [
+      { id: "cut", label: "Haircut & styling" },
+      { id: "color", label: "Hair colour" },
+      { id: "treat", label: "Hair treatments" },
+      { id: "smooth", label: "Smoothening & keratin" },
+    ],
+    ...SALON,
+    packageSpecs: [
+      ...treatments("hw", "cut", [
+        ["Haircut & blow-dry", 699, "1 hr"],
+        ["Hair trim", 399, "30 min"],
+        ["Blow-dry & styling", 499, "45 min"],
+      ]),
+      ...treatments("hw", "color", [
+        ["Root touch-up", 999, "1 hr"],
+        ["Global hair colour", 2499, "2 hrs"],
+        ["Highlights", 2999, "2.5 hrs"],
+      ]),
+      ...treatments("hw", "treat", [
+        ["Hair spa", 999, "1 hr"],
+        ["Anti-dandruff treatment", 1199, "1 hr"],
+      ]),
+      ...treatments("hw", "smooth", [
+        ["Keratin treatment", 3999, "3 hrs"],
+        ["Hair smoothening", 4499, "3.5 hrs"],
+      ]),
+    ],
+  }),
+
+  "makeup-styling": sub({
+    slug: "makeup-styling",
+    label: "Makeup, Saree & Styling",
+    icon: "💄",
+    hero: "makeup-hero",
+    caption: "Party ready, at home.",
+    rating: 4.88,
+    bookings: "210K bookings",
+    slot: "Mon, 12:00 PM",
+    tabs: [
+      { id: "makeup", label: "Party makeup" },
+      { id: "saree", label: "Saree draping" },
+      { id: "hair", label: "Hairstyling" },
+      { id: "bridal", label: "Bridal & engagement" },
+    ],
+    ...SALON,
+    notCovered: ["Outfit and jewellery", "Hair extensions", "Services for clients under 12"],
+    packageSpecs: [
+      ...treatments("mk", "makeup", [
+        ["Party makeup", 1999, "1 hr"],
+        ["HD party makeup", 2999, "1.25 hrs"],
+        ["Eye makeup", 799, "30 min"],
+      ]),
+      ...treatments("mk", "saree", [
+        ["Saree draping", 499, "20 min"],
+        ["Pre-pleating & box folding", 399, "30 min"],
+      ]),
+      ...treatments("mk", "hair", [
+        ["Bun or updo", 799, "40 min"],
+        ["Curls or waves", 699, "40 min"],
+      ]),
+      ...treatments("mk", "bridal", [
+        ["Engagement makeup & hair", 5999, "2.5 hrs"],
+        ["Bridal makeup & hair", 11999, "3.5 hrs"],
+      ]),
     ],
   }),
 
   "salon-men": sub({
     slug: "salon-men",
     label: "Salon for Men",
-    icon: "💈",
-    tone: "#e0e7ff",
+    icon: "🧔",
     hero: "salonm-hero",
     caption: "A chair at your place.",
     rating: 4.8,
-    bookings: "1.4 M bookings",
+    bookings: "9.3 M bookings",
+    slot: "Mon, 9:00 AM",
+    // Picking this card asks for a tier first instead of opening the page.
+    choices: [
+      {
+        slug: "salon-royale",
+        name: "Royale",
+        badge: "Top rated pros",
+        avatar: "🧔🏽",
+        blurb: "Only top professionals for advanced cuts, beard styling & facials.",
+        tags: ["Premium colour", "Luxury facials", "Ozone skincare"],
+      },
+      {
+        slug: "salon-prime",
+        name: "Prime",
+        avatar: "👨🏽",
+        blurb: "Everyday cuts, color & cleanup.",
+        tags: ["Everyday colour", "Grooming essentials"],
+      },
+    ],
     tabs: [{ id: "value", label: "Grooming", tag: "MOST BOOKED" }, { id: "deep", label: "Massage", icon: "💆‍♂️" }, { id: "mini", label: "Quick services", icon: "⚡" }],
-    covered: ["Sanitised clippers and blades", "Fresh cape and towel per booking", "Trained stylist", "Hair clean-up after the cut", "Free reschedule up to 2 hours before"],
-    notCovered: ["Hair colouring with your own product", "Bridal grooming packages", "Services under 12 years"],
+    ...SALON,
     equipment: [
       { label: "Clipper set", seed: "eq-clipper" },
       { label: "Sanitised blades", seed: "eq-blade" },
@@ -484,6 +684,167 @@ export const SUBCATEGORIES = {
       { id: "men-cut", name: "Haircut for men", price: 429, duration: "45 min", seed: "mcut", bullets: ["Consultation, cut and finish"] },
       { id: "men-beard", name: "Beard shape & trim", tab: "mini", price: 249, duration: "30 min", seed: "mbeard", bullets: ["Line-up with hot towel"] },
       { id: "men-massage", name: "Stress relief massage (60 min)", tab: "deep", price: 1299, mrp: 1499, duration: "1 hr", seed: "mmass", bullets: ["Head, neck, back and legs"] },
+    ],
+  }),
+
+  "salon-royale": sub({
+    slug: "salon-royale",
+    label: "Salon Royale",
+    icon: "🧔🏽",
+    hero: "royale-hero",
+    caption: "Top rated pros only.",
+    rating: 4.87,
+    bookings: "1.3 M bookings",
+    slot: "Mon, 10:30 AM",
+    tabs: [
+      { id: "packages", label: "Packages" },
+      { id: "pedicure", label: "Pedicure" },
+      { id: "hair", label: "Hair care" },
+      { id: "face", label: "Face care" },
+      { id: "shave", label: "Shave/beard grooming" },
+      { id: "color", label: "Hair color" },
+      { id: "massage", label: "Massage" },
+    ],
+    ...SALON,
+    equipment: [
+      { label: "Pro clipper set", seed: "eq-clipper" },
+      { label: "Sanitised blades", seed: "eq-blade" },
+      { label: "Facial steamer", seed: "eq-steamer" },
+      { label: "Portable chair", seed: "eq-chair" },
+    ],
+    packageSpecs: [
+      ...treatments("roy", "packages", [
+        ["Combo: haircut, beard styling & facial", 1799, "1.75 hrs"],
+        ["Combo: haircut & hair spa", 1199, "1.25 hrs"],
+        ["Combo: haircut & head massage", 749, "1 hr"],
+      ]),
+      ...treatments("roy", "pedicure", [
+        ["Classic pedicure", 699, "45 min"],
+        ["Spa pedicure with foot massage", 999, "1 hr"],
+      ]),
+      ...treatments("roy", "hair", [
+        ["Advanced haircut & styling", 549, "45 min"],
+        ["Kids haircut", 449, "30 min"],
+        ["Hair spa", 899, "45 min"],
+        ["Anti-dandruff treatment", 1099, "1 hr"],
+      ]),
+      ...treatments("roy", "face", [
+        ["Ozone cleanup", 899, "45 min"],
+        ["Luxury facial", 1499, "1 hr"],
+        ["Anti-tan facial", 1299, "1 hr"],
+      ]),
+      ...treatments("roy", "shave", [
+        ["Beard styling", 449, "30 min"],
+        ["Classic hot-towel shave", 499, "30 min"],
+      ]),
+      ...treatments("roy", "color", [
+        ["Beard colour", 499, "30 min"],
+        ["Global hair colour", 1199, "1 hr"],
+        ["Fashion highlights", 1799, "1.5 hrs"],
+      ]),
+      ...treatments("roy", "massage", [
+        ["Head massage (20 min)", 449, "20 min"],
+        ["Head, neck & shoulder massage (30 min)", 699, "30 min"],
+      ]),
+    ],
+  }),
+
+  "salon-prime": sub({
+    slug: "salon-prime",
+    label: "Salon Prime",
+    icon: "👨🏽",
+    hero: "prime-hero",
+    caption: "Everyday grooming, sorted.",
+    rating: 4.83,
+    bookings: "8.0 M bookings",
+    slot: "Mon, 9:00 AM",
+    tabs: [
+      { id: "packages", label: "Packages" },
+      { id: "cut", label: "Haircut & beard styling" },
+      { id: "facial", label: "Facial & cleanup" },
+      { id: "detan", label: "Detan" },
+      { id: "mani", label: "Manicure & pedicure" },
+      { id: "massage", label: "Massage" },
+      { id: "color", label: "Hair color" },
+    ],
+    ...SALON,
+    equipment: [
+      { label: "Clipper set", seed: "eq-clipper" },
+      { label: "Sanitised blades", seed: "eq-blade" },
+      { label: "Fresh cape & towel", seed: "eq-towel" },
+      { label: "Portable chair", seed: "eq-chair" },
+    ],
+    packageSpecs: [
+      ...treatments("prm", "packages", [
+        ["Combo: haircut & beard trim", 399, "45 min"],
+        ["Combo: haircut, cleanup & detan", 999, "1.5 hrs"],
+        ["Combo: haircut & head massage", 499, "50 min"],
+      ]),
+      ...treatments("prm", "cut", [
+        ["Haircut for men", 259, "30 min"],
+        ["Kids haircut", 249, "30 min"],
+        ["Beard trimming & styling", 249, "20 min"],
+        ["Clean shave", 249, "20 min"],
+      ]),
+      ...treatments("prm", "facial", [
+        ["Basic cleanup", 499, "30 min"],
+        ["Fruit facial", 799, "45 min"],
+      ]),
+      ...treatments("prm", "detan", [
+        ["Face & neck detan", 349, "30 min"],
+        ["Full arms detan", 449, "30 min"],
+      ]),
+      ...treatments("prm", "mani", [
+        ["Manicure", 399, "30 min"],
+        ["Pedicure", 499, "40 min"],
+      ]),
+      ...treatments("prm", "massage", [
+        ["Head massage (15 min)", 299, "15 min"],
+        ["Back & shoulder massage (20 min)", 449, "20 min"],
+      ]),
+      ...treatments("prm", "color", [
+        ["Beard colour", 299, "20 min"],
+        ["Global hair colour", 699, "45 min"],
+      ]),
+    ],
+  }),
+
+  "massage-men": sub({
+    slug: "massage-men",
+    label: "Massage for Men",
+    icon: "💆‍♂️",
+    hero: "massm-hero",
+    caption: "Knots out, at home.",
+    rating: 4.84,
+    bookings: "1.9 M bookings",
+    slot: "Mon, 10:00 AM",
+    tabs: [
+      { id: "stress", label: "Stress relief" },
+      { id: "pain", label: "Pain relief" },
+      { id: "sport", label: "Post-workout" },
+      { id: "addon", label: "Add-ons" },
+    ],
+    ...SALON,
+    equipment: MASSAGE_EQUIPMENT,
+    packageSpecs: [
+      ...treatments("mm", "stress", [
+        ["Swedish massage (60 min)", 1299, "1 hr"],
+        ["Aromatherapy massage (60 min)", 1399, "1 hr"],
+        ["Balinese massage (60 min)", 1499, "1 hr"],
+      ]),
+      ...treatments("mm", "pain", [
+        ["Deep tissue massage (60 min)", 1599, "1 hr"],
+        ["Back & shoulder massage (30 min)", 899, "30 min"],
+        ["Foot reflexology (30 min)", 699, "30 min"],
+      ]),
+      ...treatments("mm", "sport", [
+        ["Sports massage (60 min)", 1699, "1 hr"],
+        ["Leg recovery massage (30 min)", 899, "30 min"],
+      ]),
+      ...treatments("mm", "addon", [
+        ["Head massage (15 min)", 299, "15 min"],
+        ["Hot stone upgrade", 399, "15 min"],
+      ]),
     ],
   }),
 
@@ -1266,18 +1627,12 @@ export const CATEGORY_GROUPS = {
   "salon-women-group": {
     slug: "salon-women-group",
     title: "Women's Salon & Spa",
-    sections: [
-      { title: "Salon at home", items: ["salon-women"] },
-      { title: "Spa & massage", items: ["salon-men"] },
-    ],
+    sections: [{ items: ["salon-women", "spa-women", "hair-studio-women", "makeup-styling"] }],
   },
   "salon-men-group": {
     slug: "salon-men-group",
     title: "Men's Salon & Massage",
-    sections: [
-      { title: "Grooming", items: ["salon-men"] },
-      { title: "Also booked", items: ["salon-women"] },
-    ],
+    sections: [{ items: ["salon-men", "massage-men"] }],
   },
   "appliance-group": {
     slug: "appliance-group",

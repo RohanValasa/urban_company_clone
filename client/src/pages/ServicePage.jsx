@@ -59,13 +59,13 @@ export default function ServicePage() {
           <div className="sp-title-row">
             <SplitHeading as="h1" text={sub.label} className="sp-title" />
             <motion.span
-              className="sp-instant"
+              className={`sp-instant ${sub.slot ? "is-slot" : ""}`}
               initial={{ opacity: 0, scale: 0.8, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ delay: 0.25, type: "spring", stiffness: 240, damping: 18 }}
             >
-              <em>⚡ Instant</em>
-              <strong>{sub.eta}</strong>
+              <em>{sub.slot ? "🕘 Earliest" : "⚡ Instant"}</em>
+              <strong>{sub.slot || sub.eta}</strong>
             </motion.span>
           </div>
 
