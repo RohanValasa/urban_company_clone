@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import VideoStage from "./VideoStage";
+import { Art, Emoji } from "./Art";
 import { useCart } from "../context/CartContext";
 
 const backdrop = { hidden: { opacity: 0 }, show: { opacity: 1 } };
@@ -32,6 +33,11 @@ const tile = {
 
 const VIEWPORT = { once: true, amount: 0.25 };
 
+const wipe = {
+  hidden: { clipPath: "inset(0 100% 0 0)" },
+  show: { clipPath: "inset(0 42% 0 0)", transition: { duration: 1.1, delay: 0.3, ease: [0.22, 1, 0.36, 1] } },
+};
+
 function Section({ title, children, className = "" }) {
   return (
     <motion.section
@@ -50,17 +56,18 @@ function Section({ title, children, className = "" }) {
 function BeforeAfter({ shot }) {
   return (
     <motion.figure className="ba" variants={tile}>
-      <img src={shot.before} alt="Before" className="ba-img" />
-      <motion.img
-        src={shot.after}
-        alt="After"
+      <Art pic={shot.shot} alt="Before" className="ba-img ba-before" />
+      {/* A fully clipped layer never registers as in view, so the card's
+          own reveal drives it through the shared variant names. */}
+      <motion.div
         className="ba-img ba-after"
-        initial={{ clipPath: "inset(0 100% 0 0)" }}
-        whileInView={{ clipPath: "inset(0 42% 0 0)" }}
-        viewport={VIEWPORT}
+        variants={wipe}
         whileHover={{ clipPath: "inset(0 4% 0 0)" }}
-        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-      />
+      >
+        <Art pic={shot.shot} alt="After">
+          <Emoji char="✨" className="ba-sparkle" />
+        </Art>
+      </motion.div>
       <span className="ba-tag ba-tag-before">Before</span>
       <span className="ba-tag ba-tag-after">After</span>
       <figcaption>{shot.label}</figcaption>
@@ -173,7 +180,7 @@ export default function PackageDetail({ pkg, onClose }) {
                 {pkg.areas.map((a) => (
                   <motion.figure className="pd-card" key={a.label} variants={tile} whileHover={{ y: -6, rotateX: 6, rotateY: -6 }}>
                     <span className="pd-card-label">{a.label}</span>
-                    <img src={a.image} alt="" loading="lazy" />
+                    <Art pic={a.image} />
                   </motion.figure>
                 ))}
               </motion.div>
@@ -207,7 +214,7 @@ export default function PackageDetail({ pkg, onClose }) {
                 {pkg.equipment.map((e) => (
                   <motion.figure className="pd-card" key={e.label} variants={tile} whileHover={{ y: -6, rotateX: 6, rotateY: 6 }}>
                     <span className="pd-card-label">{e.label}</span>
-                    <img src={e.image} alt="" loading="lazy" />
+                    <Art pic={e.image} />
                   </motion.figure>
                 ))}
               </motion.div>

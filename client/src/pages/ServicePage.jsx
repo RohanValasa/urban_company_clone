@@ -5,6 +5,7 @@ import VideoStage from "../components/VideoStage";
 import PackageDetail from "../components/PackageDetail";
 import SplitHeading from "../components/motion/SplitHeading";
 import Tilt from "../components/motion/Tilt";
+import { Art } from "../components/Art";
 import { findSub, heroShots } from "../data/services";
 import { useCart } from "../context/CartContext";
 
@@ -91,7 +92,7 @@ export default function ServicePage() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <span className="sp-tab-art">
-                    {t.tag ? <em>{t.tag}</em> : <img src={t.image} alt="" loading="lazy" />}
+                    {t.tag ? <em>{t.tag}</em> : <Art pic={t.image} />}
                   </span>
                   <span className="sp-tab-label">{t.label}</span>
                   {tab === t.id && <motion.span className="sp-tab-underline" layoutId="sp-tab-underline" />}
@@ -149,7 +150,7 @@ export default function ServicePage() {
                       <div className="sp-row-media">
                         <Tilt className="sp-thumb" max={12} lift={6}>
                           {p.badge && <span className="sp-badge">{p.badge}</span>}
-                          <img src={p.image} alt={p.name} loading="lazy" />
+                          <Art pic={p.image} alt={p.name} />
                         </Tilt>
                         <motion.button
                           className="add-btn sp-add"

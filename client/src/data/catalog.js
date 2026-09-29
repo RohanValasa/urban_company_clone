@@ -1,40 +1,44 @@
-const img = (seed, w = 600, h = 450) => `https://picsum.photos/seed/${seed}/${w}/${h}`;
+import { FAMILIES, pic, scene } from "../lib/art";
+
+const art = (emoji, family) => pic(emoji, FAMILIES[family].tone);
+// Banners sit on their own dark gradient, so their scenes have no tone.
+const banner = (main, accents) => scene(main, accents, "transparent");
 
 export const SERVICES = [
   // Cleaning & pest control
-  { _id: "c1", name: "Intense cleaning (2 bathroom)", category: "Cleaning", price: 978, mrp: 1058, rating: 4.81, count: "7.2M", duration: "2 hrs", image: img("uc-bath-1") },
-  { _id: "c2", name: "Intense cleaning (3 bathroom)", category: "Cleaning", price: 1437, mrp: 1587, rating: 4.81, count: "7.2M", duration: "3 hrs", image: img("uc-bath-2") },
-  { _id: "c3", name: "Fridge cleaning", category: "Cleaning", price: 399, rating: 4.84, count: "180K", duration: "45 min", image: img("uc-fridge"), instant: true },
-  { _id: "c4", name: "Kitchen window cleaning", category: "Cleaning", price: 399, rating: 4.78, count: "75K", duration: "45 min", image: img("uc-window") },
-  { _id: "c5", name: "Full home cleaning", category: "Cleaning", price: 3199, mrp: 3799, rating: 4.79, count: "1.2M", duration: "5 hrs", image: img("uc-fullhome") },
-  { _id: "c6", name: "Sofa cleaning (3 seater)", category: "Cleaning", price: 849, mrp: 999, rating: 4.72, count: "640K", duration: "2 hrs", image: img("uc-sofa") },
-  { _id: "c7", name: "Cockroach & ant control", category: "Cleaning", price: 1249, mrp: 1499, rating: 4.79, count: "320K", duration: "2 hrs", image: img("uc-pest") },
-  { _id: "c8", name: "Kitchen deep cleaning", category: "Cleaning", price: 1599, mrp: 1899, rating: 4.77, count: "410K", duration: "3 hrs", image: img("uc-kitchen") },
+  { _id: "c1", name: "Intense cleaning (2 bathroom)", category: "Cleaning", price: 978, mrp: 1058, rating: 4.81, count: "7.2M", duration: "2 hrs", image: art("🚽", "cleaning") },
+  { _id: "c2", name: "Intense cleaning (3 bathroom)", category: "Cleaning", price: 1437, mrp: 1587, rating: 4.81, count: "7.2M", duration: "3 hrs", image: art("🛁", "cleaning") },
+  { _id: "c3", name: "Fridge cleaning", category: "Cleaning", price: 399, rating: 4.84, count: "180K", duration: "45 min", image: art("🧊", "cleaning"), instant: true },
+  { _id: "c4", name: "Kitchen window cleaning", category: "Cleaning", price: 399, rating: 4.78, count: "75K", duration: "45 min", image: art("🪟", "cleaning") },
+  { _id: "c5", name: "Full home cleaning", category: "Cleaning", price: 3199, mrp: 3799, rating: 4.79, count: "1.2M", duration: "5 hrs", image: art("🏠", "cleaning") },
+  { _id: "c6", name: "Sofa cleaning (3 seater)", category: "Cleaning", price: 849, mrp: 999, rating: 4.72, count: "640K", duration: "2 hrs", image: art("🛋️", "cleaning") },
+  { _id: "c7", name: "Cockroach & ant control", category: "Cleaning", price: 1249, mrp: 1499, rating: 4.79, count: "320K", duration: "2 hrs", image: art("🪳", "pest") },
+  { _id: "c8", name: "Kitchen deep cleaning", category: "Cleaning", price: 1599, mrp: 1899, rating: 4.77, count: "410K", duration: "3 hrs", image: art("🍳", "cleaning") },
 
   // Salon & spa
-  { _id: "s1", name: "Waxing (full arms + underarms)", category: "Beauty", price: 649, rating: 4.86, count: "2.1M", duration: "1 hr", image: img("uc-wax") },
-  { _id: "s2", name: "Facial & cleanup", category: "Beauty", price: 1099, mrp: 1399, rating: 4.83, count: "980K", duration: "1.5 hrs", image: img("uc-facial") },
-  { _id: "s3", name: "Haircut & styling", category: "Beauty", price: 899, rating: 4.79, count: "760K", duration: "1 hr", image: img("uc-haircut-w") },
-  { _id: "s4", name: "Manicure & pedicure", category: "Beauty", price: 1049, mrp: 1249, rating: 4.81, count: "540K", duration: "1.5 hrs", image: img("uc-mani") },
-  { _id: "s5", name: "Threading & face care", category: "Beauty", price: 249, rating: 4.88, count: "3.4M", duration: "30 min", image: img("uc-thread"), instant: true },
-  { _id: "s6", name: "Haircut for men", category: "Beauty", price: 429, rating: 4.8, count: "1.4M", duration: "45 min", image: img("uc-haircut-m") },
-  { _id: "s7", name: "Stress relief massage (60 min)", category: "Beauty", price: 1299, mrp: 1499, rating: 4.77, count: "430K", duration: "1 hr", image: img("uc-massage") },
+  { _id: "s1", name: "Waxing (full arms + underarms)", category: "Beauty", price: 649, rating: 4.86, count: "2.1M", duration: "1 hr", image: art("🍯", "salonW") },
+  { _id: "s2", name: "Facial & cleanup", category: "Beauty", price: 1099, mrp: 1399, rating: 4.83, count: "980K", duration: "1.5 hrs", image: art("🧖‍♀️", "salonW") },
+  { _id: "s3", name: "Haircut & styling", category: "Beauty", price: 899, rating: 4.79, count: "760K", duration: "1 hr", image: art("💇‍♀️", "salonW") },
+  { _id: "s4", name: "Manicure & pedicure", category: "Beauty", price: 1049, mrp: 1249, rating: 4.81, count: "540K", duration: "1.5 hrs", image: art("💅", "salonW") },
+  { _id: "s5", name: "Threading & face care", category: "Beauty", price: 249, rating: 4.88, count: "3.4M", duration: "30 min", image: art("🧵", "salonW"), instant: true },
+  { _id: "s6", name: "Haircut for men", category: "Beauty", price: 429, rating: 4.8, count: "1.4M", duration: "45 min", image: art("💇‍♂️", "salonM") },
+  { _id: "s7", name: "Stress relief massage (60 min)", category: "Beauty", price: 1299, mrp: 1499, rating: 4.77, count: "430K", duration: "1 hr", image: art("💆‍♂️", "spaM") },
 
   // AC & appliance
-  { _id: "a1", name: "AC service (power jet)", category: "Appliance", price: 599, mrp: 699, rating: 4.63, count: "1.6M", duration: "1 hr", image: img("uc-ac"), instant: true },
-  { _id: "a2", name: "Washing machine repair", category: "Appliance", price: 449, rating: 4.55, count: "410K", duration: "1 hr", image: img("uc-washer") },
-  { _id: "a3", name: "Chimney deep clean", category: "Appliance", price: 649, mrp: 799, rating: 4.68, count: "220K", duration: "1.5 hrs", image: img("uc-chimney") },
-  { _id: "a4", name: "Refrigerator repair", category: "Appliance", price: 499, rating: 4.6, count: "190K", duration: "1 hr", image: img("uc-fridge-fix") },
-  { _id: "a5", name: "Microwave repair", category: "Appliance", price: 399, rating: 4.58, count: "90K", duration: "45 min", image: img("uc-microwave") },
-  { _id: "a6", name: "Water purifier service", category: "Appliance", price: 499, mrp: 599, rating: 4.71, count: "260K", duration: "1 hr", image: img("uc-purifier") },
+  { _id: "a1", name: "AC service (power jet)", category: "Appliance", price: 599, mrp: 699, rating: 4.63, count: "1.6M", duration: "1 hr", image: art("❄️", "appliance"), instant: true },
+  { _id: "a2", name: "Washing machine repair", category: "Appliance", price: 449, rating: 4.55, count: "410K", duration: "1 hr", image: art("🧺", "appliance") },
+  { _id: "a3", name: "Chimney deep clean", category: "Appliance", price: 649, mrp: 799, rating: 4.68, count: "220K", duration: "1.5 hrs", image: art("💨", "appliance") },
+  { _id: "a4", name: "Refrigerator repair", category: "Appliance", price: 499, rating: 4.6, count: "190K", duration: "1 hr", image: art("🧊", "appliance") },
+  { _id: "a5", name: "Microwave repair", category: "Appliance", price: 399, rating: 4.58, count: "90K", duration: "45 min", image: art("🍲", "appliance") },
+  { _id: "a6", name: "Water purifier service", category: "Appliance", price: 499, mrp: 599, rating: 4.71, count: "260K", duration: "1 hr", image: art("🚰", "appliance") },
 
   // Home repair & installation
-  { _id: "r1", name: "Plumber consultation", category: "Plumbing", price: 49, rating: 4.74, count: "214K", duration: "30 min", image: img("uc-plumber"), instant: true },
-  { _id: "r2", name: "Book a carpenter", category: "Plumbing", price: 49, rating: 4.66, count: "191K", duration: "30 min", image: img("uc-carpenter"), instant: true },
-  { _id: "r3", name: "Flush tank repair", category: "Plumbing", price: 199, rating: 4.75, count: "161K", duration: "45 min", image: img("uc-flush") },
-  { _id: "r4", name: "Electrician consultation", category: "Plumbing", price: 49, rating: 4.75, count: "176K", duration: "30 min", image: img("uc-electrician"), instant: true },
-  { _id: "r5", name: "Ceiling fan replace / install", category: "Plumbing", price: 99, rating: 4.85, count: "95K", duration: "45 min", image: img("uc-fan"), off: "10% OFF" },
-  { _id: "r6", name: "Wall painting consultation", category: "Plumbing", price: 199, rating: 4.7, count: "60K", duration: "45 min", image: img("uc-paint") },
+  { _id: "r1", name: "Plumber consultation", category: "Plumbing", price: 49, rating: 4.74, count: "214K", duration: "30 min", image: art("🪠", "plumbing"), instant: true },
+  { _id: "r2", name: "Book a carpenter", category: "Plumbing", price: 49, rating: 4.66, count: "191K", duration: "30 min", image: art("🪚", "carpentry"), instant: true },
+  { _id: "r3", name: "Flush tank repair", category: "Plumbing", price: 199, rating: 4.75, count: "161K", duration: "45 min", image: art("🚽", "plumbing") },
+  { _id: "r4", name: "Electrician consultation", category: "Plumbing", price: 49, rating: 4.75, count: "176K", duration: "30 min", image: art("💡", "electric"), instant: true },
+  { _id: "r5", name: "Ceiling fan replace / install", category: "Plumbing", price: 99, rating: 4.85, count: "95K", duration: "45 min", image: art("🌀", "electric"), off: "10% OFF" },
+  { _id: "r6", name: "Wall painting consultation", category: "Plumbing", price: 199, rating: 4.7, count: "60K", duration: "45 min", image: art("🖌️", "painting") },
 ];
 
 export const CATEGORIES = [
@@ -53,7 +57,7 @@ export const CATEGORY_TILES = [
   { label: "Wall Panels", icon: "🪵", group: "wall-panels-group" },
   { label: "Painting & Waterproofing", icon: "🖌️", group: "painting-group" },
   { label: "AC & Appliance Repair", icon: "❄️", group: "appliance-group" },
-  { label: "Electrician, Plumber & Carpenter", icon: "🛠️", group: "repair-group" },
+  { label: "Electrician, Plumber & Carpenter", icon: "🧰", group: "repair-group" },
 ];
 
 export const SMART_TILES = [
@@ -67,10 +71,10 @@ export const TRENDY = [
 ];
 
 export const HERO_SHOTS = [
-  { seed: "uc-hero-1", tall: true },
-  { seed: "uc-hero-2", tall: false },
-  { seed: "uc-hero-3", tall: false },
-  { seed: "uc-hero-4", tall: true },
+  { key: "salon", tall: true, scene: scene("💆‍♀️", ["💅", "💄", "🧴"], FAMILIES.spaW.tone) },
+  { key: "clean", tall: false, scene: scene("🧽", ["🫧", "🧴", "🪣"], FAMILIES.cleaning.tone) },
+  { key: "repair", tall: false, scene: scene("🧑‍🔧", ["❄️", "🔧", "⚙️"], FAMILIES.appliance.tone) },
+  { key: "paint", tall: true, scene: scene("🧑‍🎨", ["🖌️", "🎨", "🪣"], FAMILIES.painting.tone) },
 ];
 
 export const HOME_SECTIONS = [
@@ -86,7 +90,7 @@ export const HOME_SECTIONS = [
       cta: "See what's hot",
       theme: "linear-gradient(120deg,#160b33 0%,#4c1d95 48%,#7c3aed 100%)",
       accent: "#c4b5fd",
-      image: img("uc-banner-trending", 900, 520),
+      image: banner("🧑‍🔧", ["🧹", "💇‍♀️", "❄️"]),
     },
   },
   {
@@ -101,7 +105,7 @@ export const HOME_SECTIONS = [
       cta: "Book a session",
       theme: "linear-gradient(120deg,#2b0819 0%,#9d174d 52%,#f472b6 100%)",
       accent: "#fbcfe8",
-      image: img("uc-banner-salon", 900, 520),
+      image: banner("💆‍♀️", ["💅", "💄", "🧖‍♀️"]),
     },
   },
   {
@@ -116,7 +120,7 @@ export const HOME_SECTIONS = [
       cta: "Book now",
       theme: "linear-gradient(120deg,#0b2119 0%,#065f46 50%,#10b981 100%)",
       accent: "#a7f3d0",
-      image: img("uc-banner-clean", 900, 520),
+      image: banner("🧹", ["🫧", "🧽", "🛋️"]),
     },
   },
   {
@@ -131,7 +135,7 @@ export const HOME_SECTIONS = [
       cta: "Explore plans",
       theme: "linear-gradient(120deg,#07162e 0%,#1e3a8a 52%,#0ea5e9 100%)",
       accent: "#bae6fd",
-      image: img("uc-banner-appliance", 900, 520),
+      image: banner("🚰", ["❄️", "🧺", "🔧"]),
     },
   },
   {
@@ -146,7 +150,7 @@ export const HOME_SECTIONS = [
       cta: "Get a pro",
       theme: "linear-gradient(120deg,#2b1503 0%,#b45309 52%,#fbbf24 100%)",
       accent: "#fde68a",
-      image: img("uc-banner-repair", 900, 520),
+      image: banner("🧰", ["🔨", "🪠", "💡"]),
     },
   },
 ];

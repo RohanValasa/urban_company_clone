@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from "framer-motion";
 import SplitHeading from "./motion/SplitHeading";
 import CategorySheet from "./CategorySheet";
+import { Emoji, Scene } from "./Art";
 import { CATEGORY_TILES, SMART_TILES, HERO_SHOTS } from "../data/catalog";
 import { findGroup } from "../data/services";
 import { useUI } from "../context/UIContext";
@@ -73,7 +74,7 @@ export default function Hero() {
               <motion.div variants={tile} key={t.label}>
                 <button type="button" className="tile" onClick={() => setGroup(findGroup(t.group))}>
                   <span className="tile-art">
-                    <span>{t.icon}</span>
+                    <Emoji char={t.icon} />
                   </span>
                   <span className="tile-label">{t.label}</span>
                 </button>
@@ -87,7 +88,7 @@ export default function Hero() {
               <motion.div variants={tile} key={t.label}>
                 <Link to="/?category=Appliance" className="tile">
                   <span className="tile-art">
-                    <span>{t.icon}</span>
+                    <Emoji char={t.icon} />
                     <em className="tile-badge">{t.badge}</em>
                   </span>
                   <span className="tile-label">{t.label}</span>
@@ -101,14 +102,14 @@ export default function Hero() {
       <div className="hero-mosaic">
         {HERO_SHOTS.map((shot, i) => (
           <motion.figure
-            key={shot.seed}
+            key={shot.key}
             className={`shot ${shot.tall ? "shot-tall" : ""}`}
             style={{ y: i % 2 === 0 ? slowY : fastY }}
             initial={{ opacity: 0, scale: 1.08, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.1 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
           >
-            <img src={`https://picsum.photos/seed/${shot.seed}/700/${shot.tall ? 900 : 640}`} alt="" loading="eager" />
+            <Scene scene={shot.scene} />
           </motion.figure>
         ))}
       </div>

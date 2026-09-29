@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { Art } from "../components/Art";
 
 export default function Cart() {
   const { items, setQty, removeItem, total, clear } = useCart();
@@ -58,7 +59,7 @@ export default function Cart() {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <img src={item.image} alt={item.name} />
+                  <Art pic={item.image} alt={item.name} className="cart-item-art" />
                   <div className="cart-item-info">
                     <span className="badge">{item.category}</span>
                     <h3>{item.name}</h3>

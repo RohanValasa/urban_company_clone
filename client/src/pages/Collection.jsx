@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link, useParams } from "react-router-dom";
 import ServiceRail from "../components/ServiceRail";
+import { Scene } from "../components/Art";
 import { findCollection, findServices } from "../data/catalog";
 
 export default function Collection() {
@@ -34,7 +35,7 @@ export default function Collection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
-        <img src={collection.image} alt="" className="banner-bg" />
+        <Scene scene={collection.image} className="banner-bg promo-scene" />
         <div className="banner-content">
           <span className="banner-eyebrow">{collection.eyebrow}</span>
           <h1>{collection.headline}</h1>

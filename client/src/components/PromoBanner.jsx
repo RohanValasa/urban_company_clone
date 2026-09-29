@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from "framer-motion";
+import { Scene } from "./Art";
 
 const SOFT = { stiffness: 100, damping: 26, mass: 0.6 };
 
@@ -34,7 +35,7 @@ export default function PromoBanner({ banner, slug, flip = false }) {
       <motion.div className="promo-perspective" style={{ rotateY: rotate, z: depth }}>
         <Link to={`/collection/${slug}`} className="promo" style={{ background: banner.theme }}>
           <motion.div className="promo-media" style={{ y: imgY, scale: imgScale }}>
-            <img src={banner.image} alt="" loading="lazy" />
+            <Scene scene={banner.image} className="promo-scene" />
           </motion.div>
           <motion.span className="promo-glow" style={{ opacity: glow, background: banner.accent }} aria-hidden="true" />
 

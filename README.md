@@ -21,3 +21,12 @@ and "Use current location" both check against the city's bounds.
 
 "Use current location" needs the page on `https://` or `localhost`. Browsers
 block location access on plain `http://`.
+
+### Pictures
+
+Every picture is a 3D icon from Microsoft's
+[Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (MIT licence),
+bundled in `client/src/assets/emoji`. `client/src/lib/art.js` picks the icon for
+each service, tab, area and tool from the words in its name, so nothing loads
+from an image host. To change a picture, add or reorder a rule in `RULES`, or
+set `icon` on a package spec to force one.

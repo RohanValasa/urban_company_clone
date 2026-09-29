@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Emoji } from "./Art";
 
 const railVariants = {
   hidden: {},
@@ -22,7 +23,7 @@ export default function CategoryRail({ categories, active, onSelect }) {
           onClick={() => onSelect(c.name)}
         >
           <span className="cat-icon" style={{ background: c.color }}>
-            {c.icon}
+            <Emoji char={c.icon} />
           </span>
           <span className="cat-label">{c.name}</span>
         </motion.button>

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Tilt from "./motion/Tilt";
+import { Art } from "./Art";
 import { useCart } from "../context/CartContext";
 
 const cardVariants = {
@@ -19,14 +20,13 @@ export default function ServiceCard({ service }) {
     <motion.div className="card-shell" variants={cardVariants}>
       <Tilt className="card" max={8} lift={10}>
         <div className="card-img-wrap">
-          <motion.img
-            src={image}
-            alt={name}
+          <motion.div
             className="card-img"
-            loading="lazy"
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          />
+          >
+            <Art pic={image} alt={name} />
+          </motion.div>
           {off && <span className="card-off">{off}</span>}
         </div>
 

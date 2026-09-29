@@ -1,7 +1,7 @@
 // Sub-category catalogue: what the category pop-up lists, what each service
 // page shows, and everything the package detail sheet renders.
 
-const img = (seed, w = 800, h = 600) => `https://picsum.photos/seed/${seed}/${w}/${h}`;
+import { familyOf, iconFor, pic, scene } from "../lib/art";
 
 // Drop an mp4 in client/public and set `video: "/my-clip.mp4"` on a sub-category
 // (or on a package spec) to play a real file instead of the ken-burns sequence.
@@ -45,8 +45,13 @@ const breakdown = (total) => [
 function pkg(sub, spec) {
   const {
     id, name, tab = "value", price, mrp, rating = 4.81, reviews = "7.3M",
-    duration, unitNote, badge, bullets = [], seed, ...extra
+    duration, unitNote, badge, bullets = [], icon: forced, ...extra
   } = spec;
+  delete extra.seed; // named the old stock photos; pictures now come from the name
+
+  const fam = familyOf(sub.slug);
+  const tabIcon = sub.tabs.find((t) => t.id === tab)?.icon3d || sub.icon;
+  const icon = forced || iconFor(name, tabIcon, fam.male);
 
   return {
     id,
@@ -61,14 +66,18 @@ function pkg(sub, spec) {
     unitNote,
     badge,
     bullets,
-    image: img(`${seed}-card`, 600, 600),
-    gallery: [img(`${seed}-g1`), img(`${seed}-g2`), img(`${seed}-g3`)],
+    image: pic(icon, fam.tone),
+    gallery: [
+      scene(icon, fam.kit, fam.tone),
+      scene(fam.pro, [icon, ...fam.kit.slice(1)], fam.tone),
+      scene(icon, ["✨", "⭐", fam.kit[0]], fam.tone),
+    ],
     areas: sub.areas,
     covered: sub.covered,
     notCovered: sub.notCovered,
     beforeAfter: [
-      { label: "Deep clean finish", before: img(`${seed}-b1`, 700, 520), after: img(`${seed}-a1`, 700, 520) },
-      { label: "Corners & fittings", before: img(`${seed}-b2`, 700, 520), after: img(`${seed}-a2`, 700, 520) },
+      { label: fam.ba[0], shot: pic(icon, fam.tone) },
+      { label: fam.ba[1], shot: pic(tabIcon === icon ? fam.kit[0] : tabIcon, fam.tone) },
     ],
     equipment: sub.equipment,
     faqs: sub.faqs,
@@ -125,9 +134,13 @@ function sub(spec) {
     ...spec,
   };
 
-  base.tabs = base.tabs.map((t) => ({ ...t, image: img(`tab-${base.slug}-${t.id}`, 300, 300) }));
-  base.areas = base.areas.map((a) => ({ ...a, image: img(a.seed, 400, 300) }));
-  base.equipment = base.equipment.map((e) => ({ ...e, image: img(e.seed, 400, 300) }));
+  const fam = familyOf(base.slug);
+  base.tabs = base.tabs.map((t) => {
+    const icon3d = iconFor(t.label, base.icon, fam.male);
+    return { ...t, icon3d, image: pic(icon3d, fam.tone) };
+  });
+  base.areas = base.areas.map((a) => ({ ...a, image: pic(iconFor(a.label, base.icon, fam.male), fam.tone) }));
+  base.equipment = base.equipment.map((e) => ({ ...e, image: pic(iconFor(e.label, fam.kit[0], fam.male), fam.tone) }));
   base.packages = base.packageSpecs.map((p) => pkg(base, p));
   delete base.packageSpecs;
   return base;
@@ -223,6 +236,22 @@ const SALON = {
   faqs: [
     { q: "What do I need to arrange?", a: "Just a well-lit spot near a power socket. The professional brings everything else, including sheets for the floor." },
     { q: "Are the products safe for sensitive skin?", a: "Tell the professional before starting and they will patch test or switch to a gentler product." },
+  ],
+};
+
+// Pest control treats rooms, not bathroom fittings.
+const PEST = {
+  areas: [
+    { label: "Kitchen cabinets & drains", seed: "area-kitchen" },
+    { label: "Bathroom corners", seed: "area-bath" },
+    { label: "Skirting & wall cracks", seed: "area-crack" },
+    { label: "Beds & furniture joints", seed: "area-bed" },
+  ],
+  equipment: [
+    { label: "Odourless gel", seed: "eq-gel" },
+    { label: "Pressure sprayer", seed: "eq-sprayer" },
+    { label: "Safety kit", seed: "eq-safety" },
+    { label: "Inspection torch", seed: "eq-torch" },
   ],
 };
 
@@ -406,6 +435,7 @@ export const SUBCATEGORIES = {
     ],
     covered: ["Odourless gel in kitchen and bathrooms", "Cracks, hinges and pipe entry points", "Follow-up visit within 30 days", "Safe for children and pets", "Written service warranty"],
     notCovered: ["Structural sealing of drains", "Furniture dismantling", "Outdoor garden areas"],
+    areas: PEST.areas,
     equipment: [
       { label: "Odourless gel", seed: "eq-gel" },
       { label: "Crack & crevice tip", seed: "eq-tip" },
@@ -425,7 +455,7 @@ export const SUBCATEGORIES = {
   "termite-control": sub({
     slug: "termite-control",
     label: "Termite Control",
-    icon: "🐜",
+    icon: "🪵",
     tone: "#fef9c3",
     hero: "termite-hero",
     caption: "Drill, fill and seal.",
@@ -437,6 +467,13 @@ export const SUBCATEGORIES = {
     ],
     covered: ["Drill, fill and seal on affected walls", "Chemical barrier along the skirting", "Wooden furniture spot treatment", "3-year warranty on the treated area", "Post-service inspection"],
     notCovered: ["Repainting of drilled points", "Replacement of damaged wood", "Soil treatment outside the flat"],
+    ...PEST,
+    areas: [
+      { label: "Door & window frames", seed: "area-frame" },
+      { label: "Wooden furniture", seed: "area-wood" },
+      { label: "Skirting & wall cracks", seed: "area-crack" },
+      { label: "Kitchen cabinets", seed: "area-kitchen" },
+    ],
     packageSpecs: [
       { id: "term-apt", name: "Apartment termite control", tab: "apt", price: 2999, mrp: 3499, duration: "3 hrs", unitNote: "3-year written warranty", seed: "termapt", bullets: ["Drill, fill and seal across the flat"] },
       { id: "term-bung", name: "Bungalow termite control", tab: "bungalow", price: 4499, mrp: 4999, duration: "4 hrs", unitNote: "3-year written warranty", seed: "termbung", bullets: ["All floors plus the ground barrier"] },
@@ -446,7 +483,7 @@ export const SUBCATEGORIES = {
   "ants-bedbugs-control": sub({
     slug: "ants-bedbugs-control",
     label: "Ants & Bed Bugs Control",
-    icon: "🛏️",
+    icon: "🐜",
     tone: "#f1f5f9",
     hero: "bedbug-hero",
     caption: "Sleep easy again.",
@@ -458,6 +495,7 @@ export const SUBCATEGORIES = {
     ],
     covered: ["Mattress, bed frame and joints", "Sofa seams and cushions", "Skirting and wall cracks", "Two visits 15 days apart", "Child and pet safe chemicals"],
     notCovered: ["Washing of bedding and linen", "Disposal of infested mattresses", "Outdoor treatment"],
+    ...PEST,
     packageSpecs: [
       { id: "bug-bed", name: "Bed bugs control", tab: "bed", price: 1599, mrp: 1899, duration: "2 hrs", unitNote: "Two visits, 15 days apart", seed: "bugbed", bullets: ["Mattress, frame and sofa seams"] },
       { id: "bug-ants-apt", name: "Ants control (apartment)", tab: "ants", price: 799, duration: "1 hr", seed: "bugant1", bullets: ["Gel and spray combination"] },
@@ -660,14 +698,14 @@ export const SUBCATEGORIES = {
         slug: "salon-royale",
         name: "Royale",
         badge: "Top rated pros",
-        avatar: "🧔🏽",
+        avatar: "🤵",
         blurb: "Only top professionals for advanced cuts, beard styling & facials.",
         tags: ["Premium colour", "Luxury facials", "Ozone skincare"],
       },
       {
         slug: "salon-prime",
         name: "Prime",
-        avatar: "👨🏽",
+        avatar: "🧔",
         blurb: "Everyday cuts, color & cleanup.",
         tags: ["Everyday colour", "Grooming essentials"],
       },
@@ -690,7 +728,7 @@ export const SUBCATEGORIES = {
   "salon-royale": sub({
     slug: "salon-royale",
     label: "Salon Royale",
-    icon: "🧔🏽",
+    icon: "🤵",
     hero: "royale-hero",
     caption: "Top rated pros only.",
     rating: 4.87,
@@ -752,7 +790,7 @@ export const SUBCATEGORIES = {
   "salon-prime": sub({
     slug: "salon-prime",
     label: "Salon Prime",
-    icon: "👨🏽",
+    icon: "💇‍♂️",
     hero: "prime-hero",
     caption: "Everyday grooming, sorted.",
     rating: 4.83,
@@ -882,7 +920,7 @@ export const SUBCATEGORIES = {
   "washing-machine": sub({
     slug: "washing-machine",
     label: "Washing Machine",
-    icon: "🌀",
+    icon: "🧺",
     tone: "#e0e7ff",
     hero: "wm-hero",
     caption: "Spinning like new.",
@@ -1044,7 +1082,7 @@ export const SUBCATEGORIES = {
   "water-purifier": sub({
     slug: "water-purifier",
     label: "RO / Water Purifier",
-    icon: "💧",
+    icon: "🚰",
     tone: "#cffafe",
     hero: "purifier-hero",
     caption: "Every drop, checked.",
@@ -1192,7 +1230,7 @@ export const SUBCATEGORIES = {
   "plumber": sub({
     slug: "plumber",
     label: "Plumber",
-    icon: "🔧",
+    icon: "🪠",
     tone: "#cffafe",
     hero: "plumb-hero",
     caption: "Leaks stop here.",
@@ -1433,7 +1471,7 @@ export const SUBCATEGORIES = {
   "furniture-assembly": sub({
     slug: "furniture-assembly",
     label: "Furniture Assembly",
-    icon: "🗄️",
+    icon: "🪑",
     tone: "#fef3c7",
     hero: "assembly-hero",
     caption: "Out of the box, into the room.",
@@ -1600,6 +1638,12 @@ export const SUBCATEGORIES = {
     tabs: [{ id: "value", label: "Painting", tag: "MOST BOOKED" }, { id: "deep", label: "Waterproofing", icon: "💧" }, { id: "mini", label: "Touch-ups", icon: "⚡" }],
     covered: ["Free site visit and quote", "Furniture covering and masking", "Two coats of the chosen paint", "Daily site clean-up", "1-year workmanship warranty"],
     notCovered: ["Paint material unless in the package", "Structural crack repair", "False ceiling work"],
+    areas: [
+      { label: "Walls & ceiling", seed: "area-wall" },
+      { label: "Doors & windows", seed: "area-door" },
+      { label: "Terrace & roof", seed: "area-terrace" },
+      { label: "Furniture covering", seed: "area-cover" },
+    ],
     equipment: [
       { label: "Roller set", seed: "eq-roller" },
       { label: "Masking sheets", seed: "eq-mask" },
@@ -1683,5 +1727,12 @@ export const findPackage = (subSlug, pkgId) =>
 
 export const heroShots = (slug) => {
   const s = SUBCATEGORIES[slug];
-  return [1, 2, 3].map((n) => img(`${s?.hero || slug}-${n}`, 1100, 720));
+  if (!s) return [];
+  const fam = familyOf(slug);
+  const second = s.tabs.find((t) => t.icon3d !== s.icon)?.icon3d || fam.kit[0];
+  return [
+    scene(s.icon, fam.kit, fam.tone),
+    scene(fam.pro, [s.icon, ...fam.kit.slice(1)], fam.tone),
+    scene(second, [s.icon, "✨"], fam.tone),
+  ];
 };

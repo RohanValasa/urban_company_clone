@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { findSub } from "../data/services";
+import { Emoji } from "./Art";
 
 const backdrop = {
   hidden: { opacity: 0 },
@@ -55,7 +56,7 @@ function Preference({ sub, onBack, onPick }) {
           >
             <span className="pref-art">
               {c.badge && <em className="pref-badge">✪ {c.badge}</em>}
-              <span>{c.avatar}</span>
+              <Emoji char={c.avatar} label={c.name} />
             </span>
             <span className="pref-copy">
               <strong>{c.name}</strong>
@@ -169,7 +170,7 @@ export default function CategorySheet({ group, onClose, onPick }) {
                                   animate={{ scale: 1, opacity: 1 }}
                                   transition={{ delay: 0.15, type: "spring", stiffness: 240, damping: 16 }}
                                 >
-                                  {s.icon}
+                                  <Emoji char={s.icon} label={s.label} />
                                 </motion.span>
                                 {s.eta && !s.slot && <em className="sheet-eta">{s.eta.replace(/^In /, "")}</em>}
                               </span>
