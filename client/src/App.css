@@ -99,6 +99,10 @@ body {
   color: #fff; font-size: 15px; font-weight: 800; border-color: transparent;
 }
 .nav-avatar:hover { background: linear-gradient(135deg, #7c3aed, #db2777); border-color: transparent; }
+.nav-avatar-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: inherit;
+}
 
 .nav-select { position: relative; }
 .nav-dropdown {
@@ -517,6 +521,31 @@ a.see-all { text-decoration: none; display: inline-flex; align-items: center; }
 }
 .modal-switch button:hover { text-decoration: underline; }
 
+.btn:disabled { opacity: .65; cursor: progress; }
+
+/* Google button and the "or" rule under it */
+.auth-alt { display: flex; flex-direction: column; gap: 14px; }
+.google-wrap { position: relative; min-height: 44px; transition: opacity .2s; }
+.google-wrap.is-busy { opacity: .5; pointer-events: none; }
+.google-slot { display: flex; justify-content: center; width: 100%; }
+.google-placeholder {
+  position: absolute; inset: 0; height: 44px; border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: linear-gradient(90deg, var(--bg) 0%, #fff 50%, var(--bg) 100%);
+  background-size: 200% 100%; animation: google-shimmer 1.2s linear infinite;
+}
+@keyframes google-shimmer { to { background-position: -200% 0; } }
+.google-note {
+  font-size: 12.5px; color: var(--ink-soft); text-align: center;
+  background: var(--bg); border: 1.5px dashed var(--line); border-radius: 12px; padding: 10px 12px;
+}
+.google-note code { font-size: 12px; color: var(--brand); }
+.auth-or {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 12px; font-weight: 600; color: #a5a1b0;
+}
+.auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
 /* ---------- Auth gate ---------- */
 .gate {
   max-width: 420px; margin: 60px auto; text-align: center;
@@ -526,6 +555,7 @@ a.see-all { text-decoration: none; display: inline-flex; align-items: center; }
 .gate h1 { font-size: 26px; background: none; -webkit-text-fill-color: unset; color: var(--ink); }
 .gate p { color: var(--ink-soft); font-size: 14.5px; margin-bottom: 10px; }
 .gate-actions { display: flex; gap: 10px; }
+.gate-loading { color: var(--ink-soft); font-size: 14.5px; font-weight: 600; }
 
 /* ---------- Cart page ---------- */
 .cart-page h1 { margin-bottom: 32px; }

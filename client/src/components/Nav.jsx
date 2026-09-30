@@ -43,9 +43,9 @@ export default function Nav() {
     navigate(term.trim() ? `/?q=${encodeURIComponent(term.trim())}` : "/");
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
     setUserOpen(false);
+    await logout().catch(() => {});
     navigate("/");
   };
 
@@ -116,6 +116,15 @@ export default function Nav() {
             aria-label="Account"
           >
             {user ? user.name.charAt(0).toUpperCase() : "👤"}
+            {user?.avatar && (
+              <img
+                className="nav-avatar-img"
+                src={user.avatar}
+                alt=""
+                referrerPolicy="no-referrer"
+                onError={(e) => e.currentTarget.remove()}
+              />
+            )}
           </button>
           <AnimatePresence>
             {userOpen && (

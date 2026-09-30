@@ -4,8 +4,17 @@ import { useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
 
 export default function ProtectedRoute({ role, children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { openAuth } = useUI();
+
+  // Wait for the session check so signed-in users don't see the gate flash.
+  if (loading) {
+    return (
+      <main className="page">
+        <div className="gate gate-loading" aria-busy="true">Checking your account…</div>
+      </main>
+    );
+  }
 
   if (!user) {
     return (

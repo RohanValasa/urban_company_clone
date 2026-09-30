@@ -1,17 +1,9 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { api } from "../lib/api";
 
 const AuthContext = createContext(null);
-const USERS_KEY = "uc_users";
-const SESSION_KEY = "uc_session";
 
-function readUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
+// The server checks the same rules (server/src/lib/validate.js).
 // eslint-disable-next-line react-refresh/only-export-components
 export const PASSWORD_RULES = [
   { label: "At least 8 characters", test: (v) => v.length >= 8 },
@@ -21,56 +13,67 @@ export const PASSWORD_RULES = [
   { label: "One special character", test: (v) => /[^A-Za-z0-9]/.test(v) },
 ];
 
+/** Accounts used to be kept in the browser, passwords and all. Clear them out. */
+function forgetLocalAccounts() {
+  try {
+    localStorage.removeItem("uc_users");
+    localStorage.removeItem("uc_session");
+  } catch {
+    // Storage can be blocked; there's nothing to clear then.
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(SESSION_KEY));
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
+  // True until we know whether the browser already has a session.
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    else localStorage.removeItem(SESSION_KEY);
-  }, [user]);
+    forgetLocalAccounts();
+    let live = true;
+    api("/auth/me")
+      .then((data) => live && setUser(data.user))
+      .catch(() => {})
+      .finally(() => live && setLoading(false));
+    return () => {
+      live = false;
+    };
+  }, []);
 
-  const signup = ({ name, phone, email, password, address, role }) => {
-    const users = readUsers();
-    if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
-      throw new Error("An account with this email already exists.");
+  const signup = useCallback(async ({ name, phone, email, password, address, role }) => {
+    const data = await api("/auth/signup", { method: "POST", body: { name, phone, email, password, address, role } });
+    setUser(data.user);
+    return data.user;
+  }, []);
+
+  const login = useCallback(async ({ identifier, password }) => {
+    const data = await api("/auth/login", { method: "POST", body: { identifier, password } });
+    setUser(data.user);
+    return data.user;
+  }, []);
+
+  /** `role` only matters when the Google account is new to Servify. */
+  const loginWithGoogle = useCallback(async (credential, role) => {
+    const data = await api("/auth/google", { method: "POST", body: { credential, role } });
+    setUser(data.user);
+    return data.user;
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await api("/auth/logout", { method: "POST" });
+    } finally {
+      setUser(null);
+      window.google?.accounts.id.disableAutoSelect();
     }
-    if (!/^\d{10}$/.test(phone)) {
-      throw new Error("Enter a valid 10-digit phone number.");
-    }
-    if (PASSWORD_RULES.some((r) => !r.test(password))) {
-      throw new Error("Password does not meet all the requirements.");
-    }
-    const newUser = { name, phone, email, password, address, role };
-    localStorage.setItem(USERS_KEY, JSON.stringify([...users, newUser]));
-    const session = { name, email, role };
-    setUser(session);
-    return session;
-  };
+  }, []);
 
-  const login = ({ username, password }) => {
-    const id = username.trim().toLowerCase();
-    const match = readUsers().find(
-      (u) => (u.email.toLowerCase() === id || u.name.toLowerCase() === id) && u.password === password
-    );
-    if (!match) throw new Error("Invalid username or password.");
-    const session = { name: match.name, email: match.email, role: match.role };
-    setUser(session);
-    return session;
-  };
-
-  const logout = () => setUser(null);
-
-  return (
-    <AuthContext.Provider value={{ user, signup, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({ user, loading, signup, login, loginWithGoogle, logout }),
+    [user, loading, signup, login, loginWithGoogle, logout]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

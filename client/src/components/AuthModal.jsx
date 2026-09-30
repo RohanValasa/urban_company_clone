@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PASSWORD_RULES, useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
+import GoogleButton from "./GoogleButton";
 
 const backdrop = {
   hidden: { opacity: 0 },
@@ -23,6 +24,8 @@ const field = {
   show: { opacity: 1, y: 0 },
 };
 
+const EMPTY_SIGNIN = { identifier: "", password: "" };
+
 const EMPTY_SIGNUP = {
   name: "",
   phone: "",
@@ -35,14 +38,31 @@ const EMPTY_SIGNUP = {
 
 export default function AuthModal() {
   const { authMode, openAuth, closeAuth } = useUI();
-  const { login, signup } = useAuth();
-  const [signInForm, setSignInForm] = useState({ username: "", password: "" });
+  const { login, signup, loginWithGoogle } = useAuth();
+  const [signInForm, setSignInForm] = useState(EMPTY_SIGNIN);
   const [signUpForm, setSignUpForm] = useState(EMPTY_SIGNUP);
   const [error, setError] = useState("");
+  // Which action is waiting on the server: "form", "google" or "".
+  const [pending, setPending] = useState("");
 
   const dismiss = () => {
     setError("");
     closeAuth();
+  };
+
+  /** Runs a server call, keeping the modal open with the error if it fails. */
+  const submit = async (kind, action, onDone) => {
+    setError("");
+    setPending(kind);
+    try {
+      await action();
+      onDone?.();
+      closeAuth();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPending("");
+    }
   };
 
   const switchTo = (mode) => {
@@ -66,26 +86,29 @@ export default function AuthModal() {
 
   const handleSignIn = (e) => {
     e.preventDefault();
-    try {
-      login(signInForm);
-      setSignInForm({ username: "", password: "" });
-      dismiss();
-    } catch (err) {
-      setError(err.message);
-    }
+    if (pending) return;
+    submit("form", () => login(signInForm), () => setSignInForm(EMPTY_SIGNIN));
   };
 
   const handleSignUp = (e) => {
     e.preventDefault();
+    if (pending) return;
+    if (passwordChecks.some((r) => !r.ok)) return setError("Password does not meet all the requirements.");
     if (!passwordsMatch) return setError("Passwords do not match.");
-    try {
-      signup(signUpForm);
-      setSignUpForm(EMPTY_SIGNUP);
-      dismiss();
-    } catch (err) {
-      setError(err.message);
-    }
+    submit("form", () => signup(signUpForm), () => setSignUpForm(EMPTY_SIGNUP));
   };
+
+  // A new Google account on the sign-up tab gets the role picked there.
+  const handleGoogle = (credential) =>
+    submit("google", () => loginWithGoogle(credential, authMode === "signup" ? signUpForm.role : undefined));
+
+  const google = (mode) => (
+    <motion.div className="auth-alt" variants={field}>
+      <GoogleButton mode={mode} onCredential={handleGoogle} disabled={Boolean(pending)} />
+      {pending === "google" && <p className="google-note">Signing you in with Google…</p>}
+      <div className="auth-or"><span>or use your {mode === "signup" ? "details" : "email or phone"}</span></div>
+    </motion.div>
+  );
 
   return (
     <AnimatePresence>
@@ -138,14 +161,17 @@ export default function AuthModal() {
                     Sign in to book services and track your jobs.
                   </motion.p>
 
+                  {google("signin")}
+
                   <motion.label variants={field}>
-                    Username
+                    Email or phone number
                     <input
                       required
                       autoFocus
-                      placeholder="Your name or email"
-                      value={signInForm.username}
-                      onChange={(e) => setSignInForm({ ...signInForm, username: e.target.value })}
+                      autoComplete="username"
+                      placeholder="you@example.com or 9876543210"
+                      value={signInForm.identifier}
+                      onChange={(e) => setSignInForm({ ...signInForm, identifier: e.target.value })}
                     />
                   </motion.label>
 
@@ -154,6 +180,7 @@ export default function AuthModal() {
                     <input
                       type="password"
                       required
+                      autoComplete="current-password"
                       placeholder="••••••••"
                       value={signInForm.password}
                       onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
@@ -162,8 +189,14 @@ export default function AuthModal() {
 
                   {error && <motion.p className="auth-error" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{error}</motion.p>}
 
-                  <motion.button className="btn btn-block" type="submit" variants={field} whileTap={{ scale: 0.98 }}>
-                    Sign in
+                  <motion.button
+                    className="btn btn-block"
+                    type="submit"
+                    variants={field}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={Boolean(pending)}
+                  >
+                    {pending === "form" ? "Signing in…" : "Sign in"}
                   </motion.button>
 
                   <motion.p className="modal-switch" variants={field}>
@@ -201,11 +234,14 @@ export default function AuthModal() {
                     ))}
                   </motion.div>
 
+                  {google("signup")}
+
                   <motion.div className="field-row" variants={field}>
                     <label>
                       Full name
                       <input
                         required
+                        autoComplete="name"
                         placeholder="Jane Doe"
                         value={signUpForm.name}
                         onChange={(e) => setSignUpForm({ ...signUpForm, name: e.target.value })}
@@ -216,6 +252,7 @@ export default function AuthModal() {
                       <input
                         required
                         inputMode="numeric"
+                        autoComplete="tel-national"
                         pattern="\d{10}"
                         title="10 digits"
                         placeholder="9876543210"
@@ -232,6 +269,7 @@ export default function AuthModal() {
                     <input
                       type="email"
                       required
+                      autoComplete="email"
                       placeholder="you@example.com"
                       value={signUpForm.email}
                       onChange={(e) => setSignUpForm({ ...signUpForm, email: e.target.value })}
@@ -244,6 +282,7 @@ export default function AuthModal() {
                       <input
                         type="password"
                         required
+                        autoComplete="new-password"
                         placeholder="••••••••"
                         value={signUpForm.password}
                         onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
@@ -254,6 +293,7 @@ export default function AuthModal() {
                       <input
                         type="password"
                         required
+                        autoComplete="new-password"
                         placeholder="••••••••"
                         value={signUpForm.confirm}
                         onChange={(e) => setSignUpForm({ ...signUpForm, confirm: e.target.value })}
@@ -284,6 +324,7 @@ export default function AuthModal() {
                   <motion.label variants={field}>
                     <span>Address <em>(optional)</em></span>
                     <input
+                      autoComplete="street-address"
                       placeholder="Flat, street, landmark"
                       value={signUpForm.address}
                       onChange={(e) => setSignUpForm({ ...signUpForm, address: e.target.value })}
@@ -292,8 +333,14 @@ export default function AuthModal() {
 
                   {error && <motion.p className="auth-error" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{error}</motion.p>}
 
-                  <motion.button className="btn btn-block" type="submit" variants={field} whileTap={{ scale: 0.98 }}>
-                    Create account
+                  <motion.button
+                    className="btn btn-block"
+                    type="submit"
+                    variants={field}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={Boolean(pending)}
+                  >
+                    {pending === "form" ? "Creating your account…" : "Create account"}
                   </motion.button>
 
                   <motion.p className="modal-switch" variants={field}>
