@@ -16,7 +16,7 @@ function addressInput(body = {}) {
     lat: Number(body.lat),
     lng: Number(body.lng),
   };
-  if (input.house.length < 2 || input.house.length > 120) throw new ValidationError("Enter your house or flat number.");
+  if (input.house.length > 120) throw new ValidationError("Keep the house or flat number under 120 characters.");
   if (input.area.length < 3 || input.area.length > 160) throw new ValidationError("Choose your area on the map.");
   if (input.landmark.length > 120) throw new ValidationError("Keep the landmark under 120 characters.");
   const { lat, lng } = input;

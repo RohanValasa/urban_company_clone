@@ -6,11 +6,15 @@ import { api } from "../lib/api";
 import { formatSlot } from "../lib/slots";
 import { addressLine, rupees } from "../lib/format";
 
-function statusOf(b) {
-  if (b.status === "cancelled") return { label: "Cancelled", tone: "cancelled" };
-  if (b.status === "completed" || new Date(b.slot) < new Date()) return { label: "Completed", tone: "completed" };
-  return { label: "Upcoming", tone: "confirmed" };
-}
+const STATUS = {
+  confirmed: { label: "Finding a professional", tone: "pending" },
+  assigned: { label: "Professional assigned", tone: "confirmed" },
+  "on-the-way": { label: "On the way · Track", tone: "live" },
+  arrived: { label: "Arrived", tone: "live" },
+  completed: { label: "Completed", tone: "completed" },
+  cancelled: { label: "Cancelled", tone: "cancelled" },
+};
+const statusOf = (b) => STATUS[b.status] || STATUS.confirmed;
 
 const paymentLabel = (p) =>
   p.method === "upi"
@@ -65,6 +69,7 @@ export default function Bookings() {
                 className="booking-item booking-card"
                 variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
               >
+                <Link to={`/bookings/${b.id}`} className="booking-link" aria-label={`Track booking #${b.id.slice(-6).toUpperCase()}`} />
                 <div className="booking-main">
                   <h3>{b.items.map((i) => (i.qty > 1 ? `${i.name} × ${i.qty}` : i.name)).join(", ")}</h3>
                   <span className="muted-inline">🕘 {formatSlot(b.slot)}</span>

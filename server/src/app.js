@@ -5,6 +5,7 @@ const { rateLimit } = require("express-rate-limit");
 const { authRouter, duplicateMessage } = require("./routes/auth");
 const { accountRouter } = require("./routes/account");
 const { bookingsRouter } = require("./routes/bookings");
+const { proRouter } = require("./routes/pro");
 const { sessionCookies } = require("./lib/session");
 const { googleVerifier } = require("./lib/google");
 
@@ -42,6 +43,7 @@ function createApp(config, { verifyGoogle = googleVerifier(config.googleClientId
   app.use("/api/auth", authLimiter, authRouter({ session, verifyGoogle }));
   app.use("/api/account", accountRouter({ session }));
   app.use("/api/bookings", bookingsRouter({ session }));
+  app.use("/api/pro", proRouter({ session }));
 
   app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));
 

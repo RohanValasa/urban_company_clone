@@ -4,7 +4,8 @@ const ROLES = ["customer", "professional"];
 
 const addressSchema = new Schema({
   label: { type: String, trim: true, maxlength: 20, default: "Home" },
-  house: { type: String, required: true, trim: true, maxlength: 120 },
+  // Optional: the area from the map is often enough to find the place.
+  house: { type: String, trim: true, maxlength: 120, default: "" },
   area: { type: String, required: true, trim: true, maxlength: 160 },
   landmark: { type: String, trim: true, maxlength: 120, default: "" },
   lat: Number,

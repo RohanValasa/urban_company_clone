@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Services from "./pages/Services";
 import Checkout from "./pages/Checkout";
 import Bookings from "./pages/Bookings";
+import Track from "./pages/Track";
 import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import Collection from "./pages/Collection";
 import ServicePage from "./pages/ServicePage";
@@ -37,6 +38,14 @@ export default function App() {
                 element={
                   <ProtectedRoute role="customer">
                     <Bookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/bookings/:id"
+                element={
+                  <ProtectedRoute role="customer">
+                    <Track />
                   </ProtectedRoute>
                 }
               />

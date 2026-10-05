@@ -552,8 +552,8 @@ function Placed({ booking }) {
         </dl>
         <BillRows bill={booking.bill} />
         <div className="co-placed-actions">
-          <Link to="/bookings" className="btn">My bookings</Link>
-          <Link to="/" className="btn-ghost">Back to home</Link>
+          <Link to={`/bookings/${booking.id}`} className="btn">Track booking</Link>
+          <Link to="/bookings" className="btn-ghost">My bookings</Link>
         </div>
       </motion.div>
     </main>

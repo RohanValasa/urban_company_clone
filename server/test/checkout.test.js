@@ -1,86 +1,15 @@
-// Checkout: phone, addresses, bill quotes and bookings, against a real MongoDB.
-// Skipped when no MongoDB is reachable.
-const { test, before, after, beforeEach } = require("node:test");
+// Checkout: phone, addresses, bill quotes and bookings.
+const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const mongoose = require("mongoose");
-const { createApp } = require("../src/app");
-const { User } = require("../src/models/User");
-const { Booking } = require("../src/models/Booking");
 const { slotInput } = require("../src/routes/bookings");
+const { useApi, istSlot, cart, home } = require("./helpers");
 
-const MONGO = process.env.MONGODB_TEST_URI || "mongodb://127.0.0.1:27017/servify_test";
-const config = {
-  isProd: false,
-  jwtSecret: "test-secret",
-  googleClientId: "test-client.apps.googleusercontent.com",
-  clientOrigins: ["http://localhost:5173"],
-  authRateLimit: 1000,
-};
-const verifyGoogle = async (credential) => ({ emailVerified: true, ...JSON.parse(credential) });
-
-let server;
-let base;
-let skip = false;
-
-before(async () => {
-  try {
-    await mongoose.connect(MONGO, { serverSelectionTimeoutMS: 2000 });
-  } catch {
-    skip = `MongoDB isn't reachable at ${MONGO}`;
-    return;
-  }
-  await User.syncIndexes();
-  server = createApp(config, { verifyGoogle }).listen(0);
-  base = `http://127.0.0.1:${server.address().port}/api`;
-});
-
-after(async () => {
-  server?.close();
-  if (!skip) await mongoose.connection.dropDatabase();
-  await mongoose.disconnect();
-});
-
-beforeEach(async () => {
-  if (!skip) await Promise.all([User.deleteMany({}), Booking.deleteMany({})]);
-});
-
-function agent() {
-  let cookie = "";
-  return async (method, path, body) => {
-    const res = await fetch(base + path, {
-      method,
-      headers: { "content-type": "application/json", ...(cookie && { cookie }) },
-      body: body && JSON.stringify(body),
-    });
-    const set = res.headers.get("set-cookie");
-    if (set) cookie = set.split(";")[0];
-    const data = res.status === 204 ? null : await res.json();
-    return { status: res.status, data };
-  };
-}
-
-/** A signed-in Google customer with no phone number yet. */
-async function googleCustomer(email = "asha@gmail.com", role = "customer") {
-  const call = agent();
-  const credential = JSON.stringify({ googleId: `g-${email}`, email, name: "Asha Rao" });
-  await call("POST", "/auth/google", { credential, role });
-  return call;
-}
-
-/** Tomorrow at the given time in India. */
-function istSlot(hours, minutes = 0, daysAhead = 1) {
-  const d = new Date();
-  const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + daysAhead, hours, minutes) - 330 * 60000;
-  return new Date(utc).toISOString();
-}
-
-const cart = [
-  { id: "bath-4", name: "Intense cleaning (4 bathroom)", category: "Bathroom Cleaning", price: 1596, mrp: 1996, qty: 1 },
-];
-const home = { label: "Home", house: "Flat 302, Lotus Residency", area: "Madhapur, Hyderabad", landmark: "Near metro", lat: 17.4483, lng: 78.3915 };
+const api = useApi();
+const agent = () => api.agent();
+const googleCustomer = (email = "asha@gmail.com", role = "customer") => api.googleUser(email, role);
 
 test("quote works out taxes, savings and tip", async (t) => {
-  if (skip) return t.skip(skip);
+  if (api.skip) return t.skip(api.skip);
   const { status, data } = await agent()("POST", "/bookings/quote", { items: cart, tip: 75 });
   assert.equal(status, 200);
   assert.deepEqual(data.bill, {
@@ -97,7 +26,7 @@ test("quote works out taxes, savings and tip", async (t) => {
 });
 
 test("quote applies coupons only when they qualify", async (t) => {
-  if (skip) return t.skip(skip);
+  if (api.skip) return t.skip(api.skip);
   const call = agent();
   const ten = await call("POST", "/bookings/quote", { items: cart, coupon: "servify10" });
   assert.equal(ten.data.bill.coupon, "SERVIFY10");
@@ -117,7 +46,7 @@ test("quote applies coupons only when they qualify", async (t) => {
 });
 
 test("quote rejects broken carts and tips", async (t) => {
-  if (skip) return t.skip(skip);
+  if (api.skip) return t.skip(api.skip);
   const call = agent();
   assert.equal((await call("POST", "/bookings/quote", { items: [] })).status, 400);
   assert.equal((await call("POST", "/bookings/quote", { items: [{ ...cart[0], price: -5 }] })).status, 400);
@@ -126,7 +55,7 @@ test("quote rejects broken carts and tips", async (t) => {
 });
 
 test("a Google customer adds a phone number at checkout", async (t) => {
-  if (skip) return t.skip(skip);
+  if (api.skip) return t.skip(api.skip);
   assert.equal((await agent()("PATCH", "/account/profile", { phone: "9876543210" })).status, 401);
 
   const call = await googleCustomer();
@@ -142,12 +71,12 @@ test("a Google customer adds a phone number at checkout", async (t) => {
 });
 
 test("addresses must be inside Hyderabad", async (t) => {
-  if (skip) return t.skip(skip);
+  if (api.skip) return t.skip(api.skip);
   const call = await googleCustomer();
   const mumbai = await call("POST", "/account/addresses", { ...home, lat: 19.07, lng: 72.87 });
   assert.equal(mumbai.status, 400);
   assert.match(mumbai.data.error, /Hyderabad/);
-  assert.equal((await call("POST", "/account/addresses", { ...home, house: "" })).status, 400);
+  assert.equal((await call("POST", "/account/addresses", { ...home, area: "" })).status, 400);
 
   const added = await call("POST", "/account/addresses", home);
   assert.equal(added.status, 201);
@@ -160,7 +89,7 @@ test("addresses must be inside Hyderabad", async (t) => {
 });
 
 test("booking needs a phone, an address, a slot and a payment method", async (t) => {
-  if (skip) return t.skip(skip);
+  if (api.skip) return t.skip(api.skip);
   const call = await googleCustomer();
   const order = { items: cart, slot: istSlot(10), payment: "cash" };
 
@@ -202,7 +131,7 @@ test("booking needs a phone, an address, a slot and a payment method", async (t)
 });
 
 test("professionals can't book and can't see others' addresses", async (t) => {
-  if (skip) return t.skip(skip);
+  if (api.skip) return t.skip(api.skip);
   const pro = await googleCustomer("pro@gmail.com", "professional");
   await pro("PATCH", "/account/profile", { phone: "9000000001" });
   const { data } = await pro("POST", "/account/addresses", home);

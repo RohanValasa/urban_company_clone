@@ -61,9 +61,8 @@ export default function AddressSheet({
           </div>
 
           <label>
-            House / flat number and building
+            <span>House / flat number and building <em>(optional)</em></span>
             <input
-              required
               autoFocus
               maxLength={120}
               placeholder="Flat 302, Lotus Residency"

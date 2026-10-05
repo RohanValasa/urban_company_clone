@@ -42,7 +42,9 @@ API: `POST /api/auth/signup`, `POST /api/auth/login` (`identifier` is an email o
 phone), `POST /api/auth/google`, `POST /api/auth/logout`, `GET /api/auth/me`,
 `PATCH /api/account/profile`, `GET|POST /api/account/addresses`,
 `DELETE /api/account/addresses/:id`, `POST /api/bookings/quote`,
-`GET|POST /api/bookings`.
+`GET|POST /api/bookings`, `GET /api/bookings/:id`, `GET /api/bookings/:id/live`,
+and for professionals `GET /api/pro/jobs`, `POST /api/pro/jobs/:id/accept`,
+`POST /api/pro/jobs/:id/status`, `POST /api/pro/jobs/:id/location`.
 
 Run the API tests with `npm test` in `server/`. They need a MongoDB at
 `MONGODB_TEST_URI` (default `mongodb://127.0.0.1:27017/servify_test`) and are
@@ -67,6 +69,28 @@ To show the UPI QR code, set `UPI_ID` (for example `yourname@okhdfcbank`) and
 optionally `UPI_NAME` in `server/.env`. The app trusts the customer's "I've
 paid" and marks the booking "confirming payment"; it can't check with the bank.
 For automatic confirmation you'd need a payment gateway such as Razorpay.
+
+### Live tracking
+
+After booking, the customer's **Track booking** page (`/bookings/:id`) follows
+the job live: *Booked → Professional assigned → On the way → Arrived →
+Completed*. While the professional travels, their position moves on an
+OpenStreetMap map with the distance and an ETA, like a ride-hailing app.
+
+Professionals see **New jobs near you** on their dashboard (area only, no door
+number or phone until they accept). After accepting they press **Start trip**,
+which shares their location every few seconds, then **I've arrived** and
+**Mark job completed**.
+
+- Updates reach the customer instantly over Server-Sent Events
+  (`GET /api/bookings/:id/live`); no extra service is needed.
+- Real GPS only works on `https://` or `localhost`. Phones on your Wi-Fi
+  (`http://192.168…`) won't share their location until the site has https.
+- To try it on one computer, use two browsers (or a normal and a private
+  window): sign up as a customer in one and as a professional in the other.
+  In development the professional can choose **Simulate the drive** to send a
+  fake route instead of real GPS.
+- The live hub lives in the server's memory, so it assumes one server process.
 
 ### Turning on "Sign in with Google"
 
