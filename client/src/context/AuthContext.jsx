@@ -59,6 +59,13 @@ export function AuthProvider({ children }) {
     return data.user;
   }, []);
 
+  /** Saves a phone number on the account (Google sign-ups start without one). */
+  const savePhone = useCallback(async (phone) => {
+    const data = await api("/account/profile", { method: "PATCH", body: { phone } });
+    setUser(data.user);
+    return data.user;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await api("/auth/logout", { method: "POST" });
@@ -69,8 +76,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, signup, login, loginWithGoogle, logout }),
-    [user, loading, signup, login, loginWithGoogle, logout]
+    () => ({ user, loading, signup, login, loginWithGoogle, savePhone, logout }),
+    [user, loading, signup, login, loginWithGoogle, savePhone, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

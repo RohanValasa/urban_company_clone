@@ -2,13 +2,12 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const { User, ROLES } = require("../models/User");
 const { ValidationError, signupInput, loginIdentifier } = require("../lib/validate");
+const { httpError } = require("../lib/http");
 
 const BCRYPT_COST = 12;
 // Compared against when no account matches, so a miss takes as long as a wrong password.
 const DUMMY_HASH = bcrypt.hashSync("servify-no-such-account", BCRYPT_COST);
 
-// `expose` marks the message as safe to show the user.
-const httpError = (status, message) => Object.assign(new Error(message), { status, expose: true });
 
 /** Which field a duplicate-key error from MongoDB is about. */
 function duplicateMessage(err) {

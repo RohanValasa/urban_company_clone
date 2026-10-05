@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Services from "./pages/Services";
-import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 import Bookings from "./pages/Bookings";
 import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import Collection from "./pages/Collection";
@@ -30,7 +30,8 @@ export default function App() {
               <Route path="/" element={<Services />} />
               <Route path="/collection/:slug" element={<Collection />} />
               <Route path="/s/:slug" element={<ServicePage />} />
-              <Route path="/cart" element={<Cart />} />
+              <Route path="/cart" element={<Checkout />} />
+              <Route path="/checkout" element={<Checkout />} />
               <Route
                 path="/bookings"
                 element={

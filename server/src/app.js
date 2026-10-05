@@ -3,6 +3,8 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { rateLimit } = require("express-rate-limit");
 const { authRouter, duplicateMessage } = require("./routes/auth");
+const { accountRouter } = require("./routes/account");
+const { bookingsRouter } = require("./routes/bookings");
 const { sessionCookies } = require("./lib/session");
 const { googleVerifier } = require("./lib/google");
 
@@ -21,7 +23,12 @@ function createApp(config, { verifyGoogle = googleVerifier(config.googleClientId
   app.use(cookieParser());
 
   app.get("/api/health", (req, res) => res.json({ ok: true }));
-  app.get("/api/config", (req, res) => res.json({ googleClientId: config.googleClientId || null }));
+  app.get("/api/config", (req, res) =>
+    res.json({
+      googleClientId: config.googleClientId || null,
+      upi: config.upiId ? { id: config.upiId, name: config.upiName } : null,
+    })
+  );
 
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -33,6 +40,8 @@ function createApp(config, { verifyGoogle = googleVerifier(config.googleClientId
     message: { error: "Too many attempts. Please wait a few minutes and try again." },
   });
   app.use("/api/auth", authLimiter, authRouter({ session, verifyGoogle }));
+  app.use("/api/account", accountRouter({ session }));
+  app.use("/api/bookings", bookingsRouter({ session }));
 
   app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));
 

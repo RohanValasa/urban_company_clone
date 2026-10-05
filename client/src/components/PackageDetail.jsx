@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import VideoStage from "./VideoStage";
 import { Art, Emoji } from "./Art";
 import { useCart } from "../context/CartContext";
+import { findSub } from "../data/services";
 
 const backdrop = { hidden: { opacity: 0 }, show: { opacity: 1 } };
 
@@ -167,7 +168,16 @@ export default function PackageDetail({ pkg, onClose }) {
               </div>
               <motion.button
                 className="add-btn pd-add"
-                onClick={() => addItem({ _id: pkg.id, name: pkg.name, price: pkg.price, image: pkg.image })}
+                onClick={() =>
+                  addItem({
+                    _id: pkg.id,
+                    name: pkg.name,
+                    price: pkg.price,
+                    mrp: pkg.mrp,
+                    category: findSub(pkg.subSlug)?.label,
+                    image: pkg.image,
+                  })
+                }
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.94 }}
               >

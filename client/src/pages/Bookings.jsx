@@ -1,13 +1,37 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
+import { api } from "../lib/api";
+import { formatSlot } from "../lib/slots";
+import { addressLine, rupees } from "../lib/format";
 
-const MOCK_BOOKINGS = [
-  { id: "b1", name: "Home Deep Cleaning", date: "18 Sep, 10:00 AM", status: "Confirmed" },
-  { id: "b2", name: "AC Service & Repair", date: "22 Sep, 2:30 PM", status: "Pending" },
-];
+function statusOf(b) {
+  if (b.status === "cancelled") return { label: "Cancelled", tone: "cancelled" };
+  if (b.status === "completed" || new Date(b.slot) < new Date()) return { label: "Completed", tone: "completed" };
+  return { label: "Upcoming", tone: "confirmed" };
+}
+
+const paymentLabel = (p) =>
+  p.method === "upi"
+    ? p.status === "paid" ? "Paid by UPI" : "UPI · confirming payment"
+    : "Cash on delivery";
 
 export default function Bookings() {
   const { user } = useAuth();
+  const [bookings, setBookings] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let live = true;
+    api("/bookings").then(
+      (data) => live && setBookings(data.bookings),
+      (err) => live && setError(err.message)
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
 
   return (
     <main className="page">
@@ -16,26 +40,45 @@ export default function Bookings() {
       </motion.h1>
       <p className="auth-sub" style={{ marginBottom: 28 }}>Signed in as {user?.name}</p>
 
-      <motion.ul
-        className="booking-list"
-        initial="hidden"
-        animate="show"
-        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
-      >
-        {MOCK_BOOKINGS.map((b) => (
-          <motion.li
-            key={b.id}
-            className="booking-item"
-            variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
-          >
-            <div>
-              <h3>{b.name}</h3>
-              <span className="muted-inline">{b.date}</span>
-            </div>
-            <span className={`status-pill status-${b.status.toLowerCase()}`}>{b.status}</span>
-          </motion.li>
-        ))}
-      </motion.ul>
+      {error && <p className="auth-error">{error}</p>}
+      {!bookings && !error && <p className="muted">Loading your bookings…</p>}
+      {bookings?.length === 0 && (
+        <div className="cart-empty">
+          <span>📅</span>
+          <p className="muted">You haven't booked anything yet.</p>
+          <Link to="/" className="btn">Browse services</Link>
+        </div>
+      )}
+
+      {bookings?.length > 0 && (
+        <motion.ul
+          className="booking-list"
+          initial="hidden"
+          animate="show"
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+        >
+          {bookings.map((b) => {
+            const status = statusOf(b);
+            return (
+              <motion.li
+                key={b.id}
+                className="booking-item booking-card"
+                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
+              >
+                <div className="booking-main">
+                  <h3>{b.items.map((i) => (i.qty > 1 ? `${i.name} × ${i.qty}` : i.name)).join(", ")}</h3>
+                  <span className="muted-inline">🕘 {formatSlot(b.slot)}</span>
+                  <span className="muted-inline">📍 {addressLine(b.address)}</span>
+                  <span className="muted-inline">
+                    💳 {paymentLabel(b.payment)} · <strong>{rupees(b.bill.total)}</strong> · #{b.id.slice(-6).toUpperCase()}
+                  </span>
+                </div>
+                <span className={`status-pill status-${status.tone}`}>{status.label}</span>
+              </motion.li>
+            );
+          })}
+        </motion.ul>
+      )}
     </main>
   );
 }

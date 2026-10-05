@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api } from "../lib/api";
+import { getConfig } from "../lib/config";
 
 const GSI_SRC = "https://accounts.google.com/gsi/client";
 
@@ -46,7 +46,7 @@ function loadScript() {
 /** Resolves to the Google client id (or null when the server has none). */
 function prepareGoogle() {
   if (!setup) {
-    setup = api("/config").then(async ({ googleClientId }) => {
+    setup = getConfig().then(async ({ googleClientId }) => {
       if (!googleClientId) return null;
       await loadScript();
       if (!initialised) {

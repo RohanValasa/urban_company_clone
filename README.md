@@ -39,11 +39,34 @@ MongoDB locally, run it in Docker
   scripts can't read it. Sign-in routes are rate limited.
 
 API: `POST /api/auth/signup`, `POST /api/auth/login` (`identifier` is an email or
-phone), `POST /api/auth/google`, `POST /api/auth/logout`, `GET /api/auth/me`.
+phone), `POST /api/auth/google`, `POST /api/auth/logout`, `GET /api/auth/me`,
+`PATCH /api/account/profile`, `GET|POST /api/account/addresses`,
+`DELETE /api/account/addresses/:id`, `POST /api/bookings/quote`,
+`GET|POST /api/bookings`.
 
 Run the API tests with `npm test` in `server/`. They need a MongoDB at
 `MONGODB_TEST_URI` (default `mongodb://127.0.0.1:27017/servify_test`) and are
 skipped when none is reachable.
+
+### Checkout
+
+**View Cart** opens a checkout that unlocks one step at a time:
+
+1. **Phone.** Email sign-ups already have one; Google sign-ups add it here, and
+   it's saved on the account.
+2. **Address.** Saved per account. The area comes from the Hyderabad-only
+   location picker.
+3. **Slot.** Every half hour from 8:00 AM to 7:30 PM (India time), up to a week
+   ahead and at least an hour away.
+4. **Payment.** Cash on delivery, or UPI with a QR code for the exact amount.
+
+The bill (5% GST + ₹49 visit fee, coupons, tip) is worked out on the server, and
+bookings are saved to MongoDB and listed under **My bookings**.
+
+To show the UPI QR code, set `UPI_ID` (for example `yourname@okhdfcbank`) and
+optionally `UPI_NAME` in `server/.env`. The app trusts the customer's "I've
+paid" and marks the booking "confirming payment"; it can't check with the bank.
+For automatic confirmation you'd need a payment gateway such as Razorpay.
 
 ### Turning on "Sign in with Google"
 

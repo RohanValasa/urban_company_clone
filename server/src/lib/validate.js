@@ -48,6 +48,14 @@ function signupInput(body = {}) {
   return { ...input, password: body.password };
 }
 
+/** A 10-digit Indian mobile number, ignoring spaces, dashes and a +91 prefix. */
+function phoneInput(raw) {
+  let digits = str(raw).replace(/[\s-]/g, "");
+  if (digits.startsWith("+91")) digits = digits.slice(3);
+  if (!/^[6-9]\d{9}$/.test(digits)) throw new ValidationError("Enter a valid 10-digit mobile number.");
+  return digits;
+}
+
 /** `{ email }` or `{ phone }` from what the user typed in the sign-in box. */
 function loginIdentifier(raw) {
   const id = str(raw);
@@ -57,4 +65,4 @@ function loginIdentifier(raw) {
   throw new ValidationError("Enter your email or 10-digit phone number.");
 }
 
-module.exports = { ValidationError, signupInput, loginIdentifier, ROLES };
+module.exports = { ValidationError, signupInput, loginIdentifier, phoneInput, str, ROLES };

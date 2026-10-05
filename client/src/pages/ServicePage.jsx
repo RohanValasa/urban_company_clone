@@ -26,7 +26,7 @@ export default function ServicePage() {
   const sub = findSub(slug);
   const heroRef = useRef(null);
   const reduced = useReducedMotion();
-  const { addItem, qtyOf, count, total } = useCart();
+  const { items, addItem, setQty, qtyOf, count, total, mrpTotal } = useCart();
   const [tab, setTab] = useState(sub?.tabs?.[0]?.id || "value");
   const [detail, setDetail] = useState(null);
 
@@ -154,7 +154,7 @@ export default function ServicePage() {
                         </Tilt>
                         <motion.button
                           className="add-btn sp-add"
-                          onClick={() => addItem({ _id: p.id, name: p.name, price: p.price, image: p.image })}
+                          onClick={() => addItem({ _id: p.id, name: p.name, price: p.price, mrp: p.mrp, category: sub.label, image: p.image })}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.94 }}
                         >
@@ -214,10 +214,37 @@ export default function ServicePage() {
                   <p>No items in your cart</p>
                 </motion.div>
               ) : (
-                <motion.div key="full" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <p className="sp-cart-count">{count} item{count > 1 ? "s" : ""} in your cart</p>
-                  <p className="sp-cart-total">₹{total.toLocaleString("en-IN")}</p>
-                  <Link to="/cart" className="btn btn-block">View cart</Link>
+                <motion.div
+                  key="full"
+                  className="sp-cart-full"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <h3>Cart</h3>
+                  <ul className="sp-cart-lines">
+                    {items.map((item) => (
+                      <li key={item._id}>
+                        <span className="sp-cart-name">{item.name}</span>
+                        <div className="stepper">
+                          <button onClick={() => setQty(item._id, item.qty - 1)} aria-label={`One less ${item.name}`}>−</button>
+                          <span>{item.qty}</span>
+                          <button onClick={() => setQty(item._id, item.qty + 1)} aria-label={`One more ${item.name}`}>+</button>
+                        </div>
+                        <span className="sp-cart-price">
+                          ₹{(item.price * item.qty).toLocaleString("en-IN")}
+                          {item.mrp > item.price && <s>₹{(item.mrp * item.qty).toLocaleString("en-IN")}</s>}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link to="/cart" className="sp-cart-cta" aria-label={`View cart, ${count} item${count > 1 ? "s" : ""}`}>
+                    <span>
+                      ₹{total.toLocaleString("en-IN")}
+                      {mrpTotal > total && <s>₹{mrpTotal.toLocaleString("en-IN")}</s>}
+                    </span>
+                    <strong>View Cart</strong>
+                  </Link>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -18,6 +18,9 @@ module.exports = {
   mongoUri: env.MONGODB_URI || "mongodb://127.0.0.1:27017/servify",
   jwtSecret: jwtSecret(),
   googleClientId: env.GOOGLE_CLIENT_ID || "",
+  // Where UPI payments go. Without it the UPI option shows no QR code.
+  upiId: env.UPI_ID || "",
+  upiName: env.UPI_NAME || "Servify",
   clientOrigins: (env.CLIENT_ORIGIN || "http://localhost:5173").split(",").map((o) => o.trim()),
   authRateLimit: Number(env.AUTH_RATE_LIMIT) || 20,
 };

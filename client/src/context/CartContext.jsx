@@ -37,10 +37,12 @@ export function CartProvider({ children }) {
 
   const count = useMemo(() => items.reduce((sum, i) => sum + i.qty, 0), [items]);
   const total = useMemo(() => items.reduce((sum, i) => sum + i.qty * i.price, 0), [items]);
+  // What the same items cost before Servify's own price cuts.
+  const mrpTotal = useMemo(() => items.reduce((sum, i) => sum + i.qty * Math.max(i.mrp || 0, i.price), 0), [items]);
   const qtyOf = (id) => items.find((i) => i._id === id)?.qty || 0;
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, setQty, clear, count, total, qtyOf }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, setQty, clear, count, total, mrpTotal, qtyOf }}>
       {children}
     </CartContext.Provider>
   );
