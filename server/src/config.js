@@ -21,6 +21,13 @@ module.exports = {
   // Where UPI payments go. Without it the UPI option shows no QR code.
   upiId: env.UPI_ID || "",
   upiName: env.UPI_NAME || "Servify",
+  // Seconds a professional has to answer a job offer before it moves on.
+  offerSeconds: Number(env.OFFER_SECONDS) || 90,
+  // How long a customer waits before asking again when nobody accepted.
+  retryCooldownSeconds: Number(env.RETRY_COOLDOWN_SECONDS) || 120,
+  // Claude checks ID photos when an Anthropic credential is available.
+  aiIdCheck: Boolean(env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN),
+  fieldKey: env.FIELD_KEY || "",
   clientOrigins: (env.CLIENT_ORIGIN || "http://localhost:5173").split(",").map((o) => o.trim()),
   authRateLimit: Number(env.AUTH_RATE_LIMIT) || 20,
 };

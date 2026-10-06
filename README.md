@@ -43,8 +43,12 @@ phone), `POST /api/auth/google`, `POST /api/auth/logout`, `GET /api/auth/me`,
 `PATCH /api/account/profile`, `GET|POST /api/account/addresses`,
 `DELETE /api/account/addresses/:id`, `POST /api/bookings/quote`,
 `GET|POST /api/bookings`, `GET /api/bookings/:id`, `GET /api/bookings/:id/live`,
-and for professionals `GET /api/pro/jobs`, `POST /api/pro/jobs/:id/accept`,
-`POST /api/pro/jobs/:id/status`, `POST /api/pro/jobs/:id/location`.
+`POST /api/bookings/:id/retry`, `POST /api/bookings/:id/cancel`,
+`GET /api/notifications/live`, and for professionals `GET|PUT /api/pro/profile`,
+`PATCH /api/pro/online`, `GET /api/pro/offers`, `POST /api/pro/offers/:id/accept`,
+`POST /api/pro/offers/:id/reject`, `GET /api/pro/jobs`,
+`POST /api/pro/jobs/:id/status`, `POST /api/pro/jobs/:id/start` (the OTP),
+`POST /api/pro/jobs/:id/complete`, `POST /api/pro/jobs/:id/location`.
 
 Run the API tests with `npm test` in `server/`. They need a MongoDB at
 `MONGODB_TEST_URI` (default `mongodb://127.0.0.1:27017/servify_test`) and are
@@ -70,27 +74,74 @@ optionally `UPI_NAME` in `server/.env`. The app trusts the customer's "I've
 paid" and marks the booking "confirming payment"; it can't check with the bank.
 For automatic confirmation you'd need a payment gateway such as Razorpay.
 
-### Live tracking
+### Demo accounts
 
-After booking, the customer's **Track booking** page (`/bookings/:id`) follows
-the job live: *Booked → Professional assigned → On the way → Arrived →
-Completed*. While the professional travels, their position moves on an
-OpenStreetMap map with the distance and an ETA, like a ride-hailing app.
+`npm run seed` in `server/` creates 50 customers and 100 professionals spread
+across Hyderabad and writes every login to [`DEMO_ACCOUNTS.md`](DEMO_ACCOUNTS.md).
+Passwords are `Customer@001` … `Customer@050` and `Provider@001` …
+`Provider@100`. The emails end in `.test`, so they can never reach a real inbox.
+The seeded professionals skip the ID upload and are already approved; real
+sign-ups have to go through it. Re-running the seed replaces only these demo
+accounts and their bookings.
 
-Professionals see **New jobs near you** on their dashboard (area only, no door
-number or phone until they accept). After accepting they press **Start trip**,
-which shares their location every few seconds, then **I've arrived** and
-**Mark job completed**.
+### Becoming a professional
 
-- Updates reach the customer instantly over Server-Sent Events
-  (`GET /api/bookings/:id/live`); no extra service is needed.
-- Real GPS only works on `https://` or `localhost`. Phones on your Wi-Fi
-  (`http://192.168…`) won't share their location until the site has https.
-- To try it on one computer, use two browsers (or a normal and a private
-  window): sign up as a customer in one and as a professional in the other.
-  In development the professional can choose **Simulate the drive** to send a
-  fake route instead of real GPS.
-- The live hub lives in the server's memory, so it assumes one server process.
+Signing up with "I provide a service" opens a four-step profile at
+`/professional/onboarding`:
+
+1. **Services** you offer, years of experience, and a few lines about yourself
+   in any language (English, Telugu, Hindi, Urdu…).
+2. **Service area**: your base (current location or a Hyderabad locality) and
+   how far you'll travel.
+3. **Identity**: the ID type (Aadhaar, PAN, voter ID, driving licence or
+   passport), its last 4 characters and a photo. Claude checks the photo is a
+   genuine ID in your name. Only the last 4 characters and the verdict are kept;
+   the photo is never stored.
+4. **Payouts**: a UPI ID or a bank account. The account number is encrypted
+   (AES-256-GCM) and only its last 4 digits are shown back. Card numbers aren't
+   accepted.
+
+Jobs only start arriving once all four are done and the ID is approved.
+
+The ID check needs `ANTHROPIC_API_KEY` in `server/.env`. Without one, IDs are
+approved automatically in development and left "pending" in production.
+
+### Booking a professional
+
+1. **Matching.** A new booking goes to the nearest online professional who does
+   every service in it, whose travel distance covers the address, and who isn't
+   already booked within two hours of the slot. They get the request on their
+   dashboard with a countdown (`OFFER_SECONDS`, 90 by default) and see the area,
+   not the door number or phone.
+2. **Accept or reject.** On accept, the customer gets a notification:
+   *"Yay! Request accepted by <full name>"*. On reject, or if time runs out, the
+   request moves to the next nearest professional.
+3. **Nobody free.** If everyone nearby declines, the booking waits. After
+   `RETRY_COOLDOWN_SECONDS` (120 by default) the customer can press
+   **Find a professional again**, or cancel.
+4. **On the way.** The professional presses **Start trip** and their position
+   moves on the customer's map with an ETA.
+5. **Start code.** At **I've arrived**, the customer gets a 4-digit code on
+   their tracking page and by SMS. The professional types it in to start the job
+   (5 tries).
+6. **Payment.** If the job was paid by UPI at booking, the professional just
+   completes it. Otherwise they collect cash or show a UPI QR for the exact
+   amount, then tap what they received. A "payment received" animation plays
+   and the job is closed.
+
+Notes:
+
+- Updates reach both sides instantly over Server-Sent Events; no extra service
+  is needed. The hub lives in the server's memory, so it assumes one server
+  process.
+- **SMS** is not wired to a gateway yet: the text is printed in the API console
+  as `[sms → +91…]`. Plug a provider (MSG91, Twilio…) into `server/src/lib/sms.js`.
+- To test on one computer, use two browsers (or a normal and a private window):
+  a customer in one and a professional in the other. In development the
+  tracking page names who has the request right now, so you know whom to sign
+  in as. The professional can choose **Simulate the drive** to send a fake
+  route instead of real GPS.
+- Real GPS only works on `https://` or `localhost`.
 
 ### Turning on "Sign in with Google"
 

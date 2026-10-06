@@ -175,6 +175,7 @@ export default function PackageDetail({ pkg, onClose }) {
                     price: pkg.price,
                     mrp: pkg.mrp,
                     category: findSub(pkg.subSlug)?.label,
+                    sub: pkg.subSlug,
                     image: pkg.image,
                   })
                 }

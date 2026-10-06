@@ -21,5 +21,6 @@ export function useLiveBooking(id) {
     return () => source.close();
   }, [id]);
 
-  return { booking, state };
+  // Actions (retry, cancel) return the new booking straight away; the stream catches up.
+  return { booking, state, setBooking };
 }

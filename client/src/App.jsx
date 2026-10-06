@@ -15,6 +15,8 @@ import LocationModal from "./components/LocationModal";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { UIProvider } from "./context/UIContext";
+import { NotificationsProvider } from "./context/NotificationsContext";
+import ProOnboarding from "./pages/ProOnboarding";
 import "./App.css";
 
 export default function App() {
@@ -22,6 +24,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <UIProvider>
+          <NotificationsProvider>
           <CartProvider>
             <ScrollProgress />
             <Nav />
@@ -50,6 +53,14 @@ export default function App() {
                 }
               />
               <Route
+                path="/professional/onboarding"
+                element={
+                  <ProtectedRoute role="professional">
+                    <ProOnboarding />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/professional/dashboard"
                 element={
                   <ProtectedRoute role="professional">
@@ -60,6 +71,7 @@ export default function App() {
             </Routes>
             <Footer />
           </CartProvider>
+          </NotificationsProvider>
         </UIProvider>
       </AuthProvider>
     </BrowserRouter>

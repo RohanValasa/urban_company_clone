@@ -7,6 +7,7 @@ import { useUI } from "../context/UIContext";
 import { api } from "../lib/api";
 import { getConfig } from "../lib/config";
 import { formatSlot, slotStillOpen } from "../lib/slots";
+import { subOfPackage } from "../data/services";
 import { addressLine, rupees } from "../lib/format";
 import AddressSheet from "../components/checkout/AddressSheet";
 import SlotSheet from "../components/checkout/SlotSheet";
@@ -95,7 +96,16 @@ export default function Checkout() {
 
   const isCustomer = user?.role === "customer";
   const cartLines = useMemo(
-    () => items.map((i) => ({ id: i._id, name: i.name, category: i.category, price: i.price, mrp: i.mrp, qty: i.qty })),
+    () =>
+      items.map((i) => ({
+        id: i._id,
+        name: i.name,
+        category: i.category,
+        sub: i.sub || subOfPackage(i._id),
+        price: i.price,
+        mrp: i.mrp,
+        qty: i.qty,
+      })),
     [items]
   );
 
@@ -529,9 +539,16 @@ function Placed({ booking }) {
         >
           ✅
         </motion.span>
-        <h1>Booking confirmed!</h1>
+        <h1>Booking placed!</h1>
         <p>
-          A verified professional will arrive on <strong>{formatSlot(booking.slot)}</strong>.
+          {booking.status === "unassigned" ? (
+            <>No professional is free near you right now. Open the booking to try again in a little while.</>
+          ) : (
+            <>
+              We're asking professionals near you for <strong>{formatSlot(booking.slot)}</strong>. You'll get a
+              notification as soon as someone accepts.
+            </>
+          )}
         </p>
         <dl className="co-placed-details">
           <div>

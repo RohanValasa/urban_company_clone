@@ -1,4 +1,5 @@
 const { ValidationError } = require("./validate");
+const { skillFor } = require("./skills");
 
 const CONVENIENCE_FEE = 49;
 const TAX_RATE = 0.05;
@@ -57,6 +58,7 @@ function cartItems(raw) {
       id: text(item?.id, 80),
       name: text(item?.name, 120),
       category: text(item?.category, 80),
+      sub: text(item?.sub, 60),
       price,
       mrp: Math.max(mrp, price),
       qty,
@@ -64,7 +66,8 @@ function cartItems(raw) {
     if (!clean.id || !clean.name) throw new ValidationError("A cart item is missing its name.");
     if (!isInt(price, 1, 200000) || !isInt(clean.mrp, 1, 400000)) throw new ValidationError(`"${clean.name}" has an invalid price.`);
     if (!isInt(qty, 1, 20)) throw new ValidationError(`Choose between 1 and 20 of "${clean.name}".`);
-    return clean;
+    const { sub, ...kept } = clean;
+    return { ...kept, skill: skillFor(clean) };
   });
 }
 

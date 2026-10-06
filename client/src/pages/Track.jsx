@@ -1,33 +1,61 @@
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import LiveMap from "../components/LiveMap";
 import { useLiveBooking } from "../hooks/useLiveBooking";
+import { api } from "../lib/api";
 import { addressLine, rupees } from "../lib/format";
 import { distanceKm, etaMinutes } from "../lib/geo";
 import { formatSlot } from "../lib/slots";
 
 const STEPS = [
-  { status: "confirmed", label: "Booked" },
-  { status: "assigned", label: "Professional assigned" },
+  { status: "searching", label: "Booked" },
+  { status: "assigned", label: "Professional accepted" },
   { status: "on-the-way", label: "On the way" },
   { status: "arrived", label: "Arrived" },
+  { status: "in-progress", label: "Service in progress" },
   { status: "completed", label: "Completed" },
 ];
+const CANCELLABLE = ["searching", "unassigned", "assigned"];
+
+/** Seconds until `at`, ticking; 0 once it's passed. */
+function useSecondsUntil(at) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!at) return undefined;
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [at]);
+  return at ? Math.max(0, Math.ceil((new Date(at).getTime() - now) / 1000)) : 0;
+}
+
+const searchingSub = (d) => {
+  if (!d) return "Asking professionals near you…";
+  const asked = d.asked ? `Asked ${d.asked} of ${d.nearby} nearby professional${d.nearby === 1 ? "" : "s"}` : "Asking professionals near you";
+  return `${asked}. You'll get a notification the moment someone accepts.`;
+};
 
 function headline(b, eta) {
   const name = b.professional?.name.split(" ")[0];
   switch (b.status) {
-    case "confirmed":
-      return { title: "Finding a professional for you", sub: `Your slot: ${formatSlot(b.slot)}` };
+    case "searching":
+      return { title: "Finding a professional for you", sub: searchingSub(b.dispatch) };
+    case "unassigned":
+      return {
+        title: "Everyone nearby is busy right now",
+        sub: "No professional could take this yet. Please wait a little and try again — your booking is saved.",
+      };
     case "assigned":
-      return { title: `${name} will be there on ${formatSlot(b.slot)}`, sub: "You'll see them on the map once they start the trip." };
+      return { title: `Yay! ${b.professional.name} accepted your request`, sub: `They'll be there on ${formatSlot(b.slot)}. You'll see them on the map once they start the trip.` };
     case "on-the-way":
       return {
         title: eta ? `${name} is ${eta.minutes} min away` : `${name} is on the way`,
         sub: eta ? `${eta.km.toFixed(1)} km from your home · updating live` : "Waiting for their location…",
       };
     case "arrived":
-      return { title: `${name} has arrived`, sub: "Please meet them at the door." };
+      return { title: `${name} has arrived`, sub: "Share the start code below with them so they can begin." };
+    case "in-progress":
+      return { title: `${name} is working on it`, sub: b.payment.status === "due" ? `Pay ${rupees(b.bill.total)} by cash or UPI when the job is done.` : "Already paid — sit back and relax." };
     case "completed":
       return { title: "Service completed", sub: "Thanks for booking with Servify!" };
     default:
@@ -37,7 +65,22 @@ function headline(b, eta) {
 
 export default function Track() {
   const { id } = useParams();
-  const { booking: b, state } = useLiveBooking(id);
+  const { booking: b, state, setBooking } = useLiveBooking(id);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const retryIn = useSecondsUntil(b?.status === "unassigned" ? b.dispatch?.retryAt : null);
+
+  const act = async (path) => {
+    setBusy(true);
+    setError("");
+    try {
+      const res = await api(`/bookings/${id}/${path}`, { method: "POST" });
+      setBooking(res.booking);
+    } catch (err) {
+      setError(err.message);
+    }
+    setBusy(false);
+  };
 
   if (state === "failed" && !b) {
     return (
@@ -57,7 +100,7 @@ export default function Track() {
   const km = moving && home ? distanceKm(b.tracking, home) : null;
   const eta = b.status === "on-the-way" && km != null ? { km, minutes: etaMinutes(km) } : null;
   const head = headline(b, eta);
-  const reached = STEPS.findIndex((s) => s.status === b.status);
+  const reached = b.status === "unassigned" ? 0 : STEPS.findIndex((s) => s.status === b.status);
 
   return (
     <main className="page track">
@@ -74,6 +117,39 @@ export default function Track() {
             </div>
             <span className={`live-dot is-${state}`}>{state === "live" ? "Live" : state === "failed" ? "Offline" : "Connecting…"}</span>
           </motion.div>
+
+          {b.status === "searching" && (
+            <div className="searching" aria-hidden="true">
+              <span /><span /><span />
+              <em>🔍</em>
+            </div>
+          )}
+
+          {b.status === "searching" && b.dispatch?.offeredTo && (
+            <p className="dev-hint">
+              Testing: the request is with <strong>{b.dispatch.offeredTo.name}</strong> ({b.dispatch.offeredTo.email}). Sign in as them in
+              another browser to accept or reject.
+            </p>
+          )}
+
+          {b.status === "unassigned" && (
+            <div className="co-card retry-card">
+              <p>⏳ We'll keep your booking. Try again in a bit — professionals come online all the time.</p>
+              <button className="btn" disabled={busy || retryIn > 0} onClick={() => act("retry")}>
+                {retryIn > 0 ? `Try again in ${Math.floor(retryIn / 60)}:${String(retryIn % 60).padStart(2, "0")}` : busy ? "Searching…" : "🔁 Find a professional again"}
+              </button>
+            </div>
+          )}
+
+          {b.status === "arrived" && b.otp?.code && (
+            <motion.div className="otp-card" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+              <span>Your start code</span>
+              <strong aria-label={`Start code ${b.otp.code.split("").join(" ")}`}>{b.otp.code}</strong>
+              <p>Tell this to {b.professional?.name.split(" ")[0]} only once they're at your door. We've also sent it to +91 {b.phone}.</p>
+            </motion.div>
+          )}
+
+          {error && <p className="auth-error">{error}</p>}
 
           {home && <LiveMap home={home} pro={moving ? { lat: b.tracking.lat, lng: b.tracking.lng } : null} className="track-map" />}
 
@@ -101,7 +177,7 @@ export default function Track() {
               </span>
               <div>
                 <strong>{b.professional.name}</strong>
-                <span>Verified Servify professional · ★ 4.8</span>
+                <span>Verified Servify professional · ★ {b.professional.rating ?? 4.8}</span>
               </div>
               {b.professional.phone && !["completed", "cancelled"].includes(b.status) && (
                 <a className="btn-ghost" href={`tel:+91${b.professional.phone}`}>📞 Call</a>
@@ -111,8 +187,8 @@ export default function Track() {
             <div className="co-card track-pro is-waiting">
               <span className="track-avatar">⏳</span>
               <div>
-                <strong>Assigning a professional</strong>
-                <span>We'll notify you as soon as someone accepts.</span>
+                <strong>{b.status === "unassigned" ? "No professional yet" : "Assigning a professional"}</strong>
+                <span>{b.status === "unassigned" ? "Everyone nearby is busy. Try again soon." : "We'll notify you as soon as someone accepts."}</span>
               </div>
             </div>
           )}
@@ -130,9 +206,19 @@ export default function Track() {
             <p>🕘 {formatSlot(b.slot)}</p>
             <p>📍 {addressLine(b.address)}</p>
             <p>
-              💳 {b.payment.method === "upi" ? "UPI" : "Cash on delivery"} · <strong>{rupees(b.bill.total)}</strong>
+              💳 {b.payment.status === "paid" ? "Paid" : b.payment.method === "upi" ? "UPI" : "Cash on delivery"} · <strong>{rupees(b.bill.total)}</strong>
             </p>
           </div>
+
+          {CANCELLABLE.includes(b.status) && (
+            <button
+              className="btn-ghost track-cancel"
+              disabled={busy}
+              onClick={() => window.confirm("Cancel this booking?") && act("cancel")}
+            >
+              Cancel booking
+            </button>
+          )}
         </aside>
       </div>
     </main>

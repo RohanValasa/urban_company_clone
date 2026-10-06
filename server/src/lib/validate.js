@@ -56,6 +56,75 @@ function phoneInput(raw) {
   return digits;
 }
 
+const ID_TYPES = ["aadhaar", "pan", "voter", "dl", "passport"];
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+
+/**
+ * Cleans a professional's profile form. Every part is optional so it can be
+ * saved step by step; whatever is sent must be valid.
+ * Needs the skill keys and the Hyderabad check passed in to avoid a cycle.
+ */
+function providerInput(body = {}, { skillKeys, inCity }) {
+  const out = {};
+  if (body.skills !== undefined) {
+    const skills = Array.isArray(body.skills) ? [...new Set(body.skills.map(str))] : [];
+    if (skills.length === 0 || skills.some((s) => !skillKeys.includes(s))) throw new ValidationError("Pick at least one service you offer.");
+    out.skills = skills;
+  }
+  if (body.experienceYears !== undefined) {
+    const years = Number(body.experienceYears);
+    if (!Number.isInteger(years) || years < 0 || years > 60) throw new ValidationError("Enter your years of experience (0–60).");
+    out.experienceYears = years;
+  }
+  if (body.about !== undefined) {
+    const about = str(body.about);
+    if (about.length > 1000) throw new ValidationError("Keep the experience note under 1000 characters.");
+    out.about = about;
+  }
+  if (body.area !== undefined) {
+    const area = { label: str(body.area?.label).slice(0, 120), lat: Number(body.area?.lat), lng: Number(body.area?.lng) };
+    if (!inCity(area)) throw new ValidationError("Choose a service area inside Hyderabad.");
+    out.area = area;
+  }
+  if (body.radiusKm !== undefined) {
+    const r = Number(body.radiusKm);
+    if (!Number.isInteger(r) || r < 1 || r > 30) throw new ValidationError("Choose how far you'll travel (1–30 km).");
+    out.radiusKm = r;
+  }
+  if (body.idDoc !== undefined) {
+    const type = str(body.idDoc?.type);
+    const last4 = str(body.idDoc?.last4).toUpperCase();
+    const image = body.idDoc?.image;
+    if (!ID_TYPES.includes(type)) throw new ValidationError("Choose which ID you're uploading.");
+    if (!/^[A-Z0-9]{4}$/.test(last4)) throw new ValidationError("Enter the last 4 characters of your ID number.");
+    if (!IMAGE_TYPES.includes(image?.mediaType) || typeof image?.data !== "string") {
+      throw new ValidationError("Upload a photo of your ID (JPG, PNG or WebP).");
+    }
+    if (image.data.length * 0.75 > MAX_IMAGE_BYTES) throw new ValidationError("That photo is too large. Please use one under 4 MB.");
+    out.idDoc = { type, last4, image: { mediaType: image.mediaType, data: image.data } };
+  }
+  if (body.payout !== undefined) {
+    const method = str(body.payout?.method);
+    if (method === "upi") {
+      const upiId = str(body.payout?.upiId).toLowerCase();
+      if (!/^[a-z0-9._-]{2,256}@[a-z]{2,64}$/.test(upiId)) throw new ValidationError("Enter a valid UPI ID, like name@okbank.");
+      out.payout = { method, upiId };
+    } else if (method === "bank") {
+      const holder = str(body.payout?.holder);
+      const ifsc = str(body.payout?.ifsc).toUpperCase();
+      const account = str(body.payout?.accountNumber).replace(/\s/g, "");
+      if (holder.length < 2 || holder.length > 80) throw new ValidationError("Enter the account holder's name.");
+      if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) throw new ValidationError("Enter a valid IFSC code, like SBIN0001234.");
+      if (!/^\d{9,18}$/.test(account)) throw new ValidationError("Enter a valid bank account number (9–18 digits).");
+      out.payout = { method, holder, ifsc, accountNumber: account };
+    } else {
+      throw new ValidationError("Choose UPI or bank account for your payouts.");
+    }
+  }
+  return out;
+}
+
 /** `{ email }` or `{ phone }` from what the user typed in the sign-in box. */
 function loginIdentifier(raw) {
   const id = str(raw);
@@ -65,4 +134,4 @@ function loginIdentifier(raw) {
   throw new ValidationError("Enter your email or 10-digit phone number.");
 }
 
-module.exports = { ValidationError, signupInput, loginIdentifier, phoneInput, str, ROLES };
+module.exports = { ValidationError, signupInput, loginIdentifier, phoneInput, providerInput, str, ROLES, ID_TYPES };

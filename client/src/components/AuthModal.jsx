@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { PASSWORD_RULES, useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
@@ -51,13 +52,17 @@ export default function AuthModal() {
   };
 
   /** Runs a server call, keeping the modal open with the error if it fails. */
+  const navigate = useNavigate();
+
   const submit = async (kind, action, onDone) => {
     setError("");
     setPending(kind);
     try {
-      await action();
+      const signedIn = await action();
       onDone?.();
       closeAuth();
+      // New professionals finish their profile before they can take jobs.
+      if (signedIn?.role === "professional" && !signedIn.provider?.ready) navigate("/professional/onboarding");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -233,6 +238,12 @@ export default function AuthModal() {
                       </button>
                     ))}
                   </motion.div>
+
+                  {signUpForm.role === "professional" && (
+                    <motion.p className="co-hint" variants={field}>
+                      Next you'll add the services you offer, your service area, an ID for verification and payout details.
+                    </motion.p>
+                  )}
 
                   {google("signup")}
 

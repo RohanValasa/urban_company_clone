@@ -2,9 +2,8 @@ const express = require("express");
 const { MAX_ADDRESSES } = require("../models/User");
 const { ValidationError, phoneInput, str } = require("../lib/validate");
 const { httpError, requireUser } = require("../lib/http");
+const { inHyderabad } = require("../lib/geo");
 
-// Matches HYDERABAD.bounds in client/src/lib/places.js: we only serve the city.
-const BOUNDS = { south: 17.2, west: 78.2, north: 17.62, east: 78.7 };
 const LABELS = ["Home", "Work", "Other"];
 
 function addressInput(body = {}) {
@@ -19,9 +18,7 @@ function addressInput(body = {}) {
   if (input.house.length > 120) throw new ValidationError("Keep the house or flat number under 120 characters.");
   if (input.area.length < 3 || input.area.length > 160) throw new ValidationError("Choose your area on the map.");
   if (input.landmark.length > 120) throw new ValidationError("Keep the landmark under 120 characters.");
-  const { lat, lng } = input;
-  const inCity = lat >= BOUNDS.south && lat <= BOUNDS.north && lng >= BOUNDS.west && lng <= BOUNDS.east;
-  if (!inCity) throw new ValidationError("We only serve Hyderabad right now. Pick a location inside the city.");
+  if (!inHyderabad(input)) throw new ValidationError("We only serve Hyderabad right now. Pick a location inside the city.");
   return input;
 }
 

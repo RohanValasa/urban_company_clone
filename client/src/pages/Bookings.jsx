@@ -7,19 +7,21 @@ import { formatSlot } from "../lib/slots";
 import { addressLine, rupees } from "../lib/format";
 
 const STATUS = {
-  confirmed: { label: "Finding a professional", tone: "pending" },
+  searching: { label: "Finding a professional", tone: "pending" },
+  unassigned: { label: "No one free yet · Retry", tone: "cancelled" },
   assigned: { label: "Professional assigned", tone: "confirmed" },
   "on-the-way": { label: "On the way · Track", tone: "live" },
-  arrived: { label: "Arrived", tone: "live" },
+  arrived: { label: "Arrived · See start code", tone: "live" },
+  "in-progress": { label: "In progress", tone: "live" },
   completed: { label: "Completed", tone: "completed" },
   cancelled: { label: "Cancelled", tone: "cancelled" },
 };
-const statusOf = (b) => STATUS[b.status] || STATUS.confirmed;
+const statusOf = (b) => STATUS[b.status] || STATUS.searching;
 
 const paymentLabel = (p) =>
   p.method === "upi"
     ? p.status === "paid" ? "Paid by UPI" : "UPI · confirming payment"
-    : "Cash on delivery";
+    : p.status === "paid" ? `Paid${p.collectedAs === "upi" ? " by UPI" : " in cash"}` : "Cash on delivery";
 
 export default function Bookings() {
   const { user } = useAuth();

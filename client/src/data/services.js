@@ -1722,6 +1722,9 @@ export const CATEGORY_GROUPS = {
 
 export const findGroup = (slug) => CATEGORY_GROUPS[slug];
 export const findSub = (slug) => SUBCATEGORIES[slug];
+/** The service page a package belongs to (for carts saved before items carried it). */
+export const subOfPackage = (pkgId) =>
+  Object.values(SUBCATEGORIES).find((s) => s.packages.some((p) => p.id === pkgId))?.slug;
 export const findPackage = (subSlug, pkgId) =>
   SUBCATEGORIES[subSlug]?.packages.find((p) => p.id === pkgId);
 

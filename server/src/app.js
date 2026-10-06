@@ -8,18 +8,41 @@ const { bookingsRouter } = require("./routes/bookings");
 const { proRouter } = require("./routes/pro");
 const { sessionCookies } = require("./lib/session");
 const { googleVerifier } = require("./lib/google");
+const { requireUser } = require("./lib/http");
+const { openStream } = require("./lib/live");
+const { onNotifications } = require("./lib/notify");
+const { dispatcher } = require("./lib/dispatch");
+const { idChecker } = require("./lib/idcheck");
+const { smsSender } = require("./lib/sms");
+const { sealer } = require("./lib/seal");
+const { SKILLS } = require("./lib/skills");
 
 /**
- * Builds the API. `verifyGoogle` can be swapped out in tests, since a real
- * Google credential can't be minted offline.
+ * Builds the API. Outside services (Google sign-in, the AI ID check, SMS) can
+ * be swapped out in tests, since they can't run offline.
  */
-function createApp(config, { verifyGoogle = googleVerifier(config.googleClientId) } = {}) {
+function createApp(
+  config,
+  {
+    verifyGoogle = googleVerifier(config.googleClientId),
+    checkId = idChecker({ hasCredentials: config.aiIdCheck, isProd: config.isProd }),
+    sendSms = smsSender(),
+  } = {}
+) {
   const app = express();
   const session = sessionCookies(config);
+  const offerMs = (config.offerSeconds ?? 90) * 1000;
+  const retryCooldownMs = (config.retryCooldownSeconds ?? 120) * 1000;
+  const dispatch = dispatcher({ offerMs, retryCooldownMs });
+  const { seal } = sealer(config.fieldKey || config.jwtSecret);
+  // The server calls dispatch.sweep() on a timer; tests call it directly.
+  app.locals.dispatch = dispatch;
 
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
   app.use(cors({ origin: config.clientOrigins, credentials: true }));
+  // The onboarding form carries an ID photo; everything else is small.
+  app.use("/api/pro/profile", express.json({ limit: "6mb" }));
   app.use(express.json({ limit: "20kb" }));
   app.use(cookieParser());
 
@@ -28,8 +51,16 @@ function createApp(config, { verifyGoogle = googleVerifier(config.googleClientId
     res.json({
       googleClientId: config.googleClientId || null,
       upi: config.upiId ? { id: config.upiId, name: config.upiName } : null,
+      skills: SKILLS,
+      offerSeconds: offerMs / 1000,
     })
   );
+
+  // Pop-up notifications for whoever is signed in, as Server-Sent Events.
+  app.get("/api/notifications/live", requireUser(session), (req, res) => {
+    const stream = openStream(req, res, { type: "hello" });
+    stream.onClose(onNotifications(req.user.id, stream.send));
+  });
 
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -42,8 +73,8 @@ function createApp(config, { verifyGoogle = googleVerifier(config.googleClientId
   });
   app.use("/api/auth", authLimiter, authRouter({ session, verifyGoogle }));
   app.use("/api/account", accountRouter({ session }));
-  app.use("/api/bookings", bookingsRouter({ session }));
-  app.use("/api/pro", proRouter({ session }));
+  app.use("/api/bookings", bookingsRouter({ session, dispatch, retryCooldownMs }));
+  app.use("/api/pro", proRouter({ session, dispatch, checkId, sendSms, seal }));
 
   app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));
 

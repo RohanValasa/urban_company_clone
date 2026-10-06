@@ -4,13 +4,16 @@ const { ValidationError } = require("../lib/validate");
 const { httpError, requireUser } = require("../lib/http");
 const { quote } = require("../lib/pricing");
 const { subscribe, openStream } = require("../lib/live");
+const { notify } = require("../lib/notify");
 
-const PRO_FIELDS = "name phone avatar";
+const PRO_FIELDS = "name phone avatar provider.rating";
 
 /** A booking the user may see: their own, or one assigned to them as the professional. */
 async function viewableBooking(id, user) {
   const booking = await Booking.findById(id)
+    .select("+otp.code")
     .populate("professional", PRO_FIELDS)
+    .populate("dispatch.offeredTo", "name email")
     .catch(() => null);
   const mine = booking && (booking.user.equals(user._id) || booking.professional?._id.equals(user._id));
   if (!mine) throw httpError(404, "That booking doesn't exist.");
@@ -42,8 +45,10 @@ async function isFirstBooking(userId) {
   return !(await Booking.exists({ user: userId, status: { $ne: "cancelled" } }));
 }
 
-function bookingsRouter({ session }) {
+function bookingsRouter({ session, dispatch, retryCooldownMs }) {
   const router = express.Router();
+  const view = (booking, user) =>
+    booking.toPublic({ forCustomer: booking.user.equals(user._id), retryCooldownMs });
 
   // Public, so the bill shows before signing in.
   router.post("/quote", async (req, res) => {
@@ -56,21 +61,25 @@ function bookingsRouter({ session }) {
 
   router.get("/", async (req, res) => {
     const bookings = await Booking.find({ user: req.user.id })
-      .sort({ slot: -1 })
+      .sort({ createdAt: -1 })
       .limit(100)
       .populate("professional", PRO_FIELDS);
-    res.json({ bookings: bookings.map((b) => b.toPublic()) });
+    res.json({ bookings: bookings.map((b) => view(b, req.user)) });
   });
 
   router.get("/:id", async (req, res) => {
-    res.json({ booking: (await viewableBooking(req.params.id, req.user)).toPublic() });
+    res.json({ booking: view(await viewableBooking(req.params.id, req.user), req.user) });
   });
 
-  // Live updates while the customer watches: status changes and the professional's position.
+  // Live updates while someone watches a booking: every change, and the professional's position.
   router.get("/:id/live", async (req, res) => {
     const booking = await viewableBooking(req.params.id, req.user);
-    const stream = openStream(req, res, { type: "booking", booking: booking.toPublic() });
-    stream.onClose(subscribe(booking.id, stream.send));
+    const stream = openStream(req, res, { type: "booking", booking: view(booking, req.user) });
+    stream.onClose(
+      subscribe(booking.id, (event) =>
+        stream.send(event.type === "booking" ? { type: "booking", booking: view(event.doc, req.user) } : event)
+      )
+    );
   });
 
   router.post("/", async (req, res) => {
@@ -92,9 +101,11 @@ function bookingsRouter({ session }) {
       isFirstBooking: await isFirstBooking(user.id),
     });
     if (couponError) throw new ValidationError(couponError);
+    if (items.some((i) => !i.skill)) throw new ValidationError("One of the services in your cart can't be booked yet.");
 
-    const booking = await Booking.create({
+    const booking = new Booking({
       user: user.id,
+      customerName: user.name,
       items,
       phone: user.phone,
       address: address.toPublic(),
@@ -103,7 +114,32 @@ function bookingsRouter({ session }) {
       bill,
       payment: { method: body.payment, status: body.payment === "upi" ? "awaiting-confirmation" : "due" },
     });
-    res.status(201).json({ booking: booking.toPublic() });
+    await dispatch.start(booking, [...new Set(items.map((i) => i.skill))]);
+    res.status(201).json({ booking: view(booking, user) });
+  });
+
+  // Nobody accepted: ask the nearby professionals again.
+  router.post("/:id/retry", async (req, res) => {
+    const booking = await viewableBooking(req.params.id, req.user);
+    if (!booking.user.equals(req.user._id)) throw httpError(404, "That booking doesn't exist.");
+    const again = await dispatch.retry(booking);
+    res.json({ booking: view(again, req.user) });
+  });
+
+  router.post("/:id/cancel", async (req, res) => {
+    const booking = await viewableBooking(req.params.id, req.user);
+    if (!booking.user.equals(req.user._id)) throw httpError(404, "That booking doesn't exist.");
+    if (!["searching", "unassigned", "assigned"].includes(booking.status)) {
+      throw httpError(409, "This booking can't be cancelled now that the professional is on the way.");
+    }
+    const pro = booking.professional?._id;
+    booking.status = "cancelled";
+    booking.dispatch.offeredTo = null;
+    booking.dispatch.offerExpiresAt = null;
+    await booking.save();
+    await dispatch.announce(booking);
+    if (pro) notify(pro, { kind: "cancelled", bookingId: booking.id, title: "Job cancelled", body: `${booking.customerName} cancelled the booking.` });
+    res.json({ booking: view(booking, req.user) });
   });
 
   return router;

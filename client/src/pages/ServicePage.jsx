@@ -154,7 +154,7 @@ export default function ServicePage() {
                         </Tilt>
                         <motion.button
                           className="add-btn sp-add"
-                          onClick={() => addItem({ _id: p.id, name: p.name, price: p.price, mrp: p.mrp, category: sub.label, image: p.image })}
+                          onClick={() => addItem({ _id: p.id, name: p.name, price: p.price, mrp: p.mrp, category: sub.label, sub: sub.slug, image: p.image })}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.94 }}
                         >

@@ -1,27 +1,54 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { DEFAULT_LOCATION, inHyderabad } from "../lib/places";
+import { useAuth } from "./AuthContext";
 
 const UIContext = createContext(null);
 const LOCATION_KEY = "uc_location";
 
+/**
+ * The chosen location belongs to whoever chose it. It's kept for the browser
+ * session while they're signed in; signed out, everyone starts at Hyderabad.
+ */
 const loadLocation = () => {
   try {
-    const saved = JSON.parse(localStorage.getItem(LOCATION_KEY));
-    return saved?.title && inHyderabad(saved) ? saved : DEFAULT_LOCATION;
+    localStorage.removeItem(LOCATION_KEY); // older builds kept it forever
+    const saved = JSON.parse(sessionStorage.getItem(LOCATION_KEY));
+    return saved?.place?.title && inHyderabad(saved.place) ? saved : { owner: null, place: null };
   } catch {
-    return DEFAULT_LOCATION;
+    return { owner: null, place: null };
   }
 };
 
 export function UIProvider({ children }) {
+  const { user } = useAuth();
   const [authMode, setAuthMode] = useState(null);
-  const [location, setLocationState] = useState(loadLocation);
+  const [chosen, setChosen] = useState(loadLocation);
   const [locationOpen, setLocationOpen] = useState(false);
 
-  const setLocation = (next) => {
-    setLocationState(next);
-    localStorage.setItem(LOCATION_KEY, JSON.stringify(next));
+  // A guest's pick carries into sign-in; another account's pick never shows.
+  const mine = chosen.place && (chosen.owner === null || chosen.owner === user?.id);
+  const location = mine ? chosen.place : DEFAULT_LOCATION;
+
+  const setLocation = (place) => {
+    const next = { owner: user?.id ?? null, place };
+    setChosen(next);
+    try {
+      if (user) sessionStorage.setItem(LOCATION_KEY, JSON.stringify(next));
+    } catch {
+      // Storage can be blocked; the choice still holds until reload.
+    }
   };
+
+  // Signing out forgets the location for this browser session.
+  useEffect(() => {
+    if (user) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(LOCATION_KEY));
+      if (saved?.owner) sessionStorage.removeItem(LOCATION_KEY);
+    } catch {
+      // nothing stored
+    }
+  }, [user]);
 
   useEffect(() => {
     document.body.style.overflow = authMode || locationOpen ? "hidden" : "";
