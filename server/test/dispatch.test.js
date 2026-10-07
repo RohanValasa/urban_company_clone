@@ -115,6 +115,28 @@ test("a customer can't retry too soon", async (t) => {
   assert.match(res.data.error, /wait/);
 });
 
+test("the customer is told whether anyone serves their area at all", async (t) => {
+  if (api.skip) return t.skip(api.skip);
+  const meera = await customer();
+  const live = await api.watch(meera, "/notifications/live");
+  await live.waitFor((e) => e.type === "hello");
+
+  const none = await book(meera);
+  assert.equal(none.status, "unassigned");
+  assert.equal(none.dispatch.serving, 0);
+  assert.equal((await live.waitFor((e) => e.note?.kind === "no-provider")).note.title, "No professionals near you yet");
+
+  // Someone covers the area but is offline: that's "busy", not "nobody here".
+  await api.provider("off@pro.test", { at: KONDAPUR, online: false });
+  const offline = await book(meera);
+  assert.equal(offline.status, "unassigned");
+  assert.equal(offline.dispatch.nearby, 0);
+  assert.equal(offline.dispatch.serving, 1);
+  const note = await live.waitFor((e) => e.note?.kind === "no-provider" && e.note.bookingId === offline.id);
+  assert.equal(note.note.title, "No professional available right now");
+  live.close();
+});
+
 test("accepting notifies the customer with the professional's name", async (t) => {
   if (api.skip) return t.skip(api.skip);
   const ravi = await api.provider("ravi@pro.test", { at: KONDAPUR });

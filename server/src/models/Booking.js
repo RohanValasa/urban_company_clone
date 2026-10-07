@@ -66,6 +66,8 @@ const bookingSchema = new Schema(
       offered: [{ type: Schema.Types.ObjectId }],
       rejectedBy: [{ type: Schema.Types.ObjectId }],
       nearby: { type: Number, default: 0 },
+      // Professionals who cover this address for these services, online or not.
+      serving: Number,
       exhaustedAt: Date,
     },
     // Given to the customer when the professional arrives; the professional types it to start.
@@ -106,6 +108,7 @@ bookingSchema.methods.toPublic = function toPublic({ forCustomer = false, retryC
       ? {
           asked: d.offered?.length || 0,
           nearby: d.nearby || 0,
+          serving: d.serving ?? d.nearby ?? 0,
           offerExpiresAt: d.offerExpiresAt || null,
           retryAt: status === "unassigned" && d.exhaustedAt ? new Date(d.exhaustedAt.getTime() + retryCooldownMs) : null,
           // Development only: who has the request right now, to make testing easy.

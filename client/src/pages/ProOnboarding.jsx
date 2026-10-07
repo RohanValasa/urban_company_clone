@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { api } from "../lib/api";
-import { AREAS } from "../lib/areas";
+import { AREA_GROUPS } from "../lib/areas";
 import { compressImage } from "../lib/image";
 import { locateMe } from "../lib/places";
 
@@ -217,15 +217,22 @@ export default function ProOnboarding() {
                 {locating ? "Finding you…" : "📍 Use my current location"}
               </button>
               <div className="onboard-areas">
-                {AREAS.map((a) => (
-                  <button
-                    key={a.name}
-                    type="button"
-                    className={form.area?.label === a.label ? "active" : ""}
-                    onClick={() => set({ area: { label: a.label, lat: a.lat, lng: a.lng } })}
-                  >
-                    {a.name}
-                  </button>
+                {AREA_GROUPS.map((g) => (
+                  <div key={g.name} className="onboard-area-group">
+                    <h3>{g.name}</h3>
+                    <div>
+                      {g.areas.map((a) => (
+                        <button
+                          key={a.label}
+                          type="button"
+                          className={form.area?.label === a.label ? "active" : ""}
+                          onClick={() => set({ area: { label: a.label, lat: a.lat, lng: a.lng } })}
+                        >
+                          {a.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
               {form.area && <p className="onboard-picked">Based in <strong>{form.area.label}</strong></p>}

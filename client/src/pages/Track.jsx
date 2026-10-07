@@ -41,10 +41,15 @@ function headline(b, eta) {
     case "searching":
       return { title: "Finding a professional for you", sub: searchingSub(b.dispatch) };
     case "unassigned":
-      return {
-        title: "Everyone nearby is busy right now",
-        sub: "No professional could take this yet. Please wait a little and try again — your booking is saved.",
-      };
+      return b.dispatch?.serving
+        ? {
+            title: "Everyone nearby is busy right now",
+            sub: "No professional could take this yet. Please wait a little and try again — your booking is saved.",
+          }
+        : {
+            title: "No professionals near you yet",
+            sub: "We're still adding professionals for this service in your area. Try again later — your booking is saved.",
+          };
     case "assigned":
       return { title: `Yay! ${b.professional.name} accepted your request`, sub: `They'll be there on ${formatSlot(b.slot)}. You'll see them on the map once they start the trip.` };
     case "on-the-way":
@@ -188,7 +193,13 @@ export default function Track() {
               <span className="track-avatar">⏳</span>
               <div>
                 <strong>{b.status === "unassigned" ? "No professional yet" : "Assigning a professional"}</strong>
-                <span>{b.status === "unassigned" ? "Everyone nearby is busy. Try again soon." : "We'll notify you as soon as someone accepts."}</span>
+                <span>
+                  {b.status !== "unassigned"
+                    ? "We'll notify you as soon as someone accepts."
+                    : b.dispatch?.serving
+                      ? "Everyone nearby is busy. Try again soon."
+                      : "None in your area yet. Try again later."}
+                </span>
               </div>
             </div>
           )}

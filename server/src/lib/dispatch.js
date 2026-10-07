@@ -48,16 +48,19 @@ function dispatcher({ offerMs, retryCooldownMs }) {
     return booking;
   }
 
-  /** Approved, online professionals with every skill the job needs, nearest first. */
-  async function nearbyProviders(booking) {
+  /**
+   * Approved professionals with every skill the job needs whose travel radius
+   * covers the address (`serving`), and of those the ones online and free at
+   * that time, nearest first (`available`).
+   */
+  async function candidates(booking) {
     const { lat, lng } = booking.address;
-    if (lat == null) return [];
+    if (lat == null) return { serving: 0, available: [] };
     const slot = booking.slot.getTime();
     const [pros, busy] = await Promise.all([
       User.find(
         {
           role: "professional",
-          "provider.online": true,
           "provider.idDoc.status": "approved",
           "provider.payout.method": { $exists: true },
           "provider.skills": { $all: booking.dispatch.skills },
@@ -70,19 +73,26 @@ function dispatcher({ offerMs, retryCooldownMs }) {
       }),
     ]);
     const busySet = new Set(busy.map(String));
-    return pros
-      .filter((p) => p.provider.area?.lat != null && !busySet.has(p.id) && !p._id.equals(booking.user))
+    const covering = pros
+      .filter((p) => p.provider.area?.lat != null && !p._id.equals(booking.user))
       .map((pro) => ({ pro, km: distanceKm({ lat, lng }, pro.provider.area) }))
       .filter((x) => x.km <= x.pro.provider.radiusKm)
       .sort((a, b) => a.km - b.km);
+    return {
+      serving: covering.length,
+      available: covering.filter((x) => x.pro.provider.online && !busySet.has(x.pro.id)),
+    };
   }
+
+  const nearbyProviders = async (booking) => (await candidates(booking)).available;
 
   /** Offers the job to the next professional who hasn't seen it, or gives up for now. */
   async function offerNext(booking) {
-    const nearby = await nearbyProviders(booking);
+    const { available: nearby, serving } = await candidates(booking);
     const seen = new Set([...booking.dispatch.offered, ...booking.dispatch.rejectedBy].map(String));
     const next = nearby.find((x) => !seen.has(x.pro.id));
     booking.dispatch.nearby = nearby.length;
+    booking.dispatch.serving = serving;
 
     if (!next) {
       booking.status = "unassigned";
@@ -93,8 +103,9 @@ function dispatcher({ offerMs, retryCooldownMs }) {
       notify(booking.user, {
         kind: "no-provider",
         bookingId: booking.id,
-        title: "No professional available right now",
-        body: "Everyone nearby is busy. Please wait a little and try again.",
+        ...(serving
+          ? { title: "No professional available right now", body: "Everyone nearby is busy. Please wait a little and try again." }
+          : { title: "No professionals near you yet", body: "We're still adding professionals in your area. Please try again later." }),
       });
       return announce(booking);
     }

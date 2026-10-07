@@ -1,5 +1,5 @@
 /**
- * Location search, fenced to Hyderabad.
+ * Location search, fenced to Telangana.
  *
  * With VITE_GOOGLE_MAPS_API_KEY set, suggestions come from Google Places
  * (Places API (New) + Geocoding API must be enabled on the key). Without a
@@ -7,29 +7,38 @@
  * still works in development.
  */
 
-export const HYDERABAD = {
-  center: { lat: 17.385, lng: 78.4867 },
-  // Greater Hyderabad plus the ORR belt.
-  bounds: { south: 17.2, west: 78.2, north: 17.62, east: 78.7 },
-};
+import TELANGANA from "./telangana.json";
+
+// Searches lean towards Hyderabad, which is also where everyone starts.
+const HYDERABAD = { lat: 17.385, lng: 78.4867 };
 
 export const DEFAULT_LOCATION = {
   title: "Hyderabad",
   subtitle: "Telangana, India",
-  ...HYDERABAD.center,
+  ...HYDERABAD,
 };
 
-export const inHyderabad = ({ lat, lng }) => {
-  const b = HYDERABAD.bounds;
-  return lat >= b.south && lat <= b.north && lng >= b.west && lng <= b.east;
+/** Inside the state outline (same file the server checks against). */
+export const inTelangana = ({ lat, lng } = {}) => {
+  const b = TELANGANA.bounds;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (lat < b.south || lat > b.north || lng < b.west || lng > b.east) return false;
+  let inside = false;
+  const ring = TELANGANA.ring;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
 };
 
 const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 export const PROVIDER = GOOGLE_KEY ? "google" : "osm";
 
-export class OutsideCityError extends Error {
+export class OutsideAreaError extends Error {
   constructor() {
-    super("We only serve Hyderabad right now, and that spot is outside the city.");
+    super("We only serve Telangana right now, and that spot is outside the state.");
   }
 }
 
@@ -71,7 +80,7 @@ async function googleSearch(input) {
   const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
     input,
     sessionToken,
-    locationRestriction: HYDERABAD.bounds,
+    locationRestriction: TELANGANA.bounds,
     includedRegionCodes: ["in"],
     language: "en-IN",
     region: "in",
@@ -90,12 +99,15 @@ async function googleSearch(input) {
           const place = p.toPlace();
           await place.fetchFields({ fields: ["location", "formattedAddress"] });
           sessionToken = null; // a selection ends the billing session
-          return {
+          const picked = {
             title,
             subtitle: place.formattedAddress,
             lat: place.location.lat(),
             lng: place.location.lng(),
           };
+          // The search box is a rectangle around the state; the outline decides.
+          if (!inTelangana(picked)) throw new OutsideAreaError();
+          return picked;
         },
       };
     });
@@ -123,7 +135,7 @@ async function googleReverse({ lat, lng }) {
 // ---------------------------------------------------------------- Photon (OSM)
 
 const PHOTON = "https://photon.komoot.io";
-const { south, west, north, east } = HYDERABAD.bounds;
+const { south, west, north, east } = TELANGANA.bounds;
 
 const photonPlace = (f) => {
   const p = f.properties;
@@ -137,13 +149,13 @@ const photonPlace = (f) => {
 async function photonSearch(input) {
   const url =
     `${PHOTON}/api/?q=${encodeURIComponent(input)}&limit=8&lang=en` +
-    `&bbox=${west},${south},${east},${north}&lat=${HYDERABAD.center.lat}&lon=${HYDERABAD.center.lng}`;
+    `&bbox=${west},${south},${east},${north}&lat=${HYDERABAD.lat}&lon=${HYDERABAD.lng}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Location search is unavailable right now.");
   const { features = [] } = await res.json();
   return features
     .map((f) => ({ ...photonPlace(f), id: `${f.properties.osm_type}${f.properties.osm_id}` }))
-    .filter(inHyderabad)
+    .filter(inTelangana)
     .map((place) => ({ ...place, resolve: async () => place }));
 }
 
@@ -188,9 +200,9 @@ export async function locateMe() {
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   });
-  if (!inHyderabad(coords)) throw new OutsideCityError();
+  if (!inTelangana(coords)) throw new OutsideAreaError();
 
   const reverse = PROVIDER === "google" ? googleReverse : photonReverse;
   const place = await reverse(coords).catch(() => null);
-  return place ?? { title: "Current location", subtitle: "Hyderabad, Telangana", ...coords };
+  return place ?? { title: "Current location", subtitle: "Telangana", ...coords };
 }

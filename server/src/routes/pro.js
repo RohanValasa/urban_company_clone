@@ -7,7 +7,7 @@ const { publish } = require("../lib/live");
 const { notify } = require("../lib/notify");
 const { providerInput } = require("../lib/validate");
 const { SKILLS, SKILL_KEYS } = require("../lib/skills");
-const { inHyderabad, distanceKm } = require("../lib/geo");
+const { inTelangana, distanceKm } = require("../lib/geo");
 const { when } = require("../lib/dispatch");
 
 const MAX_OTP_TRIES = 5;
@@ -48,7 +48,7 @@ function proRouter({ session, dispatch, checkId, sendSms, seal }) {
   // Saves any part of the onboarding form. A new ID photo is checked straight away and not stored.
   router.put("/profile", async (req, res) => {
     const user = await User.findById(req.user._id).select("+provider.payout.accountSealed");
-    const input = providerInput(req.body, { skillKeys: SKILL_KEYS, inCity: inHyderabad });
+    const input = providerInput(req.body, { skillKeys: SKILL_KEYS, inCity: inTelangana });
     if (!user.provider) user.provider = {};
     const p = user.provider;
     for (const key of ["skills", "experienceYears", "about", "area", "radiusKm"]) {

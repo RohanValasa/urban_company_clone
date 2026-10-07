@@ -44,7 +44,15 @@ const AREAS = [
   ["Charminar", 17.3616, 78.4747], ["Malakpet", 17.3747, 78.5038], ["Dilsukhnagar", 17.3687, 78.5247],
   ["LB Nagar", 17.3457, 78.5522], ["Uppal", 17.4058, 78.5591], ["Tarnaka", 17.4281, 78.5383],
   ["Habsiguda", 17.4182, 78.5434], ["Kompally", 17.5367, 78.4846],
-].map(([name, lat, lng]) => ({ name, lat, lng }));
+].map(([name, lat, lng]) => ({ name, lat, lng, city: "Hyderabad" }));
+
+// Towns elsewhere in Telangana: three professionals and one customer each.
+const TOWNS = [
+  ["Warangal", 17.9689, 79.5941], ["Karimnagar", 18.4386, 79.1288], ["Nizamabad", 18.6725, 78.0941],
+  ["Khammam", 17.2473, 80.1514], ["Nalgonda", 17.0575, 79.2684], ["Mahbubnagar", 16.7488, 78.0035],
+  ["Siddipet", 18.1018, 78.852], ["Adilabad", 19.6641, 78.532],
+].map(([name, lat, lng]) => ({ name, lat, lng, city: "Telangana" }));
+const IN_TOWNS = { customers: TOWNS.length, providers: TOWNS.length * 3 };
 
 const FIRST = [
   "Aarav", "Aditya", "Akhil", "Anil", "Arjun", "Bhavana", "Chaitanya", "Deepika", "Divya", "Farhan",
@@ -88,7 +96,7 @@ async function main() {
   for (let i = 1; i <= 50; i++) {
     const first = pick(FIRST);
     const last = pick(LAST);
-    const area = AREAS[(i * 7) % AREAS.length];
+    const area = i > 50 - IN_TOWNS.customers ? TOWNS[i - 1 - (50 - IN_TOWNS.customers)] : AREAS[(i * 7) % AREAS.length];
     customers.push({
       name: `${first} ${last}`,
       email: emailFor(first, last, i),
@@ -98,7 +106,7 @@ async function main() {
       address: {
         label: "Home",
         house: `Flat ${100 + Math.floor(rand() * 400)}, ${pick(BUILDINGS)}`,
-        area: `${area.name}, Hyderabad`,
+        area: `${area.name}, ${area.city}`,
         landmark: "",
         lat: jitter(area.lat),
         lng: jitter(area.lng),
@@ -110,7 +118,7 @@ async function main() {
   for (let i = 1; i <= 100; i++) {
     const first = pick(FIRST);
     const last = pick(LAST);
-    const area = AREAS[i % AREAS.length];
+    const area = i > 100 - IN_TOWNS.providers ? TOWNS[(i - 1 - (100 - IN_TOWNS.providers)) % TOWNS.length] : AREAS[i % AREAS.length];
     const primary = SKILLS[i % SKILLS.length];
     const skills = [primary.key];
     if (rand() < 0.4) {
@@ -157,7 +165,7 @@ async function main() {
           skills: p.skills,
           experienceYears: p.years,
           about: p.about,
-          area: { label: `${p.area.name}, Hyderabad`, lat: jitter(p.area.lat), lng: jitter(p.area.lng) },
+          area: { label: `${p.area.name}, ${p.area.city}`, lat: jitter(p.area.lat), lng: jitter(p.area.lng) },
           radiusKm: p.radiusKm,
           // Demo profiles skip the document upload; real sign-ups go through the ID check.
           idDoc: { type: "aadhaar", last4: String(1000 + Math.floor(rand() * 9000)), status: "approved", by: "seed", reason: "Demo account", checkedAt: new Date() },
@@ -170,6 +178,7 @@ async function main() {
   );
 
   const label = (key) => SKILLS.find((s) => s.key === key).label;
+  const place = (a) => (a.city === "Hyderabad" ? `${a.name}, Hyderabad` : a.name);
   const lines = [
     "# Demo accounts",
     "",
@@ -182,13 +191,17 @@ async function main() {
     "whose services match and whose radius covers the address, so to test a",
     "booking in an area, sign in as a professional based near it.",
     "",
+    `Most accounts are in Hyderabad. Professionals ${101 - IN_TOWNS.providers}–100 (three per town) and`,
+    `customers ${51 - IN_TOWNS.customers}–50 (one per town) are in other Telangana towns: ${TOWNS.map((t) => t.name).join(", ")}.`,
+    "A town customer's booking only finds professionals in that town who offer the service.",
+    "",
     `## Professionals (${providers.length})`,
     "",
     "| # | Name | Email | Password | Phone | Based in | Radius | Services |",
     "|---|---|---|---|---|---|---|---|",
     ...providers.map(
       (p, i) =>
-        `| ${i + 1} | ${p.name} | ${p.email} | ${p.password} | ${p.phone} | ${p.area.name} | ${p.radiusKm} km | ${p.skills.map(label).join(", ")} |`
+        `| ${i + 1} | ${p.name} | ${p.email} | ${p.password} | ${p.phone} | ${place(p.area)} | ${p.radiusKm} km | ${p.skills.map(label).join(", ")} |`
     ),
     "",
     `## Customers (${customers.length})`,
@@ -197,7 +210,7 @@ async function main() {
     "",
     "| # | Name | Email | Password | Phone | Home area |",
     "|---|---|---|---|---|---|",
-    ...customers.map((c, i) => `| ${i + 1} | ${c.name} | ${c.email} | ${c.password} | ${c.phone} | ${c.area.name} |`),
+    ...customers.map((c, i) => `| ${i + 1} | ${c.name} | ${c.email} | ${c.password} | ${c.phone} | ${place(c.area)} |`),
     "",
   ];
   const out = path.join(__dirname, "..", "..", "DEMO_ACCOUNTS.md");

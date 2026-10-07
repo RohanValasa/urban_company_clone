@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useUI } from "../context/UIContext";
-import { PROVIDER, locateMe, searchPlaces } from "../lib/places";
+import { OutsideAreaError, PROVIDER, locateMe, searchPlaces } from "../lib/places";
 
 const panel = {
   hidden: { opacity: 0, y: 40, scale: 0.95, rotateX: 8 },
@@ -67,8 +67,8 @@ function Picker({ onClose, onPick }) {
   const choose = async (r) => {
     try {
       onPick(await r.resolve());
-    } catch {
-      setMessage("Couldn't load that place. Pick another result.");
+    } catch (err) {
+      setMessage(err instanceof OutsideAreaError ? err.message : "Couldn't load that place. Pick another result.");
     }
   };
 
@@ -151,9 +151,9 @@ function Picker({ onClose, onPick }) {
 
       <div className="loc-results">
         {status === "done" && results.length === 0 && (
-          <p className="loc-empty">No places in Hyderabad match “{query.trim()}”.</p>
+          <p className="loc-empty">No places in Telangana match “{query.trim()}”.</p>
         )}
-        {status === "idle" && <p className="loc-empty">We currently serve Hyderabad only.</p>}
+        {status === "idle" && <p className="loc-empty">We serve all of Telangana. Search for your town or area.</p>}
         <ul>
           {results.map((r, i) => (
             <motion.li key={r.id} custom={i} variants={row} initial="hidden" animate="show">

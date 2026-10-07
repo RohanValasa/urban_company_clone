@@ -60,7 +60,7 @@ skipped when none is reachable.
 
 1. **Phone.** Email sign-ups already have one; Google sign-ups add it here, and
    it's saved on the account.
-2. **Address.** Saved per account. The area comes from the Hyderabad-only
+2. **Address.** Saved per account. The area comes from the Telangana-only
    location picker.
 3. **Slot.** Every half hour from 8:00 AM to 7:30 PM (India time), up to a week
    ahead and at least an hour away.
@@ -77,7 +77,10 @@ For automatic confirmation you'd need a payment gateway such as Razorpay.
 ### Demo accounts
 
 `npm run seed` in `server/` creates 50 customers and 100 professionals spread
-across Hyderabad and writes every login to [`DEMO_ACCOUNTS.md`](DEMO_ACCOUNTS.md).
+across Telangana and writes every login to [`DEMO_ACCOUNTS.md`](DEMO_ACCOUNTS.md).
+Most are in Hyderabad; professionals 77–100 and customers 43–50 are in
+Warangal, Karimnagar, Nizamabad, Khammam, Nalgonda, Mahbubnagar, Siddipet and
+Adilabad.
 Passwords are `Customer@001` … `Customer@050` and `Provider@001` …
 `Provider@100`. The emails end in `.test`, so they can never reach a real inbox.
 The seeded professionals skip the ID upload and are already approved; real
@@ -91,7 +94,7 @@ Signing up with "I provide a service" opens a four-step profile at
 
 1. **Services** you offer, years of experience, and a few lines about yourself
    in any language (English, Telugu, Hindi, Urdu…).
-2. **Service area**: your base (current location or a Hyderabad locality) and
+2. **Service area**: your base (current location, a Hyderabad locality or a Telangana town) and
    how far you'll travel.
 3. **Identity**: the ID type (Aadhaar, PAN, voter ID, driving licence or
    passport), its last 4 characters and a photo. Claude checks the photo is a
@@ -116,7 +119,9 @@ approved automatically in development and left "pending" in production.
 2. **Accept or reject.** On accept, the customer gets a notification:
    *"Yay! Request accepted by <full name>"*. On reject, or if time runs out, the
    request moves to the next nearest professional.
-3. **Nobody free.** If everyone nearby declines, the booking waits. After
+3. **Nobody free.** If everyone nearby declines, or is offline or booked, the
+   booking waits. If no professional covers that address for the service at
+   all, the customer is told so ("No professionals near you yet"). After
    `RETRY_COOLDOWN_SECONDS` (120 by default) the customer can press
    **Find a professional again**, or cancel.
 4. **On the way.** The professional presses **Start trip** and their position
@@ -157,10 +162,14 @@ Notes:
 The client fetches the ID from the API, so it only needs setting in one place.
 Until it's set, the modal shows a note where the Google button would be.
 
-### Location search (Hyderabad only)
+### Location search (Telangana)
 
-The location picker in the navbar only accepts places inside Hyderabad. Search
-and "Use current location" both check against the city's bounds.
+The location picker in the navbar accepts places anywhere in Telangana and
+starts at Hyderabad. Search, "Use current location", saved addresses and
+professionals' service areas are all checked against the state's outline
+(`telangana.json`, the same file in `client/src/lib/` and `server/src/lib/`).
+It comes from the [DataMeet India maps](https://github.com/datameet/maps)
+(CC BY 4.0) and is simplified, so it's accurate to a few km at the border.
 
 - **Google Maps:** copy `client/.env.example` to `client/.env.local` and set
   `VITE_GOOGLE_MAPS_API_KEY`. The key needs **Places API (New)** and

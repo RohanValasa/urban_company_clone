@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { DEFAULT_LOCATION, inHyderabad } from "../lib/places";
+import { DEFAULT_LOCATION, inTelangana } from "../lib/places";
 import { useAuth } from "./AuthContext";
 
 const UIContext = createContext(null);
@@ -13,7 +13,7 @@ const loadLocation = () => {
   try {
     localStorage.removeItem(LOCATION_KEY); // older builds kept it forever
     const saved = JSON.parse(sessionStorage.getItem(LOCATION_KEY));
-    return saved?.place?.title && inHyderabad(saved.place) ? saved : { owner: null, place: null };
+    return saved?.place?.title && inTelangana(saved.place) ? saved : { owner: null, place: null };
   } catch {
     return { owner: null, place: null };
   }

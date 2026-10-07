@@ -63,7 +63,7 @@ const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 /**
  * Cleans a professional's profile form. Every part is optional so it can be
  * saved step by step; whatever is sent must be valid.
- * Needs the skill keys and the Hyderabad check passed in to avoid a cycle.
+ * Needs the skill keys and the service-area check passed in to avoid a cycle.
  */
 function providerInput(body = {}, { skillKeys, inCity }) {
   const out = {};
@@ -84,7 +84,7 @@ function providerInput(body = {}, { skillKeys, inCity }) {
   }
   if (body.area !== undefined) {
     const area = { label: str(body.area?.label).slice(0, 120), lat: Number(body.area?.lat), lng: Number(body.area?.lng) };
-    if (!inCity(area)) throw new ValidationError("Choose a service area inside Hyderabad.");
+    if (!inCity(area)) throw new ValidationError("Choose a service area inside Telangana.");
     out.area = area;
   }
   if (body.radiusKm !== undefined) {

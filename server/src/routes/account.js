@@ -2,7 +2,7 @@ const express = require("express");
 const { MAX_ADDRESSES } = require("../models/User");
 const { ValidationError, phoneInput, str } = require("../lib/validate");
 const { httpError, requireUser } = require("../lib/http");
-const { inHyderabad } = require("../lib/geo");
+const { inTelangana } = require("../lib/geo");
 
 const LABELS = ["Home", "Work", "Other"];
 
@@ -18,7 +18,7 @@ function addressInput(body = {}) {
   if (input.house.length > 120) throw new ValidationError("Keep the house or flat number under 120 characters.");
   if (input.area.length < 3 || input.area.length > 160) throw new ValidationError("Choose your area on the map.");
   if (input.landmark.length > 120) throw new ValidationError("Keep the landmark under 120 characters.");
-  if (!inHyderabad(input)) throw new ValidationError("We only serve Hyderabad right now. Pick a location inside the city.");
+  if (!inTelangana(input)) throw new ValidationError("We only serve Telangana right now. Pick a location inside the state.");
   return input;
 }
 

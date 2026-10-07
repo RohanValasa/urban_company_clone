@@ -70,12 +70,19 @@ test("a Google customer adds a phone number at checkout", async (t) => {
   assert.equal(taken.status, 409);
 });
 
-test("addresses must be inside Hyderabad", async (t) => {
+test("addresses must be inside Telangana", async (t) => {
   if (api.skip) return t.skip(api.skip);
   const call = await googleCustomer();
   const mumbai = await call("POST", "/account/addresses", { ...home, lat: 19.07, lng: 72.87 });
   assert.equal(mumbai.status, 400);
-  assert.match(mumbai.data.error, /Hyderabad/);
+  assert.match(mumbai.data.error, /Telangana/);
+  // Just over the border: inside the state's bounding box, outside the state.
+  for (const [lat, lng] of [[16.506, 80.648], [15.828, 78.037], [17.91, 77.52], [19.138, 77.321]]) {
+    assert.equal((await call("POST", "/account/addresses", { ...home, lat, lng })).status, 400, `${lat},${lng}`);
+  }
+  const warangal = await call("POST", "/account/addresses", { ...home, area: "Hanamkonda, Warangal", lat: 18.0, lng: 79.56 });
+  assert.equal(warangal.status, 201);
+  await call("DELETE", `/account/addresses/${warangal.data.address.id}`);
   assert.equal((await call("POST", "/account/addresses", { ...home, area: "" })).status, 400);
 
   const added = await call("POST", "/account/addresses", home);

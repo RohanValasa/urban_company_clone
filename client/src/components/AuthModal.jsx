@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { PASSWORD_RULES, useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
 import GoogleButton from "./GoogleButton";
+import PasswordInput from "./PasswordInput";
 
 const backdrop = {
   hidden: { opacity: 0 },
@@ -182,8 +183,7 @@ export default function AuthModal() {
 
                   <motion.label variants={field}>
                     Password
-                    <input
-                      type="password"
+                    <PasswordInput
                       required
                       autoComplete="current-password"
                       placeholder="••••••••"
@@ -290,8 +290,7 @@ export default function AuthModal() {
                   <motion.div className="field-row" variants={field}>
                     <label>
                       Password
-                      <input
-                        type="password"
+                      <PasswordInput
                         required
                         autoComplete="new-password"
                         placeholder="••••••••"
@@ -301,8 +300,7 @@ export default function AuthModal() {
                     </label>
                     <label>
                       Confirm password
-                      <input
-                        type="password"
+                      <PasswordInput
                         required
                         autoComplete="new-password"
                         placeholder="••••••••"

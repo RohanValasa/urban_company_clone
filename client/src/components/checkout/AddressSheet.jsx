@@ -11,7 +11,7 @@ const EMPTY = { house: "", landmark: "", label: "Home" };
 
 /**
  * Pick a saved address or add one. The area comes from the location picker,
- * which keeps every address inside Hyderabad.
+ * which keeps every address inside Telangana.
  */
 export default function AddressSheet({
   open,
