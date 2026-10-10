@@ -12,6 +12,12 @@ async function main() {
 
   app.listen(config.port, () => {
     console.log(`Servify API on http://localhost:${config.port}`);
+    const mode = app.locals.aiMode;
+    console.log(
+      mode === "basic"
+        ? "AI assistant: basic mode (free keyword matching, no photos). Add GEMINI_API_KEY or ANTHROPIC_API_KEY for the full AI."
+        : `AI assistant: ${mode === "gemini" ? `Gemini (${config.geminiModel})` : `Claude (${config.aiModel})`}, with basic mode as a backup.`
+    );
     if (!config.googleClientId) console.log("GOOGLE_CLIENT_ID is not set, so Google sign-in is off.");
     if (!config.hasAnthropicKey) {
       console.log(
@@ -19,7 +25,6 @@ async function main() {
           ? "No Anthropic API key: new professionals' IDs wait for review."
           : "No Anthropic API key: new professionals' IDs are approved automatically (development only)."
       );
-      console.log("The AI assistant and parts price check are off until ANTHROPIC_API_KEY is set.");
     }
   });
 }

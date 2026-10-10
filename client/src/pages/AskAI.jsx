@@ -34,7 +34,7 @@ export default function AskAI() {
   const { addItem, setQty, qtyOf } = useCart();
   const navigate = useNavigate();
 
-  const [enabled, setEnabled] = useState(null);
+  const [mode, setMode] = useState(null);
   const [voice, setVoice] = useState("te-IN");
   const [text, setText] = useState("");
   const [partial, setPartial] = useState("");
@@ -55,7 +55,7 @@ export default function AskAI() {
 
   useEffect(() => {
     let live = true;
-    getConfig().then((c) => live && setEnabled(Boolean(c.ai)), () => live && setEnabled(false));
+    getConfig().then((c) => live && setMode(c.aiMode || "basic"), () => {});
     return () => {
       live = false;
     };
@@ -126,10 +126,10 @@ export default function AskAI() {
         </p>
       </motion.div>
 
-      {enabled === false && (
+      {mode === "basic" && (
         <p className="ask-off">
-          The AI assistant is switched off on this server. Add <code>ANTHROPIC_API_KEY</code> to <code>server/.env</code> to
-          turn it on.
+          Basic mode: we match the words you type or say. Photos need the full AI, which isn't set up on this server
+          (add <code>GEMINI_API_KEY</code> to <code>server/.env</code>).
         </p>
       )}
 
@@ -175,14 +175,15 @@ export default function AskAI() {
               <button type="button" onClick={() => setPhoto(null)} aria-label="Remove photo">×</button>
             </span>
           )}
-          <button className="btn ask-go" disabled={busy || enabled === false}>
+          <button className="btn ask-go" disabled={busy}>
             {busy ? "Looking…" : "Find the right service"}
           </button>
         </div>
         {speech.error && <p className="auth-error">{speech.error}</p>}
         {!speech.supported && <p className="co-hint">Voice typing works in Chrome, Edge and Safari. You can type in any language here.</p>}
         <p className="co-hint">
-          Your photo is checked by AI and not stored. Voice is turned into text by your browser's speech service.
+          {mode === "basic" ? "Nothing you type is stored." : "Your photo is checked by AI and not stored."} Voice is turned into
+          text by your browser's speech service.
         </p>
       </form>
 
@@ -212,6 +213,7 @@ export default function AskAI() {
               </p>
             )}
             <p className="ask-reply" dir="auto">{result.reply}</p>
+            {result.fellBack && <p className="ask-mode">The AI is busy right now, so basic mode answered.</p>}
 
             {result.understood && (
               <>

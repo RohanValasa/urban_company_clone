@@ -13,7 +13,7 @@ const { openStream } = require("./lib/live");
 const { onNotifications } = require("./lib/notify");
 const { dispatcher } = require("./lib/dispatch");
 const { idChecker } = require("./lib/idcheck");
-const { aiAssistant } = require("./lib/assistant");
+const { createAi } = require("./lib/assistant");
 const { aiRouter } = require("./routes/ai");
 const { smsSender } = require("./lib/sms");
 const { sealer } = require("./lib/seal");
@@ -28,7 +28,7 @@ function createApp(
   {
     verifyGoogle = googleVerifier(config.googleClientId),
     checkId = idChecker({ hasCredentials: config.hasAnthropicKey, isProd: config.isProd }),
-    ai = aiAssistant({ hasCredentials: config.hasAnthropicKey, model: config.aiModel, partsModel: config.aiPartsModel }),
+    ai = createAi(config),
     sendSms = smsSender(),
   } = {}
 ) {
@@ -40,6 +40,7 @@ function createApp(
   const { seal } = sealer(config.fieldKey || config.jwtSecret);
   // The server calls dispatch.sweep() on a timer; tests call it directly.
   app.locals.dispatch = dispatch;
+  app.locals.aiMode = ai.mode;
 
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
@@ -56,7 +57,8 @@ function createApp(
       upi: config.upiId ? { id: config.upiId, name: config.upiName } : null,
       skills: SKILLS,
       offerSeconds: offerMs / 1000,
-      ai: ai.enabled,
+      // Which assistant answers: "gemini", "claude", or the free keyword-based "basic" one.
+      aiMode: ai.mode,
     })
   );
 

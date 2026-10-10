@@ -199,10 +199,11 @@ function proRouter({ session, dispatch, checkId, sendSms, seal, ai, aiLimiter })
     const job = await myJob(req);
     if (job.status !== "in-progress") throw httpError(409, "Start the job before adding a spare part.");
     if (job.parts.length >= 10) throw httpError(409, "That's the most parts one job can have.");
-    const image = imageInput(req.body?.image, { required: true });
+    const image = imageInput(req.body?.image);
     const quoted = Number(req.body?.quoted);
     if (!Number.isInteger(quoted) || quoted < 1 || quoted > 200000) throw new ValidationError("Enter your price for the part in whole rupees.");
     const note = typeof req.body?.note === "string" ? req.body.note.trim().slice(0, 200) : "";
+    if (!image && !note) throw new ValidationError("Add a photo of the part or type its name.");
 
     const estimate = await ai.priceParts({ image, note, job: job.items.map((i) => i.name).join(", ") });
     job.parts.push({ ...estimate, quoted, status: "pending" });

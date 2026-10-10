@@ -31,7 +31,7 @@ const VERDICT_LABEL = { fair: "Fair price", "slightly-high": "A little high", hi
 const PART_STATUS = { pending: "Waiting for the customer", approved: "Approved", declined: "Declined" };
 
 /** Photograph a part, enter your price; the AI shows the customer a fair range to approve against. */
-function PartCheck({ job, onChange }) {
+function PartCheck({ job, aiMode, onChange }) {
   const [open, setOpen] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [note, setNote] = useState("");
@@ -58,7 +58,7 @@ function PartCheck({ job, onChange }) {
     try {
       await api(`/pro/jobs/${job.id}/parts`, {
         method: "POST",
-        body: { image: { mediaType: photo.mediaType, data: photo.data }, note, quoted: Number(quoted) },
+        body: { ...(photo && { image: { mediaType: photo.mediaType, data: photo.data } }), note, quoted: Number(quoted) },
       });
       setPhoto(null);
       setNote("");
@@ -94,8 +94,9 @@ function PartCheck({ job, onChange }) {
       ) : (
         <form className="part-form" onSubmit={submit}>
           <p className="co-hint">
-            Take a photo of the part (the old one is fine) and enter your price. The AI shows the customer the usual price in
-            Telangana, and they approve it before you fit it.
+            {aiMode === "basic"
+              ? "Type the part's name and your price. The customer sees the usual price from Servify's list of common parts, and approves it before you fit it."
+              : "Take a photo of the part (the old one is fine), or type its name, and enter your price. The AI shows the customer the usual price in Telangana, and they approve it before you fit it."}
           </p>
           <label className="ask-photo-btn">
             <input type="file" accept="image/*" capture="environment" onChange={pick} />
@@ -104,7 +105,7 @@ function PartCheck({ job, onChange }) {
           {photo && <img className="part-preview" src={photo.preview} alt="The part" />}
           <div className="part-fields">
             <label>
-              What is it? <em>(optional)</em>
+              What is it? {aiMode !== "basic" && photo && <em>(optional)</em>}
               <input value={note} maxLength={200} onChange={(e) => setNote(e.target.value)} placeholder="e.g. 6A MCB, tap spindle" />
             </label>
             <label>
@@ -114,7 +115,7 @@ function PartCheck({ job, onChange }) {
           </div>
           {error && <p className="auth-error">{error}</p>}
           <div className="part-actions">
-            <button className="btn" disabled={!photo || !quoted || busy}>{busy ? "Checking the price…" : "Check price & send to customer"}</button>
+            <button className="btn" disabled={(!photo && !note.trim()) || !quoted || busy}>{busy ? "Checking the price…" : "Check price & send to customer"}</button>
             <button type="button" className="btn-ghost" onClick={() => setOpen(false)} disabled={busy}>Cancel</button>
           </div>
         </form>
@@ -224,6 +225,7 @@ export default function ProfessionalDashboard() {
   const [offers, setOffers] = useState([]);
   const [jobs, setJobs] = useState(null);
   const [upi, setUpi] = useState(null);
+  const [aiMode, setAiMode] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(null);
   const [celebrate, setCelebrate] = useState(null);
@@ -245,7 +247,14 @@ export default function ProfessionalDashboard() {
     tick();
     // New offers arrive as notifications; this is a fallback.
     const timer = setInterval(tick, 20000);
-    getConfig().then((c) => live && setUpi(c.upi), () => {});
+    getConfig().then(
+      (c) => {
+        if (!live) return;
+        setUpi(c.upi);
+        setAiMode(c.aiMode);
+      },
+      () => {}
+    );
     return () => {
       live = false;
       clearInterval(timer);
@@ -433,7 +442,7 @@ export default function ProfessionalDashboard() {
                 )}
                 {j.status === "in-progress" && (
                   <>
-                    <PartCheck job={j} onChange={load} />
+                    <PartCheck job={j} aiMode={aiMode} onChange={load} />
                     <Settle job={j} upi={upi} busy={busy === j.id} onDone={(collected, how) => complete(j, collected, how)} />
                   </>
                 )}

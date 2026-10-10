@@ -50,6 +50,8 @@ const bookingSchema = new Schema(
         fairLow: Number,
         fairHigh: Number,
         confidence: { type: String, enum: ["low", "medium", "high"] },
+        // "ai" (read from the photo) or "list" (Servify's price list of common parts).
+        source: { type: String, default: "ai" },
         quoted: Number,
         status: { type: String, enum: ["pending", "approved", "declined"], default: "pending" },
         addedAt: { type: Date, default: Date.now },
@@ -113,6 +115,7 @@ const partView = (p) => ({
   fairLow: p.fairLow,
   fairHigh: p.fairHigh,
   confidence: p.confidence,
+  source: p.source || "ai",
   quoted: p.quoted,
   status: p.status,
   verdict: verdictOf(p),

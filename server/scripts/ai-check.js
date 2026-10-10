@@ -1,16 +1,18 @@
 // Tries the AI assistant on real requests with your own key, and reports how it did.
+// Uses whichever assistant the server would: Gemini, Claude, or the free basic mode.
 //
 //   npm run ai-check                       12 typed requests (English, Telugu, Hindi, Urdu)
 //   npm run ai-check -- path/to/photos     ...plus every photo in that folder. Photos whose
 //                                          name starts with "part" go to the parts price check.
 //
-// Uses ANTHROPIC_API_KEY, AI_MODEL and AI_PARTS_MODEL from server/.env, so it costs a
-// little real money: a few rupees in all on Haiku.
+// Reads the keys and models from server/.env. Gemini's free tier and basic mode cost
+// nothing; Claude costs a few rupees a run on Haiku.
 const fs = require("node:fs");
 const path = require("node:path");
 const { Anthropic } = require("@anthropic-ai/sdk");
 const config = require("../src/config");
-const { aiAssistant } = require("../src/lib/assistant");
+const { aiAssistant, claudeBackend } = require("../src/lib/assistant");
+const { geminiBackend } = require("../src/lib/gemini");
 const { todayInIndia } = require("../src/lib/slots");
 
 // US dollars per million tokens: input, output, cache read, cache write (5 min).
@@ -47,7 +49,8 @@ const CASES = [
 const PHOTO_TYPES = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp" };
 
 function costOf(usage) {
-  const [inp, out, read, write] = PRICES[usage.model] || PRICES["claude-opus-5-5"];
+  if (!PRICES[usage.model]) return 0;
+  const [inp, out, read, write] = PRICES[usage.model];
   const dollars =
     ((usage.input_tokens || 0) * inp +
       (usage.output_tokens || 0) * out +
@@ -74,27 +77,39 @@ function judge(c, r) {
 }
 
 async function main() {
-  if (!config.hasAnthropicKey) {
-    console.error("Add ANTHROPIC_API_KEY to server/.env first.");
-    process.exit(1);
-  }
-  // The real client, wrapped to note what each request used.
-  const real = new Anthropic();
+  const provider = config.aiProvider || (config.geminiApiKey ? "gemini" : config.hasAnthropicKey ? "claude" : "basic");
+  // Each request is timed; Claude's are also priced from the usage it reports.
   let usage = null;
-  const client = {
-    beta: {
-      messages: {
-        create: async (params) => {
-          const started = Date.now();
-          const res = await real.beta.messages.create(params);
-          usage = { model: params.model, seconds: (Date.now() - started) / 1000, ...res.usage };
-          return res;
+  let ai;
+  if (provider === "gemini" && config.geminiApiKey) {
+    const timedFetch = async (url, init) => {
+      const started = Date.now();
+      const res = await fetch(url, init);
+      usage = { model: "gemini", seconds: (Date.now() - started) / 1000 };
+      return res;
+    };
+    ai = aiAssistant({ backend: geminiBackend({ apiKey: config.geminiApiKey, model: config.geminiModel, partsModel: config.geminiPartsModel, fetch: timedFetch }) });
+    console.log(`Gemini: ${config.geminiModel} (free tier: ₹0 within Google's daily limits)\n`);
+  } else if (provider === "claude" && config.hasAnthropicKey) {
+    const real = new Anthropic();
+    const client = {
+      beta: {
+        messages: {
+          create: async (params) => {
+            const started = Date.now();
+            const res = await real.beta.messages.create(params);
+            usage = { model: params.model, seconds: (Date.now() - started) / 1000, ...res.usage };
+            return res;
+          },
         },
       },
-    },
-  };
-  const ai = aiAssistant({ client, model: config.aiModel, partsModel: config.aiPartsModel });
-  console.log(`Ask AI model: ${config.aiModel}   Parts model: ${config.aiPartsModel}\n`);
+    };
+    ai = aiAssistant({ backend: claudeBackend({ client, model: config.aiModel, partsModel: config.aiPartsModel }) });
+    console.log(`Claude: ${config.aiModel} (parts: ${config.aiPartsModel})\n`);
+  } else {
+    ai = aiAssistant();
+    console.log("Basic mode (free keyword matching, no photos). Add GEMINI_API_KEY to server/.env for the full AI.\n");
+  }
 
   let passed = 0;
   let total = 0;
@@ -114,10 +129,11 @@ async function main() {
       console.log(`${problems.length ? "❌" : "✅"} "${c.text}"`);
       console.log(`   → ${line(r)}`);
       console.log(`   → reply: ${r.reply}`);
+      if (r.fellBack) console.log("   ⚠ the AI failed, so basic mode answered (see the error above)");
       if (r.safetyTip) console.log(`   → safety: ${r.safetyTip}`);
       if (r.slot) console.log(`   → time: ${new Date(r.slot).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}`);
       problems.forEach((p) => console.log(`   ⚠ ${p}`));
-      if (usage) console.log(`   ${usage.seconds.toFixed(1)}s · ₹${(cost * RUPEES_PER_DOLLAR).toFixed(2)}`);
+      if (usage) console.log(`   ${usage.seconds.toFixed(1)}s${PRICES[usage.model] ? ` · ₹${(cost * RUPEES_PER_DOLLAR).toFixed(2)}` : ""}`);
     } catch (err) {
       console.log(`❌ "${c.text}"\n   error: ${err.message}`);
     }
@@ -148,14 +164,16 @@ async function main() {
       }
       if (usage) {
         spent += costOf(usage);
-        console.log(`   ${usage.seconds.toFixed(1)}s · ₹${(costOf(usage) * RUPEES_PER_DOLLAR).toFixed(2)}`);
+        console.log(`   ${usage.seconds.toFixed(1)}s${PRICES[usage.model] ? ` · ₹${(costOf(usage) * RUPEES_PER_DOLLAR).toFixed(2)}` : ""}`);
       }
       console.log("   (check this one yourself: is it right?)\n");
     }
   }
 
   console.log(`Typed requests: ${passed}/${total} as expected.`);
-  console.log(`Estimated cost of this run: ₹${(spent * RUPEES_PER_DOLLAR).toFixed(2)} ($${spent.toFixed(4)}). The Console's Usage page has the exact amount.`);
+  if (provider === "claude") {
+    console.log(`Estimated cost of this run: ₹${(spent * RUPEES_PER_DOLLAR).toFixed(2)} ($${spent.toFixed(4)}). The Console's Usage page has the exact amount.`);
+  }
 }
 
 main().catch((err) => {

@@ -43,7 +43,12 @@ function PartCard({ part, busy, onDecide }) {
         <span className={`part-verdict is-${verdict.tone}`}>{verdict.label}</span>
       </div>
       {part.notes && <p className="part-notes">{part.notes}</p>}
-      <p className="part-ai">AI estimate from the professional's photo{part.confidence === "low" ? " (not very sure)" : ""}. Ask them if anything looks off.</p>
+      <p className="part-ai">
+        {part.source === "list"
+          ? "From Servify's price list of common parts; brand and size change the price."
+          : `AI estimate from the professional's photo${part.confidence === "low" ? " (not very sure)" : ""}.`}{" "}
+        Ask them if anything looks off.
+      </p>
       {part.status === "pending" ? (
         <div className="part-actions">
           <button className="btn" disabled={busy} onClick={() => onDecide("approve")}>Approve ₹{part.quoted.toLocaleString("en-IN")}</button>

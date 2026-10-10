@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { useApi, istSlot, cart, home, MADHAPUR } = require("./helpers");
-const { aiAssistant, CATALOG } = require("../src/lib/assistant");
+const { aiAssistant, claudeBackend, createAi, CATALOG } = require("../src/lib/assistant");
 const { skillFor } = require("../src/lib/skills");
 
 // A fake Anthropic client: records each request and replies with the next queued answer.
@@ -23,7 +23,7 @@ const fakeClient = {
   },
 };
 
-const api = useApi({ deps: { ai: aiAssistant({ client: fakeClient }) }, config: { aiRateLimit: 1000 } });
+const api = useApi({ deps: { ai: aiAssistant({ backend: claudeBackend({ client: fakeClient }) }) }, config: { aiRateLimit: 1000 } });
 const PHOTO = { mediaType: "image/jpeg", data: Buffer.from("fake jpeg bytes").toString("base64") };
 
 const assistAnswer = (over = {}) => ({
@@ -124,16 +124,28 @@ test("unclear requests, unbookable times, refusals and outages come back politel
   assert.equal((await meera("POST", "/ai/assist", { text: "something" })).status, 422);
 
   const { Anthropic } = require("@anthropic-ai/sdk");
+  // When Claude can't be reached, the free basic assistant answers instead.
   claude.answers.push(new Anthropic.APIConnectionError({ message: "offline" }));
-  const down = await meera("POST", "/ai/assist", { text: "tap" });
-  assert.equal(down.status, 502);
-  assert.match(down.data.error, /isn't reachable/);
+  const down = await meera("POST", "/ai/assist", { text: "my kitchen tap is leaking" });
+  assert.equal(down.status, 200);
+  assert.equal(down.data.fellBack, true);
+  assert.equal(down.data.basic, true);
+  assert.equal(down.data.service.slug, "plumber");
 });
 
-test("without an Anthropic key the AI features say they're off", async () => {
-  const off = aiAssistant({ hasCredentials: false });
-  assert.equal(off.enabled, false);
-  await assert.rejects(off.assist({ text: "tap" }), (err) => err.status === 503 && /ANTHROPIC_API_KEY/.test(err.message));
+test("the provider comes from the keys present, and basic mode needs none", async () => {
+  assert.equal(createAi({}).mode, "basic");
+  assert.equal(createAi({ hasAnthropicKey: true }).mode, "claude");
+  assert.equal(createAi({ hasAnthropicKey: true, geminiApiKey: "g" }).mode, "gemini");
+  assert.equal(createAi({ hasAnthropicKey: true, geminiApiKey: "g", aiProvider: "claude" }).mode, "claude");
+  assert.equal(createAi({ geminiApiKey: "g", aiProvider: "basic" }).mode, "basic");
+  // Asking for a provider without its key falls back to basic rather than failing.
+  assert.equal(createAi({ aiProvider: "gemini" }).mode, "basic");
+
+  const free = createAi({});
+  const r = await free.assist({ text: "AC not cooling" });
+  assert.equal(r.service.slug, "ac");
+  assert.equal(r.basic, true);
 });
 
 test("a spare part: AI fair price, customer approval, and it's added to what's collected", async (t) => {

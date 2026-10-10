@@ -148,20 +148,20 @@ Notes:
   route instead of real GPS.
 - Real GPS only works on `https://` or `localhost`.
 
-### AI features (Claude)
+### AI features
 
-Three features use Claude through the Anthropic SDK. They need
-`ANTHROPIC_API_KEY` in `server/.env`; without it they show as switched off.
+Two features use an AI model, and you choose which one in `server/.env`:
 
-Which model each feature uses is a setting in `server/.env`:
+| Provider | Setting | Cost | Notes |
+|---|---|---|---|
+| **Gemini** (Google) | `GEMINI_API_KEY`, `GEMINI_MODEL` (default `gemini-2.5-flash`) | Free tier with daily limits | Get a key at aistudio.google.com → Get API key. On the free tier Google may use what's sent to improve its products. |
+| **Claude** (Anthropic) | `ANTHROPIC_API_KEY`, `AI_MODEL` (default `claude-haiku-5-5`), `AI_PARTS_MODEL` (default `claude-opus-5-5`) | Pay as you go | Also checks new professionals' ID photos. |
+| **Basic mode** | none | Free | Keyword matching in English, Telugu, Hindi and Urdu, plus a price list of common parts. Can't read photos. |
 
-| Setting | Default | Used for |
-|---|---|---|
-| `AI_MODEL` | `claude-haiku-5-5` | Ask Servify AI. Cheap and quick, fine for most problems. |
-| `AI_PARTS_MODEL` | `claude-opus-5-5` | Spare-part price check. Needs more knowledge, and is used less often. |
-
-Set `AI_MODEL=claude-opus-5-5` for the most accurate photo diagnosis, at about
-40 times the cost. The ID check for new professionals always uses Opus.
+With no setting, Gemini is used if its key is set, then Claude, else basic
+mode. `AI_PROVIDER=gemini|claude|basic` forces one. Basic mode also answers
+automatically whenever the AI is out of quota or unreachable, so the
+features never break.
 
 1. **Ask Servify AI** (`/ask`, and the shortcut on the home page). The customer
    types, speaks or photographs the problem. Typing and speaking work in
@@ -186,8 +186,10 @@ Set `AI_MODEL=claude-opus-5-5` for the most accurate photo diagnosis, at about
 
 Notes:
 
-- Photos are sent to Claude and never stored. Only the diagnosis text and the
-  part's estimate are saved.
+- Photos are sent to the AI provider and never stored by Servify. Only the
+  diagnosis text and the part's estimate are saved.
+- Basic mode's part prices are in `server/src/data/part-prices.json`. They're
+  rough typical prices, so edit them to match your area.
 - Each account can make `AI_RATE_LIMIT` AI requests an hour (30 by default),
   because every request costs money. The catalogue part of the prompt is
   cached, which makes repeat requests cheaper.
@@ -197,13 +199,14 @@ Notes:
   `client/src/data/services.js`, run `npm run catalog` in `client/` to
   regenerate it; a server test fails while the two disagree.
 
-**Trying it with your key:** `npm run ai-check` in `server/` sends 12 typical
+**Trying it:** `npm run ai-check` in `server/` sends 12 typical
 requests through the assistant and reports, for each, whether the answer was
 right, how long it took and roughly what it cost. They are in English, Telugu,
 Hindi and Urdu, and include a safety case, a vague one and a trick one. Add a
 folder of photos to try those too: `npm run ai-check -- C:\path\to\photos`.
-Photos named `part…` go to the parts price check. A run costs a few rupees on
-Haiku.
+Photos named `part…` go to the parts price check. It uses whichever provider
+is set up. A run is free on Gemini's free tier and in basic mode, and costs a
+few rupees on Claude Haiku.
 
 API: `POST /api/ai/assist` (`{ text?, image? }`), `POST /api/pro/jobs/:id/parts`
 (`{ image, quoted, note? }`) and `POST /api/bookings/:id/parts/:partId`
