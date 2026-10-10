@@ -88,7 +88,7 @@ async function main() {
       usage = { model: "gemini", seconds: (Date.now() - started) / 1000 };
       return res;
     };
-    ai = aiAssistant({ backend: geminiBackend({ apiKey: config.geminiApiKey, model: config.geminiModel, partsModel: config.geminiPartsModel, fetch: timedFetch }) });
+    ai = aiAssistant({ backend: geminiBackend({ apiKey: config.geminiApiKey, model: config.geminiModel, partsModel: config.geminiPartsModel, backupModel: config.geminiBackupModel, fetch: timedFetch }) });
     console.log(`Gemini: ${config.geminiModel} (free tier: ₹0 within Google's daily limits)\n`);
   } else if (provider === "claude" && config.hasAnthropicKey) {
     const real = new Anthropic();

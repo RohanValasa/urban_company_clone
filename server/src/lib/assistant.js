@@ -280,7 +280,12 @@ function createBackend(config) {
   const provider =
     config.aiProvider || (config.geminiApiKey ? "gemini" : config.hasAnthropicKey ? "claude" : "basic");
   if (provider === "gemini" && config.geminiApiKey) {
-    return geminiBackend({ apiKey: config.geminiApiKey, model: config.geminiModel, partsModel: config.geminiPartsModel });
+    return geminiBackend({
+      apiKey: config.geminiApiKey,
+      model: config.geminiModel,
+      partsModel: config.geminiPartsModel,
+      backupModel: config.geminiBackupModel,
+    });
   }
   if (provider === "claude" && config.hasAnthropicKey) {
     return claudeBackend({ model: config.aiModel, partsModel: config.aiPartsModel });

@@ -50,6 +50,7 @@ export default function AskAI() {
   const [partial, setPartial] = useState("");
   const [photo, setPhoto] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [slow, setSlow] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
 
@@ -62,6 +63,16 @@ export default function AskAI() {
       setPartial(speaking);
     },
   });
+
+  // The AI can be slow when it's busy; say so, and that a quick answer is coming.
+  useEffect(() => {
+    if (!busy) return undefined;
+    const timer = setTimeout(() => setSlow(true), 7000);
+    return () => {
+      clearTimeout(timer);
+      setSlow(false);
+    };
+  }, [busy]);
 
   useEffect(() => {
     let live = true;
@@ -209,7 +220,7 @@ export default function AskAI() {
       {busy && (
         <div className="ask-thinking" role="status">
           <span /><span /><span />
-          Looking at the problem…
+          {slow ? "The AI is busy right now — a quick answer is on its way…" : "Looking at the problem…"}
         </div>
       )}
       {error && <p className="auth-error" style={{ marginTop: 14 }}>{error}</p>}

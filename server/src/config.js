@@ -36,6 +36,8 @@ module.exports = {
   geminiApiKey: env.GEMINI_API_KEY || "",
   geminiModel: env.GEMINI_MODEL || "gemini-3.8-flash",
   geminiPartsModel: env.GEMINI_PARTS_MODEL || "",
+  // Tried when the main model is overloaded. Empty: a Flash-Lite model the key can use.
+  geminiBackupModel: env.GEMINI_BACKUP_MODEL || "",
   // "gemini", "claude" or "basic" (free keyword matching). Unset: picked from the keys present.
   aiProvider: ["gemini", "claude", "basic"].includes(env.AI_PROVIDER) ? env.AI_PROVIDER : "",
   fieldKey: env.FIELD_KEY || "",

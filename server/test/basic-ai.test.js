@@ -104,3 +104,20 @@ test("parts prices come from the price list, by the name typed", async () => {
   await assert.rejects(basic.priceParts({ note: "" }), (e) => e.status === 400);
   await assert.rejects(basic.priceParts({ note: "quantum flux gizmo" }), (e) => e.status === 422);
 });
+
+test("furniture fitting, in Telugu, Hindi, Urdu and English", async () => {
+  const cases = [
+    ["మా బెడ్ రూమ్ లో ఫర్నిచర్ ఫిట్ చేయాలి నాకు మంచి పని చేసే వాళ్ళు కావాలి", "Bed assembly"],
+    ["मुझे नया बेड फिट करवाना है", "Bed assembly"],
+    ["نیا میز فٹ کرنا ہے", "Table / desk assembly"],
+    ["need someone to assemble my new wardrobe", "Wardrobe assembly"],
+  ];
+  for (const [text, name] of cases) {
+    const r = await ask(text);
+    assert.equal(r.service.slug, "furniture-assembly", text);
+    assert.equal(r.items[0].name, name, text);
+  }
+  // "fit" doesn't take over when something else is named.
+  assert.equal((await ask("fit a new ceiling fan")).service.slug, "electrician");
+  assert.equal((await ask("tap fitting is loose")).service.slug, "plumber");
+});

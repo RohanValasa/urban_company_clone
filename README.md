@@ -194,6 +194,16 @@ mode. `AI_PROVIDER=gemini|claude|basic` forces one. Basic mode also answers
 automatically whenever the AI is out of quota or unreachable, so the
 features never break.
 
+**When Gemini is busy.** Free-tier models are often overloaded ("experiencing
+high demand"). So a customer isn't kept waiting, Ask AI gives the AI about 20
+seconds in all and asks it to think lightly. If the main model is
+overloaded, a lighter Flash-Lite model that your key can use is tried
+straight away; you can name one with `GEMINI_BACKUP_MODEL`. If that fails
+too, basic mode answers. `npm run gemini-models` in `server/` lists the
+models your key can use and times each Flash model, to help you pick
+`GEMINI_MODEL`. The server terminal shows which model answered and how long
+it took.
+
 1. **Ask Servify AI** (`/ask`, and the shortcut on the home page). The customer
    types, speaks or photographs the problem. Typing and speaking work in
    English, Telugu, Hindi or Urdu, including Telugu written in English letters.

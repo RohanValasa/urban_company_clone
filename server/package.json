@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "test": "node --test --test-concurrency=1",
     "seed": "node scripts/seed.js",
-    "ai-check": "node scripts/ai-check.js"
+    "ai-check": "node scripts/ai-check.js",
+    "gemini-models": "node scripts/gemini-models.js"
   },
   "keywords": [],
   "author": "",

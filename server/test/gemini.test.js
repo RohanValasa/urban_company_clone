@@ -8,7 +8,7 @@ const { aiAssistant, ASSIST_SCHEMA } = require("../src/lib/assistant");
 function fakeFetch(status, body) {
   const calls = [];
   const fn = async (url, init) => {
-    calls.push({ url, headers: init.headers, body: JSON.parse(init.body) });
+    calls.push({ url, headers: init.headers, body: init.body && JSON.parse(init.body) });
     return { ok: status < 400, status, statusText: "x", json: async () => body };
   };
   fn.calls = calls;
@@ -23,6 +23,19 @@ const ASSIST = {
   preferredDate: "", preferredTime: "",
 };
 const PHOTO = { mediaType: "image/jpeg", data: "QUJD" };
+const silent = { log() {}, error() {} };
+const reply = (status, body) => ({ ok: status < 400, status, statusText: "x", json: async () => body });
+const BUSY = reply(503, { error: { message: "This model is currently experiencing high demand." } });
+// What Google's ListModels returns for a free key (trimmed).
+const MODELS = {
+  models: [
+    { name: "models/gemini-3.8-flash", supportedGenerationMethods: ["generateContent"] },
+    { name: "models/gemini-3.8-flash-image", supportedGenerationMethods: ["generateContent"] },
+    { name: "models/gemini-3.5-flash-lite", supportedGenerationMethods: ["generateContent"] },
+    { name: "models/gemini-3.8-flash-lite", supportedGenerationMethods: ["generateContent"] },
+    { name: "models/text-embedding-5", supportedGenerationMethods: ["embedContent"] },
+  ],
+};
 
 test("the schema is converted to Gemini's format", () => {
   const g = toGeminiSchema(ASSIST_SCHEMA);
@@ -73,33 +86,104 @@ test("out of free quota: the basic assistant answers instead", async () => {
   await assert.rejects(ai.priceParts({ image: PHOTO, note: "", job: "Plumber" }), (e) => e.status === 503);
 });
 
-test("an overloaded model or a dropped connection is retried once", async () => {
-  const quiet = console.error;
-  console.error = () => {};
-  let calls = 0;
-  const flaky = async () => {
-    calls++;
-    if (calls === 1) return { ok: false, status: 503, statusText: "x", json: async () => ({ error: { message: "The model is overloaded." } }) };
-    return { ok: true, status: 200, json: async () => answer(ASSIST) };
+test("an overloaded model is swapped for a lighter one the key can use", async () => {
+  const asked = [];
+  const fetch = async (url) => {
+    if (url.endsWith("?pageSize=200")) return reply(200, MODELS);
+    asked.push(url.match(/models\/([\w.-]+):/)[1]);
+    return asked.length === 1 ? BUSY : reply(200, answer(ASSIST));
   };
-  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch: flaky, retryDelayMs: 1 }) });
+  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch, log: silent }) });
+  assert.equal((await ai.assist({ text: "tap leaking" })).service.slug, "plumber");
+  // The newest Flash-Lite; never the image model.
+  assert.deepEqual(asked, ["gemini-3.8-flash", "gemini-3.8-flash-lite"]);
+
+  // GEMINI_BACKUP_MODEL wins over the list.
+  const chosen = [];
+  const own = geminiBackend({
+    apiKey: "k", backupModel: "gemini-3.5-flash", log: silent,
+    fetch: async (url) => { chosen.push(url); return chosen.length === 1 ? BUSY : reply(200, answer(ASSIST)); },
+  });
+  await own.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA });
+  assert.match(chosen[1], /gemini-3\.5-flash:generateContent/);
+  assert.ok(!chosen.some((u) => u.includes("pageSize")), "no need to list models");
+});
+
+test("with no backup, the same model is retried once; then basic mode answers", async () => {
+  let calls = 0;
+  const flaky = async (url) => {
+    if (url.includes("pageSize")) return reply(200, { models: [] });
+    calls++;
+    return calls === 1 ? BUSY : reply(200, answer(ASSIST));
+  };
+  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch: flaky, retryDelayMs: 1, log: silent }) });
   assert.equal((await ai.assist({ text: "tap leaking" })).service.slug, "plumber");
   assert.equal(calls, 2);
 
-  const alwaysBusy = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch: fakeFetch(503, { error: { message: "overloaded" } }), retryDelayMs: 1 }) });
+  const alwaysBusy = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch: async () => BUSY, retryDelayMs: 1, log: silent }) });
   const r = await alwaysBusy.assist({ text: "tap leaking" });
   assert.equal(r.fallbackReason, "busy");
+  assert.equal(r.service.slug, "plumber");
 
   let tries = 0;
-  const dropped = geminiBackend({ apiKey: "k", retryDelayMs: 1, fetch: async () => { tries++; throw Object.assign(new Error("fetch failed"), { cause: { code: "ECONNRESET" } }); } });
+  const dropped = geminiBackend({
+    apiKey: "k", retryDelayMs: 1, log: silent,
+    fetch: async (url) => {
+      if (url.includes("pageSize")) return reply(200, { models: [] });
+      tries++;
+      throw Object.assign(new Error("fetch failed"), { cause: { code: "ECONNRESET" } });
+    },
+  });
   await assert.rejects(dropped.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.reason === "offline");
   assert.equal(tries, 2);
-  console.error = quiet;
+});
+
+test("a slow model doesn't keep the customer waiting: the whole answer has a deadline", async () => {
+  // Never answers; only the abort signal ends it.
+  const hang = async (url, init) => {
+    if (url.includes("pageSize")) return reply(200, { models: [] });
+    return new Promise((_, reject) => init.signal.addEventListener("abort", () => reject(init.signal.reason)));
+  };
+  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch: hang, assistDeadlineMs: 2500, retryDelayMs: 1, log: silent }) });
+  const awake = setInterval(() => {}, 100); // abort timers don't keep a test process alive (the server does)
+  const started = Date.now();
+  const r = await ai.assist({ text: "tap leaking" }).finally(() => clearInterval(awake));
+  assert.ok(Date.now() - started < 4000, `answered in ${Date.now() - started}ms`);
+  assert.equal(r.fellBack, true);
+  assert.equal(r.fallbackReason, "busy");
+  assert.equal(r.service.slug, "plumber");
+});
+
+test("booking suggestions ask for light thinking, and drop it if the model refuses", async () => {
+  const fetch = fakeFetch(200, answer(ASSIST));
+  await geminiBackend({ apiKey: "k", model: "gemini-3.8-flash", fetch, log: silent }).json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA });
+  assert.deepEqual(fetch.calls[0].body.generationConfig.thinkingConfig, { thinkingLevel: "low" });
+  const old = fakeFetch(200, answer(ASSIST));
+  await geminiBackend({ apiKey: "k", model: "gemini-2.5-flash", fetch: old, log: silent }).json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA });
+  assert.deepEqual(old.calls[0].body.generationConfig.thinkingConfig, { thinkingBudget: 0 });
+  // The parts check keeps the model's own thinking.
+  const parts = fakeFetch(200, answer({}));
+  await geminiBackend({ apiKey: "k", fetch: parts, log: silent }).json({ kind: "parts", system: "s", text: "t", schema: ASSIST_SCHEMA });
+  assert.equal(parts.calls[0].body.generationConfig.thinkingConfig, undefined);
+
+  const bodies = [];
+  const picky = geminiBackend({
+    apiKey: "k", log: silent,
+    fetch: async (url, init) => {
+      const body = JSON.parse(init.body);
+      bodies.push(body);
+      return body.generationConfig.thinkingConfig ? reply(400, { error: { message: "Thinking level is not supported for this model." } }) : reply(200, answer(ASSIST));
+    },
+  });
+  const ask = () => picky.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA });
+  assert.equal((await ask()).service, "plumber");
+  assert.equal((await ask()).service, "plumber");
+  assert.equal(bodies.length, 3, "asked without it again, and remembered");
 });
 
 test("set-up mistakes and blocked answers", async () => {
   const retired = "This model models/gemini-9 is no longer available to new users. Please update your code to use models/gemini-10-flash.";
-  const wrongModel = geminiBackend({ apiKey: "k", model: "gemini-9", fetch: fakeFetch(404, { error: { message: retired } }) });
+  const wrongModel = geminiBackend({ apiKey: "k", model: "gemini-9", log: console, fetch: fakeFetch(404, { error: { message: retired } }) });
   const logged = [];
   const realError = console.error;
   console.error = (line) => logged.push(line);
@@ -112,6 +196,6 @@ test("set-up mistakes and blocked answers", async () => {
   await assert.rejects(blocked.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.status === 422 && !e.fallback);
   const garbled = geminiBackend({ apiKey: "k", fetch: fakeFetch(200, { candidates: [{ content: { parts: [{ text: "not json" }] } }] }) });
   await assert.rejects(garbled.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.status === 502 && e.fallback);
-  const offline = geminiBackend({ apiKey: "k", retryDelayMs: 1, fetch: async () => { throw new Error("ENOTFOUND"); } });
+  const offline = geminiBackend({ apiKey: "k", retryDelayMs: 1, log: silent, fetch: async () => { throw new Error("ENOTFOUND"); } });
   await assert.rejects(offline.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.fallback);
 });

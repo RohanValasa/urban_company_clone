@@ -43,8 +43,14 @@ const SERVICES = [
     slug: "painting",
     words: ["paint", "painting", "damp", "dampness", "seepage", "waterproof", "wall crack", "crack in wall", "peeling", "సీపేజ్", "తేమ", "పెయింట్", "పెయింటింగ్", "पेंट", "सीलन", "नमी", "सीपेज", "سیلن", "نمی", "پینٹ"],
   },
+  // Before the carpenter, so "assemble a wardrobe" is assembly; "furniture repair" stays with the carpenter.
+  // "fit" only wins when nothing else is named: a tied service listed earlier (fan, tap) comes first.
+  {
+    slug: "furniture-assembly",
+    words: ["assemble", "assembly", "ikea", "fix the bed together", "fit", "fitting", "dismantle", "dismantling", "ఫర్నిచర్", "ఫిట్", "ఫిట్టింగ్", "बिठाना", "फर्नीचर", "फिट", "فرنیچر", "فٹ"],
+    hints: { "బెడ్": "bed", "మంచం": "bed", "बेड": "bed", "पलंग": "bed", "بیڈ": "bed", cot: "bed", "టేబుల్": "table", "टेबल": "table", "میز": "table", "కుర్చీ": "chair", "कुर्सी": "chair", "کرسی": "chair", "అల్మారా": "wardrobe", "अलमारी": "wardrobe", "الماری": "wardrobe", fit: "assembly", fitting: "assembly", furniture: "assembly", assemble: "assembly", dismantle: "dismantling", "ఫిట్": "assembly", "ఫర్నిచర్": "assembly", "फिट": "assembly", "फर्नीचर": "assembly", "فٹ": "assembly", "فرنیچر": "assembly" },
+  },
   { slug: "carpenter", words: ["door", "hinge", "lock", "cupboard", "wardrobe", "drawer", "bed repair", "wood", "furniture repair", "carpenter", "తలుపు", "అల్మారా", "దర్వాజా", "दरवाजा", "दरवाज़ा", "अलमारी", "ताला", "دروازہ", "الماری", "تالا"] },
-  { slug: "furniture-assembly", words: ["assemble", "assembly", "ikea", "fix the bed together"] },
   { slug: "tile-grouting", words: ["grout", "grouting", "tile gap", "tiles gap"] },
   { slug: "festive-lights", words: ["festive lights", "diwali lights", "decoration lights", "serial lights", "lighting for function"] },
   { slug: "salon-women", words: ["facial", "waxing", "wax", "threading", "eyebrow", "manicure", "pedicure", "bleach", "ఫేషియల్", "వ్యాక్సింగ్", "फेशियल", "वैक्स", "थ्रेडिंग", "فیشل", "ویکس"] },
