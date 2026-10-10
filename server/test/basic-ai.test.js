@@ -39,6 +39,9 @@ test("services from English, Telugu, Hindi and Urdu, in their own scripts or in 
 test("picks a sensible package and quantity", async () => {
   assert.equal((await ask("naa bathroom tap leak avtundi")).items[0].name, "Tap repair");
   assert.equal((await ask("fan not working")).items[0].name, "Fan repair");
+  // Filler words like "for" don't count as matches.
+  const sink = await ask("my kitchen sink pipe is leaking please find me the best provider, i also uploaded a image for your reference");
+  assert.equal(sink.items[0].name, "Wash basin leakage repair");
   assert.equal((await ask("ఫ్యాన్ తిరగడం లేదు")).items[0].name, "Fan repair");
   assert.equal((await ask("switch board broken")).items[0].name, "Switch replace / install");
   assert.equal((await ask("I need a new fan installed")).items[0].name, "Regular ceiling fan replace / install");

@@ -65,6 +65,7 @@ test("out of free quota: the basic assistant answers instead", async () => {
   const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch }) });
   const r = await ai.assist({ text: "my AC is not cooling" });
   assert.equal(r.fellBack, true);
+  assert.equal(r.fallbackReason, "limit");
   assert.equal(r.service.slug, "ac");
   // Parts fall back to the price list when the part was named.
   const p = await ai.priceParts({ image: PHOTO, note: "tap spindle", job: "Plumber" });
@@ -74,7 +75,7 @@ test("out of free quota: the basic assistant answers instead", async () => {
 
 test("set-up mistakes and blocked answers", async () => {
   const wrongModel = geminiBackend({ apiKey: "k", model: "gemini-9", fetch: fakeFetch(404, { error: { message: "not found" } }) });
-  await assert.rejects(wrongModel.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.fallback && /GEMINI_MODEL/.test(e.message));
+  await assert.rejects(wrongModel.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.fallback && e.reason === "setup" && /GEMINI_MODEL/.test(e.message));
   const badKey = geminiBackend({ apiKey: "k", fetch: fakeFetch(403, { error: { message: "denied" } }) });
   await assert.rejects(badKey.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.fallback && /GEMINI_API_KEY/.test(e.message));
   const blocked = geminiBackend({ apiKey: "k", fetch: fakeFetch(200, { promptFeedback: { blockReason: "SAFETY" } }) });

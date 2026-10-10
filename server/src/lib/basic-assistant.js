@@ -25,7 +25,7 @@ const SERVICES = [
       "commode", "basin", "sink", "water tank", "overflow", "nalla", "kulai", "కుళాయి", "ట్యాప్", "పైపు", "లీక్", "సింక్",
       "బ్లాక్", "నల్లా", "టాయిలెట్", "नल", "पाइप", "लीक", "टपक", "नाली", "सिंक", "फ्लश", "टॉयलेट", "نل", "پائپ", "لیک", "رساؤ", "سنک", "نالی",
     ],
-    hints: { "ట్యాప్": "tap", "కుళాయి": "tap", "నల్లా": "tap", nalla: "tap", kulai: "tap", "नल": "tap", "نل": "tap", "సింక్": "sink", "सिंक": "sink", "سنک": "sink", "టాయిలెట్": "toilet", "टॉयलेट": "toilet", "फ्लश": "flush", block: "blockage", blocked: "blockage", "బ్లాక్": "blockage" },
+    hints: { "ట్యాప్": "tap", "కుళాయి": "tap", "నల్లా": "tap", nalla: "tap", kulai: "tap", "नल": "tap", "نل": "tap", sink: "basin", "సింక్": "basin", "सिंक": "basin", "سنک": "basin", leak: "leakage", leaking: "leakage", "లీక్": "leakage", "लीक": "leakage", "لیک": "leakage", "టాయిలెట్": "toilet", "टॉयलेट": "toilet", "फ्लश": "flush", block: "blockage", blocked: "blockage", "బ్లాక్": "blockage" },
   },
   {
     slug: "electrician",
@@ -133,6 +133,13 @@ const PROBLEM_WORDS = [
   "avvatledu", "ledu", "nahi", "nahin", "లేదు", "పనిచేయడం లేదు", "పాడైంది", "లీక్", "नहीं", "खराब", "टूट", "लीक", "نہیں", "خراب", "ٹوٹ", "لیک",
 ];
 
+// Common words that say nothing about which package fits.
+const STOPWORDS = new Set(
+  ("the and for with your you are was were this that from have has had can could will would please need needs want also " +
+    "best find get some any very much more help image photo picture uploaded upload reference provider professional someone " +
+    "come came send there here they them our out not but what when where which who how its into onto over just only my me").split(" ")
+);
+
 const TELUGU_LATIN = /\b(naa|maa|avtundi|avuthundi|ledu|undi|kavali|cheyyandi|cheyyali|pampandi|ochi|raavali|repu|ellundi|chesi)\b/;
 
 function languageOf(text) {
@@ -168,7 +175,8 @@ function pickService(text) {
  * The cheapest wins a tie.
  */
 function pickPackage(service, text, hints) {
-  const weight = new Map((text.match(/[a-z]{3,}/g) || []).map((w) => [w.replace(/s$/, ""), 3]));
+  const words = (text.match(/[a-z]{3,}/g) || []).filter((w) => !STOPWORDS.has(w));
+  const weight = new Map(words.map((w) => [w.replace(/s$/, ""), 3]));
   const add = (word, w) => weight.set(word, Math.max(weight.get(word) || 0, w));
   Object.entries(hints).forEach(([word, hint]) => has(text, word) && add(hint, 3));
   if (any(text, PROBLEM_WORDS)) add("repair", 2);

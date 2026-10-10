@@ -20,6 +20,14 @@ const VOICES = [
   { lang: "en-IN", label: "English" },
 ];
 
+// Why basic mode answered instead of the AI.
+const FALLBACK_NOTE = {
+  limit: "The AI has reached its limit for now, so basic mode answered. Photos are skipped in basic mode.",
+  setup: "The AI isn't set up correctly on this server (the server window says why), so basic mode answered.",
+  offline: "The AI couldn't be reached, so basic mode answered.",
+  unreadable: "The AI's answer didn't come through properly, so basic mode answered.",
+};
+
 const EXAMPLES = [
   "My AC is dripping water inside the room",
   "కిచెన్ సింక్ బ్లాక్ అయింది, రేపు ఉదయం రావాలి",
@@ -213,7 +221,7 @@ export default function AskAI() {
               </p>
             )}
             <p className="ask-reply" dir="auto">{result.reply}</p>
-            {result.fellBack && <p className="ask-mode">The AI is busy right now, so basic mode answered.</p>}
+            {result.fellBack && <p className="ask-mode">{FALLBACK_NOTE[result.fallbackReason] || FALLBACK_NOTE.offline}</p>}
 
             {result.understood && (
               <>

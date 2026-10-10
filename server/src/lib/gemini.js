@@ -18,7 +18,8 @@ function toGeminiSchema(schema) {
   return out;
 }
 
-const failed = (status, message) => Object.assign(httpError(status, message), { fallback: true });
+// `reason` says why the AI couldn't answer, so the app can tell the customer: limit, setup, offline or unreadable.
+const failed = (status, message, reason) => Object.assign(httpError(status, message), { fallback: true, reason });
 
 /**
  * Asks Google's Gemini for a JSON answer. Uses the free tier when the key is a
@@ -48,19 +49,19 @@ function geminiBackend({ apiKey, model = "gemini-2.5-flash", partsModel, fetch: 
         });
       } catch (err) {
         console.error(`Gemini request failed: ${err.message}`);
-        throw failed(502, "The AI assistant isn't reachable right now. Please try again shortly.");
+        throw failed(502, "The AI assistant isn't reachable right now. Please try again shortly.", "offline");
       }
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         const why = data?.error?.message || res.statusText;
         console.error(`Gemini (${m}) answered ${res.status}: ${why}`);
-        if (res.status === 429) throw failed(503, "The AI assistant has reached its limit for now. Please try again later.");
-        if (res.status === 404) throw failed(502, `The AI model "${m}" wasn't found. Check GEMINI_MODEL in server/.env.`);
+        if (res.status === 429) throw failed(503, "The AI assistant has reached its limit for now. Please try again later.", "limit");
+        if (res.status === 404) throw failed(502, `The AI model "${m}" wasn't found. Check GEMINI_MODEL in server/.env.`, "setup");
         if (res.status === 400 || res.status === 401 || res.status === 403) {
-          throw failed(502, "The AI assistant isn't set up correctly on this server. Check GEMINI_API_KEY and GEMINI_MODEL.");
+          throw failed(502, "The AI assistant isn't set up correctly on this server. Check GEMINI_API_KEY and GEMINI_MODEL.", "setup");
         }
-        throw failed(502, "The AI assistant isn't reachable right now. Please try again shortly.");
+        throw failed(502, "The AI assistant isn't reachable right now. Please try again shortly.", "offline");
       }
 
       const candidate = data.candidates?.[0];
@@ -75,7 +76,7 @@ function geminiBackend({ apiKey, model = "gemini-2.5-flash", partsModel, fetch: 
       try {
         return JSON.parse(answer);
       } catch {
-        throw failed(502, "The AI assistant gave an unreadable answer. Please try again.");
+        throw failed(502, "The AI assistant gave an unreadable answer. Please try again.", "unreadable");
       }
     },
   };

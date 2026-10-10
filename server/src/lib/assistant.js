@@ -199,11 +199,15 @@ function claudeBackend({ client, model = "claude-haiku-5-5", partsModel = "claud
         });
       } catch (err) {
         if (err instanceof Anthropic.RateLimitError) {
-          throw Object.assign(httpError(503, "The AI assistant is busy right now. Please try again in a minute."), { fallback: true });
+          throw Object.assign(httpError(503, "The AI assistant is busy right now. Please try again in a minute."), { fallback: true, reason: "limit" });
         }
         if (err instanceof Anthropic.APIError) {
           console.error(`Claude request failed (${err.status ?? "no connection"}): ${err.message}`);
-          throw Object.assign(httpError(502, "The AI assistant isn't reachable right now. Please try again shortly."), { fallback: true });
+          const setup = [400, 401, 403, 404].includes(err.status);
+          throw Object.assign(httpError(502, "The AI assistant isn't reachable right now. Please try again shortly."), {
+            fallback: true,
+            reason: setup ? "setup" : "offline",
+          });
         }
         throw err;
       }
@@ -211,7 +215,7 @@ function claudeBackend({ client, model = "claude-haiku-5-5", partsModel = "claud
       try {
         return JSON.parse(response.content.find((b) => b.type === "text")?.text);
       } catch {
-        throw Object.assign(httpError(502, "The AI assistant gave an unreadable answer. Please try again."), { fallback: true });
+        throw Object.assign(httpError(502, "The AI assistant gave an unreadable answer. Please try again."), { fallback: true, reason: "unreadable" });
       }
     },
   };
@@ -239,7 +243,7 @@ function aiAssistant({ backend = null, basic = basicAssistant(CATALOG) } = {}) {
       return shapeAssist(answer, now);
     } catch (err) {
       if (!err.fallback) throw err;
-      return { ...(await basic.assist({ text, image, now })), fellBack: true };
+      return { ...(await basic.assist({ text, image, now })), fellBack: true, fallbackReason: err.reason || "offline" };
     }
   }
 
