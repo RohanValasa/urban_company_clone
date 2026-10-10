@@ -206,8 +206,11 @@ it took.
 
 1. **Ask Servify AI** (`/ask`, and the shortcut on the home page). The customer
    types, speaks or photographs the problem. Typing and speaking work in
-   English, Telugu, Hindi or Urdu, including Telugu written in English letters.
-   Claude works out what's wrong and suggests the service and packages, using
+   English, Telugu, Hindi or Urdu, in their own script or in English letters.
+   The reply comes back in the same language and the same letters: "naa tap
+   leak avthundhi" gets Telugu in English letters, Telugu script gets Telugu
+   script. If the AI answers in other letters, the server swaps in its own
+   sentence in the right ones. The AI works out what's wrong and suggests the service and packages, using
    catalogue prices. It also gives a safety tip when there's a hazard and
    understands times like "repu morning" (tomorrow morning).
    **Add to cart & book** opens checkout with that time already picked, and with

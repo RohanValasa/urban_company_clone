@@ -101,6 +101,24 @@ const TEXTS = {
     gas: "कोई भी स्विच ऑन/ऑफ न करें। खिड़कियाँ खोलें, सिलेंडर बंद करें, बाहर जाएँ और 112 पर कॉल करें।",
     electric: "तुरंत मेन स्विच बंद करें। इलेक्ट्रीशियन आने तक बोर्ड या तारों को न छुएँ।",
   },
+  // Telugu typed in English letters, answered the same way.
+  "te-latin": {
+    found: (label) => `Meeku ${label} service kavali anipistondi. Memu suggest chesedi idi.`,
+    unclear: "Inka konchem cheppandi: emi padayindi leda emi pani undi, intlo ekkada?",
+    photoOnly: "Problem ni konni maatallo cheppandi. Photos choodataniki full AI kavali, adi ippudu on lo ledu.",
+    expect: "Verified professional meeru select chesina time ki vachi, problem chusi fix chestaru.",
+    gas: "Ye switch on/off cheyakandi. Kitikeelu terichi, cylinder off chesi, bayataki velli 112 ki call cheyandi.",
+    electric: "Ventane main switch off cheyandi. Electrician vache varaku board leda wires ni muttukokandi.",
+  },
+  // Hindi or Urdu typed in English letters (the two read the same way in Roman letters).
+  "hi-latin": {
+    found: (label) => `Lagta hai aapko ${label} service chahiye. Hamara sujhav neeche hai.`,
+    unclear: "Thoda aur bataiye: kya kharab hai ya kya kaam hai, aur ghar mein kahan?",
+    photoOnly: "Problem kuch shabdon mein likhiye. Photo samajhne ke liye poora AI chahiye, jo abhi chalu nahi hai.",
+    expect: "Ek verified professional aapke chune hue time par aakar check karenge aur theek karenge.",
+    gas: "Koi bhi switch on ya off mat kijiye. Khidkiyan kholiye, cylinder band kijiye, bahar jaiye aur 112 par call kijiye.",
+    electric: "Turant main switch band kijiye. Electrician ke aane tak board ya taaron ko mat chhuiye.",
+  },
   ur: {
     found: (label) => `لگتا ہے آپ کو ${label} سروس چاہیے۔ ہمارا مشورہ نیچے ہے۔`,
     unclear: "تھوڑا اور بتائیں: کیا خراب ہے یا کیا کام ہے، اور گھر میں کہاں؟",
@@ -146,13 +164,19 @@ const STOPWORDS = new Set(
     "come came send there here they them our out not but what when where which who how its into onto over just only my me").split(" ")
 );
 
-const TELUGU_LATIN = /\b(naa|maa|avtundi|avuthundi|ledu|undi|kavali|cheyyandi|cheyyali|pampandi|ochi|raavali|repu|ellundi|chesi)\b/;
+// Telugu and Hindi/Urdu typed in English letters: common words, and Telugu verb endings ("avthundhi", "padindi").
+const TELUGU_LATIN =
+  /\b(naa|maa|naaku|maaku|meeku|avtundi|avuthundi|ledu|ledhu|undi|undhi|kavali|kaavali|cheyyandi|cheyandi|cheyyali|cheyali|pampandi|ochi|vachi|raavali|repu|ellundi|chesi|intlo|emaindi|enti|ippudu|ventane)\b|\b[a-z]+(thundi|thundhi|tundhi|thondi|tondi|indhi|aindi|ayindi|padindi|poyindi)\b/;
+const HINDI_LATIN =
+  /\b(mera|meri|mere|mujhe|humko|hamara|hamare|hai|hain|nahi|nahin|raha|rahi|rahe|chahiye|karna|karni|karwana|karvana|karo|kijiye|kharab|gaya|gayi|hogaya|jaldi|kya|kab|bhaiya|bhai|abhi|aaj|kal)\b/;
 
 function languageOf(text) {
   if (/[ఀ-౿]/.test(text)) return "te";
   if (/[؀-ۿ]/.test(text)) return "ur";
   if (/[ऀ-ॿ]/.test(text)) return "hi";
-  return TELUGU_LATIN.test(text.toLowerCase()) ? "te-latin" : "en";
+  const lower = text.toLowerCase();
+  if (TELUGU_LATIN.test(lower)) return "te-latin";
+  return HINDI_LATIN.test(lower) ? "hi-latin" : "en";
 }
 
 /** Whether `word` appears in the text: whole words for Latin text, a plain match for other scripts. */
@@ -242,7 +266,7 @@ function basicAssistant(catalog) {
     const urgency = gas || electric ? "emergency" : any(lower, DANGER.water.words) ? "urgent" : "routine";
     const base = {
       basic: true,
-      language: lang === "te-latin" ? "te" : lang,
+      language: lang.replace("-latin", ""),
       issue: "",
       service: null,
       items: [],
@@ -300,4 +324,4 @@ function basicAssistant(catalog) {
   return { assist, priceParts };
 }
 
-module.exports = { basicAssistant, languageOf };
+module.exports = { basicAssistant, languageOf, TEXTS };
