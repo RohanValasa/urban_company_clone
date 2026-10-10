@@ -21,11 +21,13 @@ const SCHEMA = { type: "object", properties: { ok: { type: "boolean" } }, requir
     process.exit(1);
   }
   console.log(`Your key can use ${names.length} Gemini models:\n  ${names.join("\n  ")}\n`);
-  console.log(`Now set: GEMINI_MODEL=${config.geminiModel}${config.geminiBackupModel ? `, GEMINI_BACKUP_MODEL=${config.geminiBackupModel}` : ""}\n`);
+  const backup = config.geminiBackupModel || `${names.find((n) => /flash-lite/.test(n)) || "none"} (picked automatically)`;
+  console.log(`Your server/.env uses: GEMINI_MODEL=${config.geminiModel}, backup: ${backup}\n`);
 
-  console.log("Timing a short booking-style request on each Flash model:");
+  console.log("Timing a short booking-style request on each Flash model (a busy one can take up to 30 s):");
   for (const model of names.filter((n) => /flash/.test(n)).slice(0, 8)) {
     const backend = geminiBackend({ apiKey: config.geminiApiKey, model, backupModel: model, assistDeadlineMs: 30000, log: silent });
+    process.stdout.write(`  ${model.padEnd(32)} …`);
     const started = Date.now();
     let result;
     try {
@@ -34,6 +36,7 @@ const SCHEMA = { type: "object", properties: { ok: { type: "boolean" } }, requir
     } catch (err) {
       result = `${err.reason || "error"}: ${err.message}`;
     }
+    process.stdout.write("\r");
     console.log(`  ${model.padEnd(32)} ${((Date.now() - started) / 1000).toFixed(1).padStart(5)}s  ${result}`);
   }
   console.log("\nPick a model that works and answers quickly, then put it in server/.env and restart the server.");

@@ -31,6 +31,8 @@ const MODELS = {
   models: [
     { name: "models/gemini-3.8-flash", supportedGenerationMethods: ["generateContent"] },
     { name: "models/gemini-3.8-flash-image", supportedGenerationMethods: ["generateContent"] },
+    { name: "models/gemini-3.8-flash-lite-transcribe", supportedGenerationMethods: ["generateContent"] },
+    { name: "models/gemini-3.9-flash-lite-computer-use-preview", supportedGenerationMethods: ["generateContent"] },
     { name: "models/gemini-3.5-flash-lite", supportedGenerationMethods: ["generateContent"] },
     { name: "models/gemini-3.8-flash-lite", supportedGenerationMethods: ["generateContent"] },
     { name: "models/text-embedding-5", supportedGenerationMethods: ["embedContent"] },
@@ -95,7 +97,7 @@ test("an overloaded model is swapped for a lighter one the key can use", async (
   };
   const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch, log: silent }) });
   assert.equal((await ai.assist({ text: "tap leaking" })).service.slug, "plumber");
-  // The newest Flash-Lite; never the image model.
+  // The newest general Flash-Lite; never an image, transcription or computer-use model.
   assert.deepEqual(asked, ["gemini-3.8-flash", "gemini-3.8-flash-lite"]);
 
   // GEMINI_BACKUP_MODEL wins over the list.

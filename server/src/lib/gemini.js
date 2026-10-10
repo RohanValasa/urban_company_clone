@@ -65,7 +65,8 @@ function geminiBackend({
       const names = (data.models || [])
         .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
         .map((m) => m.name.replace(/^models\//, ""))
-        .filter((n) => /^gemini-/.test(n) && !/(image|tts|audio|live|embedding|vision|thinking-exp|learnlm)/.test(n))
+        // Only general text models: not image, speech, transcription, robotics or computer-use ones.
+        .filter((n) => /^gemini-/.test(n) && !/(image|tts|audio|live|embedding|vision|thinking-exp|learnlm|transcribe|computer-use|robotics|nano-banana|customtools|omni)/.test(n))
         .sort((a, b) => versionOf(b) - versionOf(a));
       modelList = { at: Date.now(), names };
     } catch (err) {
