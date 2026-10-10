@@ -47,6 +47,7 @@ function useApi({ config = {}, deps = {} } = {}) {
       }
     );
     api.dispatch = app.locals.dispatch;
+    api.app = app;
     server = app.listen(0);
     api.base = `http://127.0.0.1:${server.address().port}/api`;
   });

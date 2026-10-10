@@ -4,6 +4,21 @@ import { AnimatePresence, motion } from "framer-motion";
 import { api } from "../lib/api";
 import { AREA_GROUPS } from "../lib/areas";
 import { compressImage } from "../lib/image";
+
+const MAX_PDF_BYTES = 4 * 1024 * 1024;
+
+/** Reads an ID PDF as base64, refusing password-protected ones the AI couldn't open. */
+async function readPdf(file) {
+  if (file.size > MAX_PDF_BYTES) throw new Error("That PDF is over 4 MB. Please upload a smaller file or a photo.");
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const text = new TextDecoder("latin1").decode(bytes);
+  if (text.includes("/Encrypt")) {
+    throw new Error("This PDF has a password (like the e-Aadhaar download), so it can't be checked. Upload a photo or screenshot of it instead.");
+  }
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return { mediaType: "application/pdf", data: btoa(binary), name: file.name };
+}
 import { locateMe } from "../lib/places";
 
 const STEPS = ["Services", "Service area", "Identity", "Payouts"];
@@ -44,11 +59,12 @@ function stepPayload(step, f, profile) {
     return { body: { area: f.area, radiusKm: Number(f.radiusKm) } };
   }
   if (step === 2) {
-    if (!f.idImage && profile?.idDoc.status === "approved") return { body: null };
+    // Already verified, or being checked: nothing new to send.
+    if (!f.idImage && ["approved", "pending"].includes(profile?.idDoc.status)) return { body: null };
     if (f.idLast4.length !== 4) return { error: "Enter the last 4 characters of your ID number." };
-    if (!f.idImage) return { error: "Add a clear photo of your ID." };
+    if (!f.idImage) return { error: "Add a clear photo or PDF of your ID." };
     return {
-      body: { idDoc: { type: f.idType, last4: f.idLast4, image: { mediaType: f.idImage.mediaType, data: f.idImage.data } } },
+      body: { idDoc: { type: f.idType, last4: f.idLast4, file: { mediaType: f.idImage.mediaType, data: f.idImage.data } } },
     };
   }
   if (f.payoutMethod === "upi") return { body: { payout: { method: "upi", upiId: f.upiId } } };
@@ -103,10 +119,12 @@ export default function ProOnboarding() {
       try {
         const saved = await api("/pro/profile", { method: "PUT", body });
         setProfile(saved.profile);
-        if (step === 2 && saved.profile.idDoc.status !== "approved") {
+        // Rejected: try again. Pending: the AI is busy and will finish in a few minutes, so carry on.
+        if (step === 2 && saved.profile.idDoc.status === "rejected") {
           set({ idImage: null });
           return setError(saved.profile.idDoc.reason || "We couldn't verify that ID. Please try another photo.");
         }
+        if (step === 2) set({ idImage: null });
       } catch (err) {
         return setError(err.message);
       } finally {
@@ -132,9 +150,10 @@ export default function ProOnboarding() {
 
   const pickPhoto = async (e) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
     try {
-      set({ idImage: await compressImage(file) });
+      set({ idImage: file.type === "application/pdf" ? await readPdf(file) : await compressImage(file) });
       setError("");
     } catch (err) {
       setError(err.message);
@@ -257,10 +276,16 @@ export default function ProOnboarding() {
                   ✓ Your {ID_TYPES.find((t) => t.value === profile.idDoc.type)?.label} ending {profile.idDoc.last4} is verified.
                   You can continue, or upload a new one.
                 </p>
+              ) : profile?.idDoc.status === "pending" && !form.idImage ? (
+                <p className="onboard-pending">
+                  ⏳ {profile.idDoc.reason || "We're checking your ID. This usually takes a few minutes."} You can carry on;
+                  we'll notify you when it's done.
+                </p>
               ) : (
                 <p className="co-hint">
-                  Our AI checks that the photo is a real ID with your name on it. We keep only the last 4 characters of
-                  the number; the photo itself is not stored.
+                  Our AI checks it's a real ID in your name, with the number ending in the 4 characters you enter. A masked
+                  Aadhaar (only the last 4 digits showing) is fine. We keep only those 4 characters; the file itself is
+                  deleted once it's checked.
                 </p>
               )}
               <div className="onboard-row">
@@ -283,11 +308,13 @@ export default function ProOnboarding() {
                 </label>
               </div>
               <label className="onboard-upload">
-                <input type="file" accept="image/*" capture="environment" onChange={pickPhoto} />
-                {form.idImage ? (
+                <input type="file" accept="image/*,application/pdf" onChange={pickPhoto} />
+                {form.idImage?.preview ? (
                   <img src={form.idImage.preview} alt="Your ID photo" />
+                ) : form.idImage ? (
+                  <span className="onboard-pdf">📄 {form.idImage.name}</span>
                 ) : (
-                  <span>📷 Take or upload a photo of the front of your ID</span>
+                  <span>📷 Take or upload a photo of your ID, or a PDF</span>
                 )}
               </label>
             </>
@@ -360,7 +387,11 @@ export default function ProOnboarding() {
             <div className="onboard-done">
               <span className="onboard-done-icon">🎉</span>
               <h2>You're all set!</h2>
-              <p>Your profile is verified. Go online on your dashboard to start receiving job requests near you.</p>
+              <p>
+                {profile?.idDoc.status === "approved"
+                  ? "Your profile is verified. Go online on your dashboard to start receiving job requests near you."
+                  : "We're still checking your ID, which usually takes a few minutes. You'll get a notification, and then you can go online and start receiving jobs."}
+              </p>
               <button className="btn" onClick={() => navigate("/professional/dashboard")}>Go to dashboard</button>
             </div>
           )}

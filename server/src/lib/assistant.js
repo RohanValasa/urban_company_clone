@@ -182,9 +182,13 @@ function claudeBackend({ client, model = "claude-haiku-5-5", partsModel = "claud
   return {
     name: "claude",
     async json({ kind, system, cacheable, image, text, schema }) {
-      const m = kind === "parts" ? partsModel : model;
+      // The parts price and ID checks matter more than a booking suggestion, so they get the stronger model.
+      const m = kind === "assist" ? model : partsModel;
       const content = [];
-      if (image) content.push({ type: "image", source: { type: "base64", media_type: image.mediaType, data: image.data } });
+      if (image) {
+        const source = { type: "base64", media_type: image.mediaType, data: image.data };
+        content.push(image.mediaType === "application/pdf" ? { type: "document", source } : { type: "image", source });
+      }
       content.push({ type: "text", text });
       let response;
       try {
@@ -192,7 +196,7 @@ function claudeBackend({ client, model = "claude-haiku-5-5", partsModel = "claud
           model: m,
           max_tokens: 16000,
           ...fallbackFor(m),
-          output_config: { effort: kind === "parts" ? "medium" : "low", format: { type: "json_schema", schema } },
+          output_config: { effort: kind === "assist" ? "low" : "medium", format: { type: "json_schema", schema } },
           // The assistant's prompt holds the whole catalogue, the same on every call, so it's cached.
           system: cacheable ? [{ type: "text", text: system, cache_control: { type: "ephemeral" } }] : system,
           messages: [{ role: "user", content }],
@@ -269,19 +273,21 @@ function aiAssistant({ backend = null, basic = basicAssistant(CATALOG) } = {}) {
 }
 
 /**
- * Picks the provider from the settings: AI_PROVIDER if set, otherwise Gemini
- * when there's a Gemini key, Claude when there's an Anthropic key, else basic.
+ * The AI model from the settings: AI_PROVIDER if set, otherwise Gemini when
+ * there's a Gemini key, Claude when there's an Anthropic key, else none.
  */
-function createAi(config) {
+function createBackend(config) {
   const provider =
     config.aiProvider || (config.geminiApiKey ? "gemini" : config.hasAnthropicKey ? "claude" : "basic");
   if (provider === "gemini" && config.geminiApiKey) {
-    return aiAssistant({ backend: geminiBackend({ apiKey: config.geminiApiKey, model: config.geminiModel, partsModel: config.geminiPartsModel }) });
+    return geminiBackend({ apiKey: config.geminiApiKey, model: config.geminiModel, partsModel: config.geminiPartsModel });
   }
   if (provider === "claude" && config.hasAnthropicKey) {
-    return aiAssistant({ backend: claudeBackend({ model: config.aiModel, partsModel: config.aiPartsModel }) });
+    return claudeBackend({ model: config.aiModel, partsModel: config.aiPartsModel });
   }
-  return aiAssistant();
+  return null;
 }
 
-module.exports = { aiAssistant, createAi, claudeBackend, CATALOG, ASSIST_SCHEMA, PARTS_SCHEMA };
+const createAi = (config) => aiAssistant({ backend: createBackend(config) });
+
+module.exports = { aiAssistant, createAi, createBackend, claudeBackend, CATALOG, ASSIST_SCHEMA, PARTS_SCHEMA };

@@ -32,7 +32,7 @@ function geminiBackend({ apiKey, model = "gemini-3.8-flash", partsModel, fetch: 
   return {
     name: "gemini",
     async json({ kind, system, image, text, schema }) {
-      const m = (kind === "parts" && partsModel) || model;
+      const m = (kind !== "assist" && partsModel) || model;
       const parts = [];
       if (image) parts.push({ inlineData: { mimeType: image.mediaType, data: image.data } });
       parts.push({ text });

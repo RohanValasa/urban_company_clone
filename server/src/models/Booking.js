@@ -41,6 +41,10 @@ const bookingSchema = new Schema(
     avoidCalling: { type: Boolean, default: false },
     // For the professional: what's wrong, in the customer's words or the AI assistant's.
     note: { type: String, default: "" },
+    // The professional the customer chose from "top professionals near you"; offered the job first.
+    preferredPro: { type: Schema.Types.ObjectId, ref: "User" },
+    // The customer's rating once the job is done.
+    review: { stars: Number, comment: String, at: Date },
     // Spare parts the professional proposes at the job, each with the AI's fair price range.
     parts: [
       {
@@ -136,7 +140,15 @@ const position = (t) => (t?.lat == null ? null : { lat: t.lat, lng: t.lng, at: t
 /** Name and number of the assigned professional, once `professional` is populated. */
 const proCard = (pro) =>
   pro?.name
-    ? { id: pro.id, name: pro.name, phone: pro.phone || null, avatar: pro.avatar || null, rating: pro.provider?.rating ?? 4.8 }
+    ? {
+        id: pro.id,
+        name: pro.name,
+        phone: pro.phone || null,
+        avatar: pro.avatar || null,
+        rating: Math.round((pro.provider?.rating ?? 4.8) * 100) / 100,
+        ratingCount: pro.provider?.ratingCount || 0,
+        jobsDone: pro.provider?.jobsDone || 0,
+      }
     : null;
 
 /**
@@ -149,6 +161,7 @@ bookingSchema.methods.toPublic = function toPublic({ forCustomer = false, retryC
   return {
     id, items, phone, address, slot, avoidCalling, bill, status, createdAt, customerName,
     note: note || "",
+    review: this.review?.stars ? { stars: this.review.stars, comment: this.review.comment || "" } : null,
     parts: (this.parts || []).map(partView),
     partsTotal: this.partsTotal(),
     amountDue: this.amountDue(),

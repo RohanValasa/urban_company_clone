@@ -11,6 +11,7 @@ import { compressImage } from "../lib/image";
 import { saveDraft } from "../lib/aiDraft";
 import { findPackage } from "../data/services";
 import { rupees } from "../lib/format";
+import TopPros from "../components/TopPros";
 import { formatSlot } from "../lib/slots";
 
 const VOICES = [
@@ -256,6 +257,7 @@ export default function AskAI() {
                     {result.issue}
                   </p>
                 )}
+                <TopPros service={result.service.slug} title={`Best ${result.service.label.toLowerCase()} professionals near you`} compact />
                 <div className="ask-actions">
                   <button className="btn" onClick={book}>Add to cart & book</button>
                   <Link className="btn-ghost" to={`/s/${result.service.slug}`}>See all {result.service.label} options</Link>

@@ -6,7 +6,7 @@
 //
 // Every demo account uses the reserved ".test" email domain, so re-running
 // replaces them without touching real accounts. Logins are written to
-// DEMO_ACCOUNTS.md at the repository root.
+// TEST_ACCOUNTS.txt at the repository root.
 const fs = require("node:fs");
 const path = require("node:path");
 const bcrypt = require("bcryptjs");
@@ -138,6 +138,10 @@ async function main() {
       years,
       about: ABOUT[i % ABOUT.length](years, primary.label.toLowerCase()),
       rating: Math.round((4.5 + rand() * 0.45) * 100) / 100,
+      // Spread out without drawing on the random sequence, so names and logins stay the same.
+      ratingCount: 15 + ((i * 37) % 380),
+      jobsDone: 15 + ((i * 37) % 380) + ((i * 53) % 150),
+      language: ["English", "Telugu", "Hindi", "Urdu"][i % ABOUT.length],
     });
   }
 
@@ -173,6 +177,8 @@ async function main() {
           payout: { method: "upi", upiId: `${p.email.split("@")[0]}@demo` },
           online: true,
           rating: p.rating,
+          ratingCount: p.ratingCount,
+          jobsDone: p.jobsDone,
         },
       }))
     )
@@ -180,42 +186,59 @@ async function main() {
 
   const label = (key) => SKILLS.find((s) => s.key === key).label;
   const place = (a) => (a.city === "Hyderabad" ? `${a.name}, Hyderabad` : a.name);
+  const rule = "=".repeat(78);
   const lines = [
-    "# Demo accounts",
+    rule,
+    "SERVIFY TEST ACCOUNTS (for testing only)",
+    rule,
     "",
-    "Made by `npm run seed` in `server/`. Everything here is test data: the email",
-    "domains end in `.test`, which can never be real addresses, and the phone",
-    "numbers and UPI IDs are made up. Sign in with the email (or phone) and password.",
-    "Re-running the seed replaces these accounts and their bookings.",
+    "Made by `npm run seed` in the server folder. Running it again recreates these",
+    "same accounts and deletes their bookings. Everything here is made up: the",
+    "emails end in .test (they can't receive mail), and the phone numbers and UPI",
+    "IDs aren't real. Sign in with the email (or phone) and the password shown.",
     "",
-    "Professionals are online and approved. A booking goes to the nearest one",
-    "whose services match and whose radius covers the address, so to test a",
-    "booking in an area, sign in as a professional based near it.",
+    "Test professionals are already verified and online. They skip the ID upload;",
+    "a real professional who signs up has to fill in every detail and upload an ID",
+    "that the AI checks before they can get jobs.",
     "",
-    `Most accounts are in Hyderabad. Professionals ${101 - IN_TOWNS.providers}–100 (three per town) and`,
-    `customers ${51 - IN_TOWNS.customers}–50 (one per town) are in other Telangana towns: ${TOWNS.map((t) => t.name).join(", ")}.`,
-    "A town customer's booking only finds professionals in that town who offer the service.",
+    "How jobs are matched: a booking goes first to the professional the customer",
+    "picked (if any), then to the best rated nearby professional who offers the",
+    "service, is online and whose travel distance covers the address.",
     "",
-    `## Professionals (${providers.length})`,
+    `Most accounts are in Hyderabad. Professionals ${101 - IN_TOWNS.providers}-100 (three per town) and customers`,
+    `${51 - IN_TOWNS.customers}-50 (one per town) are in: ${TOWNS.map((t) => t.name).join(", ")}.`,
     "",
-    "| # | Name | Email | Password | Phone | Based in | Radius | Services |",
-    "|---|---|---|---|---|---|---|---|",
-    ...providers.map(
-      (p, i) =>
-        `| ${i + 1} | ${p.name} | ${p.email} | ${p.password} | ${p.phone} | ${place(p.area)} | ${p.radiusKm} km | ${p.skills.map(label).join(", ")} |`
-    ),
+    rule,
+    `PROFESSIONALS (${providers.length})   password pattern: Provider@001 ... Provider@100`,
+    rule,
     "",
-    `## Customers (${customers.length})`,
+    ...providers.flatMap((p, i) => [
+      `#${i + 1}  ${p.name}`,
+      `    Login      : ${p.email}   Password: ${p.password}`,
+      `    Phone      : ${p.phone}`,
+      `    Expertise  : ${p.skills.map(label).join(", ")}`,
+      `    Experience : ${p.years} year${p.years === 1 ? "" : "s"}`,
+      `    Based in   : ${place(p.area)}${p.area.city === "Hyderabad" ? "" : ", Telangana"} (travels up to ${p.radiusKm} km)`,
+      `    Rating     : ${p.rating.toFixed(2)} stars from ${p.ratingCount} reviews, ${p.jobsDone} jobs done`,
+      `    Speaks     : ${p.language}${p.language === "English" ? "" : ", English"}`,
+      `    About      : ${p.about}`,
+      "",
+    ]),
+    rule,
+    `CUSTOMERS (${customers.length})   password pattern: Customer@001 ... Customer@050`,
+    rule,
     "",
-    "Each has a saved home address in the area shown.",
-    "",
-    "| # | Name | Email | Password | Phone | Home area |",
-    "|---|---|---|---|---|---|",
-    ...customers.map((c, i) => `| ${i + 1} | ${c.name} | ${c.email} | ${c.password} | ${c.phone} | ${place(c.area)} |`),
-    "",
+    ...customers.flatMap((c, i) => [
+      `#${i + 1}  ${c.name}`,
+      `    Login      : ${c.email}   Password: ${c.password}`,
+      `    Phone      : ${c.phone}`,
+      `    Home       : ${c.address.house}, ${c.address.area}`,
+      "",
+    ]),
   ];
-  const out = path.join(__dirname, "..", "..", "DEMO_ACCOUNTS.md");
-  fs.writeFileSync(out, lines.join("\n"));
+  const out = path.join(__dirname, "..", "..", "TEST_ACCOUNTS.txt");
+  // Windows line endings, so it reads well in Notepad too.
+  fs.writeFileSync(out, lines.join("\r\n"));
   console.log(`Created ${customers.length} customers and ${providers.length} professionals.`);
   console.log(`Logins written to ${path.relative(process.cwd(), out)}`);
   await mongoose.disconnect();

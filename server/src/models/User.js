@@ -34,6 +34,10 @@ const providerSchema = new Schema(
       reason: String,
       by: String,
       checkedAt: Date,
+      // While the AI couldn't check it yet: the file, encrypted, kept only until it's checked.
+      fileSealed: { type: String, select: false },
+      tries: { type: Number, default: 0 },
+      nextTryAt: Date,
     },
     payout: {
       method: { type: String, enum: ["upi", "bank"] },
@@ -44,7 +48,10 @@ const providerSchema = new Schema(
       accountSealed: { type: String, select: false },
     },
     online: { type: Boolean, default: true },
+    // Average of customers' star ratings; new professionals start at 4.8 with no ratings.
     rating: { type: Number, default: 4.8 },
+    ratingCount: { type: Number, default: 0 },
+    jobsDone: { type: Number, default: 0 },
   },
   { _id: false }
 );
@@ -105,6 +112,9 @@ userSchema.methods.providerProfile = function providerProfile() {
       ? { method: p.payout.method, upiId: p.payout.upiId || null, holder: p.payout.holder || null, ifsc: p.payout.ifsc || null, accountLast4: p.payout.accountLast4 || null }
       : null,
     online: p.online ?? false,
+    rating: p.rating ?? 4.8,
+    ratingCount: p.ratingCount || 0,
+    jobsDone: p.jobsDone || 0,
     status: providerStatus(p),
   };
 };

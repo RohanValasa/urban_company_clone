@@ -95,14 +95,23 @@ function providerInput(body = {}, { skillKeys, inCity }) {
   if (body.idDoc !== undefined) {
     const type = str(body.idDoc?.type);
     const last4 = str(body.idDoc?.last4).toUpperCase();
-    const image = body.idDoc?.image;
+    const file = body.idDoc?.file ?? body.idDoc?.image;
     if (!ID_TYPES.includes(type)) throw new ValidationError("Choose which ID you're uploading.");
     if (!/^[A-Z0-9]{4}$/.test(last4)) throw new ValidationError("Enter the last 4 characters of your ID number.");
-    if (!IMAGE_TYPES.includes(image?.mediaType) || typeof image?.data !== "string") {
-      throw new ValidationError("Upload a photo of your ID (JPG, PNG or WebP).");
+    const isPdf = file?.mediaType === "application/pdf";
+    if ((!IMAGE_TYPES.includes(file?.mediaType) && !isPdf) || typeof file?.data !== "string") {
+      throw new ValidationError("Upload a photo (JPG, PNG or WebP) or a PDF of your ID.");
     }
-    if (image.data.length * 0.75 > MAX_IMAGE_BYTES) throw new ValidationError("That photo is too large. Please use one under 4 MB.");
-    out.idDoc = { type, last4, image: { mediaType: image.mediaType, data: image.data } };
+    if (file.data.length * 0.75 > MAX_IMAGE_BYTES) throw new ValidationError("That file is too large. Please use one under 4 MB.");
+    if (isPdf) {
+      const pdf = Buffer.from(file.data, "base64");
+      if (pdf.subarray(0, 5).toString("latin1") !== "%PDF-") throw new ValidationError("That file isn't a PDF we can read.");
+      // The e-Aadhaar download is password-protected, which nobody but the owner can open.
+      if (pdf.includes("/Encrypt")) {
+        throw new ValidationError("This PDF is password-protected (like the e-Aadhaar download). Upload a photo or screenshot of it instead.");
+      }
+    }
+    out.idDoc = { type, last4, image: { mediaType: file.mediaType, data: file.data } };
   }
   if (body.payout !== undefined) {
     const method = str(body.payout?.method);

@@ -74,18 +74,23 @@ optionally `UPI_NAME` in `server/.env`. The app trusts the customer's "I've
 paid" and marks the booking "confirming payment"; it can't check with the bank.
 For automatic confirmation you'd need a payment gateway such as Razorpay.
 
-### Demo accounts
+### Test accounts
 
-`npm run seed` in `server/` creates 50 customers and 100 professionals spread
-across Telangana and writes every login to [`DEMO_ACCOUNTS.md`](DEMO_ACCOUNTS.md).
-Most are in Hyderabad; professionals 77–100 and customers 43–50 are in
+`npm run seed` in `server/` creates 50 customers and 100 professionals across
+Telangana and writes every login to [`TEST_ACCOUNTS.txt`](TEST_ACCOUNTS.txt),
+which you can open in Notepad. For each professional it lists their expertise,
+experience, base and travel distance, rating, jobs done and languages. Most
+accounts are in Hyderabad; professionals 77–100 and customers 43–50 are in
 Warangal, Karimnagar, Nizamabad, Khammam, Nalgonda, Mahbubnagar, Siddipet and
 Adilabad.
+
 Passwords are `Customer@001` … `Customer@050` and `Provider@001` …
-`Provider@100`. The emails end in `.test`, so they can never reach a real inbox.
-The seeded professionals skip the ID upload and are already approved; real
-sign-ups have to go through it. Re-running the seed replaces only these demo
-accounts and their bookings.
+`Provider@100`. The emails end in `.test`, so they can never reach a real
+inbox.
+
+The test professionals are already verified, so they skip the ID upload. Real
+sign-ups have to go through it. Re-running the seed recreates the same accounts
+and deletes only their bookings.
 
 ### Becoming a professional
 
@@ -97,23 +102,34 @@ Signing up with "I provide a service" opens a four-step profile at
 2. **Service area**: your base (current location, a Hyderabad locality or a Telangana town) and
    how far you'll travel.
 3. **Identity**: the ID type (Aadhaar, PAN, voter ID, driving licence or
-   passport), its last 4 characters and a photo. Claude checks the photo is a
-   genuine ID in your name. Only the last 4 characters and the verdict are kept;
-   the photo is never stored.
+   passport), its last 4 characters, and a photo or PDF.
+   - The AI (Gemini or Claude, whichever is set up) checks four things: it's
+     that kind of document, it's readable and looks genuine, the name matches
+     the account, and the number ends in those 4 characters.
+   - If the AI is busy or out of quota, the file waits encrypted and is
+     re-checked every few minutes. The professional gets a notification when
+     it's approved.
+   - Only the 4 characters and the result are kept; the file is deleted once
+     checked.
+   - Password-protected PDFs, like the e-Aadhaar download, are refused with a
+     request for a photo instead. A masked Aadhaar is fine.
 4. **Payouts**: a UPI ID or a bank account. The account number is encrypted
    (AES-256-GCM) and only its last 4 digits are shown back. Card numbers aren't
    accepted.
 
 Jobs only start arriving once all four are done and the ID is approved.
 
-The ID check uses the same `ANTHROPIC_API_KEY` as the [AI features](#ai-features-claude). Without one, IDs are
-approved automatically in development and left "pending" in production.
+With no AI set up, IDs are approved automatically in development and left
+"pending" for a person in production.
 
 ### Booking a professional
 
-1. **Matching.** A new booking goes to the nearest online professional who does
-   every service in it, whose travel distance covers the address, and who isn't
-   already booked within two hours of the slot. They get the request on their
+1. **Matching.** A new booking goes to an online professional who does every
+   service in it, whose travel distance covers the address, and who isn't
+   already booked within two hours of the slot.
+   - If the customer chose a professional from **Top professionals near you**,
+     that person is offered the job first.
+   - Otherwise the best rated goes first, and distance breaks ties. They get the request on their
    dashboard with a countdown (`OFFER_SECONDS`, 90 by default) and see the area,
    not the door number or phone.
 2. **Accept or reject.** On accept, the customer gets a notification:
@@ -147,6 +163,21 @@ Notes:
   in as. The professional can choose **Simulate the drive** to send a fake
   route instead of real GPS.
 - Real GPS only works on `https://` or `localhost`.
+
+### Top professionals near you
+
+Service pages and the Ask AI results show the best professionals for that
+service around the customer's location, with three highlights:
+**🏆 Best rated**, **📍 Closest**, and **✨ AI pick**. The AI pick weighs
+rating, jobs done, experience, being online and distance.
+
+Each card shows rating, number of reviews, jobs done, experience and how far
+away they are; never a phone number or email. **Choose** sends the booking to
+that professional first.
+
+After a job, the customer rates the professional from 1 to 5 stars on the
+tracking page, and the professional's average updates
+(`GET /api/pros/top?service=…&lat=…&lng=…`, `POST /api/bookings/:id/rate`).
 
 ### AI features
 

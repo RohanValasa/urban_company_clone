@@ -321,7 +321,14 @@ export default function ProfessionalDashboard() {
         <div className="pro-banner">
           <strong>Finish your profile to start getting jobs.</strong>
           <span>
-            {[...profile.status.missing, profile.status.idStatus !== "approved" && "ID verification"].filter(Boolean).join(", ")}
+            {[
+              ...profile.status.missing,
+              profile.status.idStatus === "pending"
+                ? "ID check in progress (usually a few minutes)"
+                : profile.status.idStatus !== "approved" && "ID verification",
+            ]
+              .filter(Boolean)
+              .join(", ")}
           </span>
           <Link to="/professional/onboarding" className="btn">Complete profile</Link>
         </div>

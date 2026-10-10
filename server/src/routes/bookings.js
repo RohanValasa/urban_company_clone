@@ -1,4 +1,5 @@
 const express = require("express");
+const { isValidObjectId } = require("mongoose");
 const { Booking, PAYMENT_METHODS } = require("../models/Booking");
 const { ValidationError } = require("../lib/validate");
 const { httpError, requireUser } = require("../lib/http");
@@ -6,8 +7,9 @@ const { quote } = require("../lib/pricing");
 const { subscribe, openStream } = require("../lib/live");
 const { notify } = require("../lib/notify");
 const { slotInput } = require("../lib/slots");
+const { User } = require("../models/User");
 
-const PRO_FIELDS = "name phone avatar provider.rating";
+const PRO_FIELDS = "name phone avatar provider.rating provider.ratingCount provider.jobsDone";
 
 /** A booking the user may see: their own, or one assigned to them as the professional. */
 async function viewableBooking(id, user) {
@@ -93,6 +95,7 @@ function bookingsRouter({ session, dispatch, retryCooldownMs }) {
       slot,
       avoidCalling: Boolean(body.avoidCalling),
       note: typeof body.note === "string" ? body.note.trim().slice(0, 500) : "",
+      preferredPro: isValidObjectId(body.preferredPro) ? body.preferredPro : undefined,
       bill,
       payment: { method: body.payment, status: body.payment === "upi" ? "awaiting-confirmation" : "due" },
     });
@@ -121,6 +124,32 @@ function bookingsRouter({ session, dispatch, retryCooldownMs }) {
     await booking.save();
     await dispatch.announce(booking);
     if (pro) notify(pro, { kind: "cancelled", bookingId: booking.id, title: "Job cancelled", body: `${booking.customerName} cancelled the booking.` });
+    res.json({ booking: view(booking, req.user) });
+  });
+
+  // Stars (and a few words) for the professional once the job is done. Keeps their average up to date.
+  router.post("/:id/rate", async (req, res) => {
+    const booking = await viewableBooking(req.params.id, req.user);
+    if (!booking.user.equals(req.user._id)) throw httpError(404, "That booking doesn't exist.");
+    if (booking.status !== "completed") throw httpError(409, "You can rate the professional once the job is done.");
+    if (booking.review?.stars) throw httpError(409, "You've already rated this job.");
+    const stars = Number(req.body?.stars);
+    if (!Number.isInteger(stars) || stars < 1 || stars > 5) throw new ValidationError("Choose 1 to 5 stars.");
+    const comment = typeof req.body?.comment === "string" ? req.body.comment.trim().slice(0, 500) : "";
+    booking.review = { stars, comment, at: new Date() };
+    await booking.save();
+    const pro = await User.findById(booking.professional._id);
+    const p = pro.provider;
+    p.rating = ((p.rating ?? 4.8) * (p.ratingCount || 0) + stars) / ((p.ratingCount || 0) + 1);
+    p.ratingCount = (p.ratingCount || 0) + 1;
+    await pro.save();
+    notify(pro._id, {
+      kind: "rated",
+      bookingId: booking.id,
+      title: `${booking.customerName} rated you ${"★".repeat(stars)}`,
+      body: comment || `Your rating is now ${p.rating.toFixed(2)}.`,
+    });
+    await dispatch.announce(booking);
     res.json({ booking: view(booking, req.user) });
   });
 

@@ -15,6 +15,7 @@ import OfferSheet from "../components/checkout/OfferSheet";
 import BillSheet, { BillRows } from "../components/checkout/BillSheet";
 import UpiQr from "../components/checkout/UpiQr";
 import { clearDraft, readDraft } from "../lib/aiDraft";
+import { choosePro, clearPreferred, preferredAmong } from "../lib/preferredPro";
 
 const TIPS = [50, 75, 100];
 const PAYMENTS = [
@@ -101,6 +102,13 @@ export default function Checkout() {
   const [placed, setPlaced] = useState(null);
 
   const isCustomer = user?.role === "customer";
+  // A professional the customer picked from "top professionals near you", for a service in the cart.
+  const [prefTick, setPrefTick] = useState(0);
+  useEffect(() => {
+    const bump = () => setPrefTick((n) => n + 1);
+    window.addEventListener("servify:preferred-pro", bump);
+    return () => window.removeEventListener("servify:preferred-pro", bump);
+  }, []);
   const cartLines = useMemo(
     () =>
       items.map((i) => ({
@@ -113,6 +121,12 @@ export default function Checkout() {
         qty: i.qty,
       })),
     [items]
+  );
+  const preferred = useMemo(
+    () => preferredAmong([...new Set(cartLines.map((l) => l.sub).filter(Boolean))]),
+    // prefTick: re-read when the choice changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [cartLines, prefTick]
   );
 
   // The bill always comes from the server, so prices can't be changed here.
@@ -213,11 +227,12 @@ export default function Checkout() {
     try {
       const { booking } = await api("/bookings", {
         method: "POST",
-        body: { items: cartLines, coupon, tip, payment, addressId: address.id, slot, avoidCalling, note },
+        body: { items: cartLines, coupon, tip, payment, addressId: address.id, slot, avoidCalling, note, preferredPro: preferred?.id },
       });
       setPlaced(booking);
       clear();
       clearDraft();
+      clearPreferred();
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setPlaceError(err.message);
@@ -414,6 +429,16 @@ export default function Checkout() {
               <input type="checkbox" checked={avoidCalling} onChange={(e) => setAvoidCalling(e.target.checked)} />
               Avoid calling before reaching the location
             </label>
+            {preferred && (
+              <div className="co-pro">
+                <span aria-hidden="true">{preferred.name.charAt(0)}</span>
+                <div>
+                  <strong>Your professional: {preferred.name}</strong>
+                  <em>★ {Number(preferred.rating).toFixed(1)} · we'll offer the job to them first</em>
+                </div>
+                <button type="button" className="link-btn" onClick={() => choosePro(preferred.service, null)}>Remove</button>
+              </div>
+            )}
             <label className="co-note">
               <span>Note for the professional <em>(optional)</em></span>
               <textarea

@@ -24,6 +24,62 @@ const VERDICT = {
   high: { label: "Well above the usual price", tone: "high" },
 };
 
+/** Stars for the professional once the job is done, or the stars already given. */
+function RateCard({ booking, busy, onRate }) {
+  const [stars, setStars] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState("");
+  const first = booking.professional.name.split(" ")[0];
+  if (booking.review) {
+    return (
+      <div className="co-card rate-card is-done">
+        <p>
+          You rated {first} <span className="rate-stars">{"★".repeat(booking.review.stars)}{"☆".repeat(5 - booking.review.stars)}</span>
+        </p>
+        {booking.review.comment && <p className="rate-comment" dir="auto">“{booking.review.comment}”</p>}
+      </div>
+    );
+  }
+  const shown = hover || stars;
+  return (
+    <form
+      className="co-card rate-card"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (stars) onRate(stars, comment);
+      }}
+    >
+      <h3>How was {first}?</h3>
+      <div className="rate-pick" role="radiogroup" aria-label="Rating" onMouseLeave={() => setHover(0)}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            role="radio"
+            aria-checked={stars === n}
+            aria-label={`${n} star${n === 1 ? "" : "s"}`}
+            className={n <= shown ? "is-on" : ""}
+            onMouseEnter={() => setHover(n)}
+            onClick={() => setStars(n)}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      <textarea
+        dir="auto"
+        rows={2}
+        maxLength={500}
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        placeholder="Anything to add? (optional)"
+      />
+      <button className="btn" disabled={!stars || busy}>{busy ? "Sending…" : "Submit rating"}</button>
+      <p className="co-hint">Your rating helps other customers find the best professionals near them.</p>
+    </form>
+  );
+}
+
 /** A spare part the professional wants to fit, with the AI's fair price range. */
 function PartCard({ part, busy, onDecide }) {
   const verdict = VERDICT[part.verdict];
@@ -189,6 +245,10 @@ export default function Track() {
             </div>
           )}
 
+          {b.status === "completed" && b.professional && (
+            <RateCard booking={b} busy={busy} onRate={(stars, comment) => act("rate", { stars, comment })} />
+          )}
+
           {b.status === "arrived" && b.otp?.code && (
             <motion.div className="otp-card" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
               <span>Your start code</span>
@@ -234,7 +294,11 @@ export default function Track() {
               </span>
               <div>
                 <strong>{b.professional.name}</strong>
-                <span>Verified Servify professional · ★ {b.professional.rating ?? 4.8}</span>
+                <span>
+                  Verified · ★ {Number(b.professional.rating ?? 4.8).toFixed(1)}
+                  {b.professional.ratingCount > 0 && ` (${b.professional.ratingCount})`}
+                  {b.professional.jobsDone > 0 && ` · ${b.professional.jobsDone} jobs`}
+                </span>
               </div>
               {b.professional.phone && !["completed", "cancelled"].includes(b.status) && (
                 <a className="btn-ghost" href={`tel:+91${b.professional.phone}`}>📞 Call</a>

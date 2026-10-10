@@ -16,6 +16,9 @@ const ICONS = {
   completed: "✅",
   cancelled: "✖️",
   part: "🔩",
+  rated: "⭐",
+  "id-approved": "✅",
+  "id-rejected": "⚠️",
   "part-approved": "👍",
   "part-declined": "✋",
 };

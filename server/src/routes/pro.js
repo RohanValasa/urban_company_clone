@@ -24,7 +24,7 @@ const firstName = (name) => name.split(" ")[0];
  * Everything a professional does: their profile, going online, answering job
  * offers, and moving a job from "on the way" to "completed".
  */
-function proRouter({ session, dispatch, checkId, sendSms, seal, ai, aiLimiter }) {
+function proRouter({ session, dispatch, idChecks, sendSms, seal, ai, aiLimiter }) {
   const router = express.Router();
   router.use(requireUser(session));
   router.use((req, res, next) => {
@@ -45,7 +45,7 @@ function proRouter({ session, dispatch, checkId, sendSms, seal, ai, aiLimiter })
 
   router.get("/profile", (req, res) => res.json(profileReply(req.user)));
 
-  // Saves any part of the onboarding form. A new ID photo is checked straight away and not stored.
+  // Saves any part of the onboarding form. A new ID is checked straight away and not stored.
   router.put("/profile", async (req, res) => {
     const user = await User.findById(req.user._id).select("+provider.payout.accountSealed");
     const input = providerInput(req.body, { skillKeys: SKILL_KEYS, inCity: inTelangana });
@@ -61,15 +61,8 @@ function proRouter({ session, dispatch, checkId, sendSms, seal, ai, aiLimiter })
         : rest;
     }
     if (input.idDoc) {
-      const { type, last4, image } = input.idDoc;
-      let result;
-      try {
-        result = await checkId({ docType: type, last4, name: user.name, image });
-      } catch (err) {
-        console.error("ID check failed:", err.message);
-        result = { status: "pending", reason: "We couldn't check your ID just now. Please try again in a minute.", by: "error" };
-      }
-      p.idDoc = { type, last4, ...result, checkedAt: new Date() };
+      // Checked by the AI now, or queued (encrypted) when it's busy; the file is never kept after that.
+      p.idDoc = await idChecks.check({ user, ...input.idDoc });
     }
     await user.save();
     res.json(profileReply(user));
@@ -183,6 +176,7 @@ function proRouter({ session, dispatch, checkId, sendSms, seal, ai, aiLimiter })
     job.status = "completed";
     job.completedAt = new Date();
     await job.save();
+    await User.updateOne({ _id: req.user._id }, { $inc: { "provider.jobsDone": 1 } });
     await dispatch.announce(job);
     notify(job.user, {
       kind: "completed",

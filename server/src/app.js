@@ -13,8 +13,10 @@ const { openStream } = require("./lib/live");
 const { onNotifications } = require("./lib/notify");
 const { dispatcher } = require("./lib/dispatch");
 const { idChecker } = require("./lib/idcheck");
-const { createAi } = require("./lib/assistant");
+const { idQueue } = require("./lib/idqueue");
+const { createAi, createBackend } = require("./lib/assistant");
 const { aiRouter } = require("./routes/ai");
+const { prosRouter } = require("./routes/pros");
 const { smsSender } = require("./lib/sms");
 const { sealer } = require("./lib/seal");
 const { SKILLS } = require("./lib/skills");
@@ -27,7 +29,7 @@ function createApp(
   config,
   {
     verifyGoogle = googleVerifier(config.googleClientId),
-    checkId = idChecker({ hasCredentials: config.hasAnthropicKey, isProd: config.isProd }),
+    checkId = idChecker({ backend: createBackend(config), isProd: config.isProd }),
     ai = createAi(config),
     sendSms = smsSender(),
   } = {}
@@ -37,10 +39,13 @@ function createApp(
   const offerMs = (config.offerSeconds ?? 90) * 1000;
   const retryCooldownMs = (config.retryCooldownSeconds ?? 120) * 1000;
   const dispatch = dispatcher({ offerMs, retryCooldownMs });
-  const { seal } = sealer(config.fieldKey || config.jwtSecret);
+  const { seal, open } = sealer(config.fieldKey || config.jwtSecret);
+  const idChecks = idQueue({ checkId, seal, open });
   // The server calls dispatch.sweep() on a timer; tests call it directly.
   app.locals.dispatch = dispatch;
   app.locals.aiMode = ai.mode;
+  // The server retries queued ID checks on a timer; tests call it directly.
+  app.locals.idChecks = idChecks;
 
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
@@ -89,8 +94,9 @@ function createApp(
     message: { error: "You've used the AI assistant a lot this hour. Please try again a bit later." },
   });
   app.use("/api/ai", aiRouter({ session, ai, aiLimiter }));
+  app.use("/api/pros", prosRouter());
   app.use("/api/bookings", bookingsRouter({ session, dispatch, retryCooldownMs }));
-  app.use("/api/pro", proRouter({ session, dispatch, checkId, sendSms, seal, ai, aiLimiter }));
+  app.use("/api/pro", proRouter({ session, dispatch, idChecks, sendSms, seal, ai, aiLimiter }));
 
   app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));
 

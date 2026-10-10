@@ -1,6 +1,5 @@
 const { Booking, ACTIVE } = require("../models/Booking");
-const { User } = require("../models/User");
-const { distanceKm } = require("./geo");
+const { byRatingThenDistance, coveringProviders } = require("./ranking");
 const { publish } = require("./live");
 const { notify } = require("./notify");
 
@@ -41,7 +40,7 @@ function dispatcher({ offerMs, retryCooldownMs }) {
   /** Tells everyone watching the booking that it changed. Each viewer's stream renders it for them. */
   async function announce(booking) {
     await booking.populate([
-      { path: "professional", select: "name phone avatar provider.rating" },
+      { path: "professional", select: "name phone avatar provider.rating provider.ratingCount provider.jobsDone" },
       { path: "dispatch.offeredTo", select: "name email" },
     ]);
     publish(booking.id, { type: "booking", doc: booking });
@@ -51,37 +50,26 @@ function dispatcher({ offerMs, retryCooldownMs }) {
   /**
    * Approved professionals with every skill the job needs whose travel radius
    * covers the address (`serving`), and of those the ones online and free at
-   * that time, nearest first (`available`).
+   * that time, best rated and nearest first (`available`).
    */
   async function candidates(booking) {
     const { lat, lng } = booking.address;
     if (lat == null) return { serving: 0, available: [] };
     const slot = booking.slot.getTime();
-    const [pros, busy] = await Promise.all([
-      User.find(
-        {
-          role: "professional",
-          "provider.idDoc.status": "approved",
-          "provider.payout.method": { $exists: true },
-          "provider.skills": { $all: booking.dispatch.skills },
-        },
-        "name email provider"
-      ),
+    const [covering, busy] = await Promise.all([
+      coveringProviders({ skills: booking.dispatch.skills, lat, lng, exclude: booking.user }),
       Booking.distinct("professional", {
         status: { $in: ACTIVE },
         slot: { $gte: new Date(slot - BUSY_WINDOW_MS), $lte: new Date(slot + BUSY_WINDOW_MS) },
       }),
     ]);
     const busySet = new Set(busy.map(String));
-    const covering = pros
-      .filter((p) => p.provider.area?.lat != null && !p._id.equals(booking.user))
-      .map((pro) => ({ pro, km: distanceKm({ lat, lng }, pro.provider.area) }))
-      .filter((x) => x.km <= x.pro.provider.radiusKm)
-      .sort((a, b) => a.km - b.km);
-    return {
-      serving: covering.length,
-      available: covering.filter((x) => x.pro.provider.online && !busySet.has(x.pro.id)),
-    };
+    // Best rated first; the professional the customer chose goes ahead of everyone.
+    const preferred = booking.preferredPro && String(booking.preferredPro);
+    const available = covering
+      .filter((x) => x.pro.provider.online && !busySet.has(x.pro.id))
+      .sort((a, b) => (b.pro.id === preferred) - (a.pro.id === preferred) || byRatingThenDistance(a, b));
+    return { serving: covering.length, available };
   }
 
   const nearbyProviders = async (booking) => (await candidates(booking)).available;

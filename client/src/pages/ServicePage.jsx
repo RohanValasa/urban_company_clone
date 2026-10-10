@@ -8,6 +8,7 @@ import Tilt from "../components/motion/Tilt";
 import { Art } from "../components/Art";
 import { findSub, heroShots } from "../data/services";
 import { useCart } from "../context/CartContext";
+import TopPros from "../components/TopPros";
 
 const SOFT = { stiffness: 110, damping: 26, mass: 0.6 };
 
@@ -109,6 +110,7 @@ export default function ServicePage() {
 
       <div className="sp-body">
         <div>
+          <TopPros service={sub.slug} title={`Top ${sub.label} professionals`} />
           <AnimatePresence mode="wait">
             <motion.div
               key={tab}
