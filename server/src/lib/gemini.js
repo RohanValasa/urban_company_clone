@@ -18,7 +18,9 @@ function toGeminiSchema(schema) {
   return out;
 }
 
-// `reason` says why the AI couldn't answer, so the app can tell the customer: limit, setup, offline or unreadable.
+// `reason` says why the AI couldn't answer, so the app can tell the customer: limit, busy, setup, offline or unreadable.
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const failed = (status, message, reason) => Object.assign(httpError(status, message), { fallback: true, reason });
 
 /**
@@ -26,7 +28,7 @@ const failed = (status, message, reason) => Object.assign(httpError(status, mess
  * free AI Studio key. Errors worth falling back from (quota, outage, setup)
  * are marked `fallback`.
  */
-function geminiBackend({ apiKey, model = "gemini-3.8-flash", partsModel, fetch: doFetch = fetch, timeoutMs = 60000 }) {
+function geminiBackend({ apiKey, model = "gemini-3.8-flash", partsModel, fetch: doFetch = fetch, timeoutMs = 90000, retryDelayMs = 1500 }) {
   return {
     name: "gemini",
     async json({ kind, system, image, text, schema }) {
@@ -35,24 +37,41 @@ function geminiBackend({ apiKey, model = "gemini-3.8-flash", partsModel, fetch: 
       if (image) parts.push({ inlineData: { mimeType: image.mediaType, data: image.data } });
       parts.push({ text });
 
+      const body = JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: "user", parts }],
+        generationConfig: { responseMimeType: "application/json", responseSchema: toGeminiSchema(schema) },
+      });
+
+      // One retry for a dropped connection or an overloaded model, which new Gemini models often are.
       let res;
-      try {
-        res = await doFetch(`${API}/${encodeURIComponent(m)}:generateContent`, {
-          method: "POST",
-          headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system }] },
-            contents: [{ role: "user", parts }],
-            generationConfig: { responseMimeType: "application/json", responseSchema: toGeminiSchema(schema) },
-          }),
-          signal: AbortSignal.timeout(timeoutMs),
-        });
-      } catch (err) {
-        console.error(`Gemini request failed: ${err.message}`);
-        throw failed(502, "The AI assistant isn't reachable right now. Please try again shortly.", "offline");
+      let data;
+      for (let attempt = 1; ; attempt++) {
+        try {
+          res = await doFetch(`${API}/${encodeURIComponent(m)}:generateContent`, {
+            method: "POST",
+            headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+            body,
+            signal: AbortSignal.timeout(timeoutMs),
+          });
+        } catch (err) {
+          const detail = err.cause?.code || err.cause?.message || err.message;
+          console.error(`Gemini request failed (attempt ${attempt}): ${err.message}${detail !== err.message ? ` (${detail})` : ""}`);
+          if (attempt < 2) {
+            await pause(retryDelayMs);
+            continue;
+          }
+          throw failed(502, "The AI assistant isn't reachable right now. Please try again shortly.", "offline");
+        }
+        data = await res.json().catch(() => ({}));
+        if ((res.status === 500 || res.status === 503) && attempt < 2) {
+          console.error(`Gemini (${m}) answered ${res.status} (attempt ${attempt}): ${data?.error?.message || res.statusText}. Retrying…`);
+          await pause(retryDelayMs);
+          continue;
+        }
+        break;
       }
 
-      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         const why = data?.error?.message || res.statusText;
         console.error(`Gemini (${m}) answered ${res.status}: ${why}`);
@@ -65,6 +84,9 @@ function geminiBackend({ apiKey, model = "gemini-3.8-flash", partsModel, fetch: 
         }
         if (res.status === 400 || res.status === 401 || res.status === 403) {
           throw failed(502, "The AI assistant isn't set up correctly on this server. Check GEMINI_API_KEY and GEMINI_MODEL.", "setup");
+        }
+        if (res.status === 500 || res.status === 503) {
+          throw failed(503, "The AI assistant is overloaded right now. Please try again in a minute.", "busy");
         }
         throw failed(502, "The AI assistant isn't reachable right now. Please try again shortly.", "offline");
       }

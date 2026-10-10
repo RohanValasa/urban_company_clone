@@ -73,6 +73,30 @@ test("out of free quota: the basic assistant answers instead", async () => {
   await assert.rejects(ai.priceParts({ image: PHOTO, note: "", job: "Plumber" }), (e) => e.status === 503);
 });
 
+test("an overloaded model or a dropped connection is retried once", async () => {
+  const quiet = console.error;
+  console.error = () => {};
+  let calls = 0;
+  const flaky = async () => {
+    calls++;
+    if (calls === 1) return { ok: false, status: 503, statusText: "x", json: async () => ({ error: { message: "The model is overloaded." } }) };
+    return { ok: true, status: 200, json: async () => answer(ASSIST) };
+  };
+  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch: flaky, retryDelayMs: 1 }) });
+  assert.equal((await ai.assist({ text: "tap leaking" })).service.slug, "plumber");
+  assert.equal(calls, 2);
+
+  const alwaysBusy = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch: fakeFetch(503, { error: { message: "overloaded" } }), retryDelayMs: 1 }) });
+  const r = await alwaysBusy.assist({ text: "tap leaking" });
+  assert.equal(r.fallbackReason, "busy");
+
+  let tries = 0;
+  const dropped = geminiBackend({ apiKey: "k", retryDelayMs: 1, fetch: async () => { tries++; throw Object.assign(new Error("fetch failed"), { cause: { code: "ECONNRESET" } }); } });
+  await assert.rejects(dropped.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.reason === "offline");
+  assert.equal(tries, 2);
+  console.error = quiet;
+});
+
 test("set-up mistakes and blocked answers", async () => {
   const retired = "This model models/gemini-9 is no longer available to new users. Please update your code to use models/gemini-10-flash.";
   const wrongModel = geminiBackend({ apiKey: "k", model: "gemini-9", fetch: fakeFetch(404, { error: { message: retired } }) });
@@ -88,6 +112,6 @@ test("set-up mistakes and blocked answers", async () => {
   await assert.rejects(blocked.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.status === 422 && !e.fallback);
   const garbled = geminiBackend({ apiKey: "k", fetch: fakeFetch(200, { candidates: [{ content: { parts: [{ text: "not json" }] } }] }) });
   await assert.rejects(garbled.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.status === 502 && e.fallback);
-  const offline = geminiBackend({ apiKey: "k", fetch: async () => { throw new Error("ENOTFOUND"); } });
+  const offline = geminiBackend({ apiKey: "k", retryDelayMs: 1, fetch: async () => { throw new Error("ENOTFOUND"); } });
   await assert.rejects(offline.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.fallback);
 });

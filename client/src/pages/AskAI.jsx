@@ -23,6 +23,7 @@ const VOICES = [
 // Why basic mode answered instead of the AI.
 const FALLBACK_NOTE = {
   limit: "The AI has reached its limit for now, so basic mode answered. Photos are skipped in basic mode.",
+  busy: "The AI is overloaded right now, so basic mode answered. Try again in a minute for photo understanding.",
   setup: "The AI isn't set up correctly on this server (the server window says why), so basic mode answered.",
   offline: "The AI couldn't be reached, so basic mode answered.",
   unreadable: "The AI's answer didn't come through properly, so basic mode answered.",
