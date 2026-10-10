@@ -75,9 +75,28 @@ test("the parts check can use its own model", async () => {
   assert.match(fetch.calls[0].url, /gemini-3\.8-pro:generateContent/);
 });
 
-test("out of free quota: the basic assistant answers instead", async () => {
+test("out of free quota: another model's quota is used, else the basic assistant answers", async () => {
+  const QUOTA = reply(429, { error: { message: "You exceeded your current quota." } });
+  const asked = [];
+  const swap = geminiBackend({
+    apiKey: "k", log: silent,
+    fetch: async (url) => {
+      if (url.includes("pageSize")) return reply(200, MODELS);
+      asked.push(url.match(/models\/([\w.-]+):/)[1]);
+      return asked.length === 1 ? QUOTA : reply(200, answer(ASSIST));
+    },
+  });
+  assert.equal((await swap.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA })).service, "plumber");
+  assert.deepEqual(asked, ["gemini-3.8-flash", "gemini-3.8-flash-lite"]);
+
+  // No other model: no pointless retry of the same one.
+  let tries = 0;
+  const lone = geminiBackend({ apiKey: "k", log: silent, fetch: async (url) => (url.includes("pageSize") ? reply(200, { models: [] }) : (tries++, QUOTA)) });
+  await assert.rejects(lone.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.reason === "limit");
+  assert.equal(tries, 1);
+
   const fetch = fakeFetch(429, { error: { message: "Resource has been exhausted" } });
-  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch }) });
+  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", fetch, log: silent }) });
   const r = await ai.assist({ text: "my AC is not cooling" });
   assert.equal(r.fellBack, true);
   assert.equal(r.fallbackReason, "limit");

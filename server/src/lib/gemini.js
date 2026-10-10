@@ -40,7 +40,8 @@ const versionOf = (name) => Number((name.match(/gemini-(\d+(?:\.\d+)?)/) || [])[
  *
  * Booking suggestions ("assist") get a short overall deadline and light
  * thinking, so customers aren't kept waiting; when the main model is
- * overloaded, a lighter Flash model the key can use is tried instead.
+ * overloaded or out of its free quota, a lighter Flash model the key can use
+ * is tried instead.
  */
 function geminiBackend({
   apiKey,
@@ -132,14 +133,17 @@ function geminiBackend({
           res = null;
         }
         const overloaded = !res || res.status === 500 || res.status === 503;
-        if (!overloaded) break;
+        // Free-tier quotas are per model, so a model out of quota can still be swapped for another.
+        const outOfQuota = res?.status === 429;
+        if (!overloaded && !outOfQuota) break;
         if (res) {
           log.error(`Gemini (${m}) answered ${res.status} (attempt ${attempt}): ${data?.error?.message || res.statusText}`);
-          lastProblem = "busy";
+          if (overloaded) lastProblem = "busy";
         }
         if (attempt === 1) {
           const backup = await backupFor(m);
           if (backup) log.error(`→ Trying ${backup} instead.`);
+          else if (outOfQuota) break; // the same model won't have more quota a second later
           else await new Promise((r) => setTimeout(r, Math.min(retryDelayMs, Math.max(0, left() - 2000))));
           m = backup || m;
         }
@@ -152,7 +156,7 @@ function geminiBackend({
       }
       if (!res.ok) {
         const why = data?.error?.message || res.statusText;
-        if (res.status !== 500 && res.status !== 503) log.error(`Gemini (${m}) answered ${res.status}: ${why}`);
+        if (![429, 500, 503].includes(res.status)) log.error(`Gemini (${m}) answered ${res.status}: ${why}`);
         if (res.status === 429) throw failed(503, "The AI assistant has reached its limit for now. Please try again later.", "limit");
         if (res.status === 404) {
           // Google names the replacement when it retires a model ("…use models/gemini-x-flash…").
