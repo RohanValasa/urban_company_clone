@@ -7,10 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "catalog": "node scripts/export-catalog.mjs"
   },
   "dependencies": {
     "axios": "^1.20.0",
+    "framer-motion": "^13.2.0",
+    "leaflet": "^1.9.4",
+    "qrcode": "^1.5.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3"

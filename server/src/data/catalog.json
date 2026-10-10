@@ -1,0 +1,2933 @@
+[
+ {
+  "slug": "bathroom-cleaning",
+  "label": "Bathroom Cleaning",
+  "packages": [
+   {
+    "id": "bath-combo2",
+    "name": "Intense bathroom & ceiling fan cleaning (pack of 2)",
+    "price": 1299,
+    "mrp": 1598,
+    "duration": "2.5 hrs",
+    "kind": "Value deals"
+   },
+   {
+    "id": "bath-intense",
+    "name": "Intense bathroom cleaning",
+    "price": 549,
+    "mrp": 649,
+    "duration": "1.5 hrs",
+    "kind": "One time deep clean"
+   },
+   {
+    "id": "bath-movein",
+    "name": "Move-in bathroom cleaning",
+    "price": 899,
+    "duration": "2 hrs",
+    "kind": "One time deep clean"
+   },
+   {
+    "id": "bath-exhaust",
+    "name": "Bathroom exhaust fan cleaning",
+    "price": 199,
+    "duration": "30 min",
+    "kind": "Mini services"
+   },
+   {
+    "id": "bath-basin",
+    "name": "Washbasin cleaning",
+    "price": 149,
+    "duration": "20 min",
+    "kind": "Mini services"
+   },
+   {
+    "id": "bath-door",
+    "name": "Door cleaning (additional)",
+    "price": 99,
+    "duration": "15 min",
+    "kind": "Mini services"
+   },
+   {
+    "id": "bath-mirror",
+    "name": "Mirror cleaning (additional)",
+    "price": 79,
+    "duration": "10 min",
+    "kind": "Mini services"
+   }
+  ]
+ },
+ {
+  "slug": "kitchen-cleaning",
+  "label": "Kitchen Cleaning",
+  "packages": [
+   {
+    "id": "kit-pack-chimney",
+    "name": "Regular chimney & stove cleaning",
+    "price": 899,
+    "mrp": 1098,
+    "duration": "1.5 hrs",
+    "kind": "Value packs"
+   },
+   {
+    "id": "kit-pack-fanwindow",
+    "name": "Kitchen fan & window cleaning",
+    "price": 549,
+    "mrp": 648,
+    "duration": "1 hr",
+    "kind": "Value packs"
+   },
+   {
+    "id": "kit-pack-cabinets",
+    "name": "Cabinets, tiles & sink cleaning",
+    "price": 1199,
+    "mrp": 1398,
+    "duration": "2 hrs",
+    "kind": "Value packs"
+   },
+   {
+    "id": "kit-chimney-reg",
+    "name": "Regular chimney cleaning",
+    "price": 599,
+    "duration": "1 hr",
+    "kind": "Chimney cleaning"
+   },
+   {
+    "id": "kit-chimney-stove",
+    "name": "Regular chimney & stove cleaning",
+    "price": 899,
+    "mrp": 1098,
+    "duration": "1.5 hrs",
+    "kind": "Chimney cleaning"
+   },
+   {
+    "id": "kit-complete",
+    "name": "Complete kitchen cleaning",
+    "price": 1599,
+    "mrp": 1899,
+    "duration": "3 hrs",
+    "kind": "Complete kitchen cleaning"
+   },
+   {
+    "id": "kit-fridge",
+    "name": "Fridge cleaning",
+    "price": 399,
+    "duration": "45 min",
+    "kind": "Appliance cleaning"
+   },
+   {
+    "id": "kit-microwave",
+    "name": "Microwave cleaning",
+    "price": 299,
+    "duration": "30 min",
+    "kind": "Appliance cleaning"
+   },
+   {
+    "id": "kit-stove",
+    "name": "Gas stove cleaning",
+    "price": 249,
+    "duration": "30 min",
+    "kind": "Appliance cleaning"
+   },
+   {
+    "id": "kit-appliance-pack",
+    "name": "Appliance cleaning package",
+    "price": 899,
+    "mrp": 1247,
+    "duration": "2 hrs",
+    "kind": "Appliance cleaning"
+   },
+   {
+    "id": "kit-airfryer",
+    "name": "Air fryer cleaning",
+    "price": 249,
+    "duration": "30 min",
+    "kind": "Appliance cleaning"
+   },
+   {
+    "id": "kit-grill",
+    "name": "Sandwich grill cleaning",
+    "price": 199,
+    "duration": "20 min",
+    "kind": "Appliance cleaning"
+   },
+   {
+    "id": "kit-tiles",
+    "name": "Tiles & slabs cleaning",
+    "price": 699,
+    "duration": "1 hr",
+    "kind": "Cabinets & tiles"
+   },
+   {
+    "id": "kit-cabinets",
+    "name": "Cabinets / trollys cleaning",
+    "price": 849,
+    "duration": "1.5 hrs",
+    "kind": "Cabinets & tiles"
+   },
+   {
+    "id": "kit-ceilingfan",
+    "name": "Ceiling fan cleaning",
+    "price": 149,
+    "duration": "20 min",
+    "kind": "Mini services"
+   },
+   {
+    "id": "kit-exhaust",
+    "name": "Exhaust fan cleaning",
+    "price": 199,
+    "duration": "30 min",
+    "kind": "Mini services"
+   },
+   {
+    "id": "kit-sink",
+    "name": "Sink & under sink cleaning",
+    "price": 249,
+    "duration": "30 min",
+    "kind": "Mini services"
+   },
+   {
+    "id": "kit-sanitation",
+    "name": "Kitchen sanitation",
+    "price": 399,
+    "duration": "45 min",
+    "kind": "Mini services"
+   }
+  ]
+ },
+ {
+  "slug": "living-bedroom-cleaning",
+  "label": "Living & Bedroom Cleaning",
+  "packages": [
+   {
+    "id": "liv-saver-sofa2",
+    "name": "Fabric sofa cleaning (2 visits)",
+    "price": 1499,
+    "mrp": 1798,
+    "duration": "2 visits",
+    "kind": "Super saver deals"
+   },
+   {
+    "id": "liv-protect",
+    "name": "Sofa cleaning & stain protection coating",
+    "price": 1899,
+    "mrp": 2199,
+    "duration": "2.5 hrs",
+    "kind": "Cleaning & stain protection"
+   },
+   {
+    "id": "liv-sofa-fabric",
+    "name": "Fabric sofa cleaning",
+    "price": 849,
+    "mrp": 999,
+    "duration": "2 hrs",
+    "kind": "Sofa & carpet"
+   },
+   {
+    "id": "liv-sofa-leather",
+    "name": "Leather sofa cleaning & polishing",
+    "price": 1099,
+    "duration": "2 hrs",
+    "kind": "Sofa & carpet"
+   },
+   {
+    "id": "liv-sofa-bed",
+    "name": "Sofa cum bed cleaning",
+    "price": 949,
+    "duration": "2 hrs",
+    "kind": "Sofa & carpet"
+   },
+   {
+    "id": "liv-carpet",
+    "name": "Carpet cleaning",
+    "price": 699,
+    "duration": "1.5 hrs",
+    "kind": "Sofa & carpet"
+   },
+   {
+    "id": "liv-curtain",
+    "name": "Curtain refresh",
+    "price": 599,
+    "duration": "1 hr",
+    "kind": "Curtains"
+   },
+   {
+    "id": "liv-living",
+    "name": "Sofa, windows & cobweb cleaning",
+    "price": 1299,
+    "mrp": 1548,
+    "duration": "3 hrs",
+    "kind": "Living room care"
+   },
+   {
+    "id": "liv-bedroom",
+    "name": "Bedroom essential cleaning",
+    "price": 999,
+    "duration": "2 hrs",
+    "kind": "Bedroom care"
+   },
+   {
+    "id": "liv-mattress",
+    "name": "Mattress cleaning",
+    "price": 649,
+    "duration": "1 hr",
+    "kind": "Mattress & bed"
+   },
+   {
+    "id": "liv-bed",
+    "name": "Bed cleaning",
+    "price": 549,
+    "duration": "1 hr",
+    "kind": "Mattress & bed"
+   },
+   {
+    "id": "liv-dining",
+    "name": "Dining table & chairs cleaning",
+    "price": 749,
+    "duration": "1.5 hrs",
+    "kind": "Dining table & chairs"
+   },
+   {
+    "id": "liv-cabinet",
+    "name": "Cabinet cleaning",
+    "price": 499,
+    "duration": "1 hr",
+    "kind": "Other furniture"
+   },
+   {
+    "id": "liv-centertable",
+    "name": "Sofa center table cleaning",
+    "price": 349,
+    "duration": "45 min",
+    "kind": "Other furniture"
+   },
+   {
+    "id": "liv-study",
+    "name": "Study table cleaning",
+    "price": 399,
+    "duration": "45 min",
+    "kind": "Other furniture"
+   },
+   {
+    "id": "liv-win-grill",
+    "name": "Windows with grills + glass doors cleaning",
+    "price": 699,
+    "duration": "1.5 hrs",
+    "kind": "Windows & fan"
+   },
+   {
+    "id": "liv-win-plain",
+    "name": "Windows without grills + glass doors cleaning",
+    "price": 549,
+    "duration": "1 hr",
+    "kind": "Windows & fan"
+   },
+   {
+    "id": "liv-mirror",
+    "name": "Mirror cleaning",
+    "price": 149,
+    "duration": "20 min",
+    "kind": "Windows & fan"
+   },
+   {
+    "id": "liv-fan",
+    "name": "Fan cleaning",
+    "price": 149,
+    "duration": "20 min",
+    "kind": "Windows & fan"
+   }
+  ]
+ },
+ {
+  "slug": "full-home-cleaning",
+  "label": "Full Home / By Room Cleaning",
+  "packages": [
+   {
+    "id": "home-apt-unfurn",
+    "name": "Unfurnished apartment home deep cleaning",
+    "price": 4999,
+    "mrp": 5999,
+    "duration": "6 hrs",
+    "kind": "Full apartment"
+   },
+   {
+    "id": "home-apt-furn",
+    "name": "Furnished apartment home deep cleaning",
+    "price": 6499,
+    "mrp": 7499,
+    "duration": "7 hrs",
+    "kind": "Full apartment"
+   },
+   {
+    "id": "home-bung-unfurn",
+    "name": "Unfurnished bungalow home deep cleaning",
+    "price": 7999,
+    "mrp": 8999,
+    "duration": "8 hrs",
+    "kind": "Full bungalow / duplex"
+   },
+   {
+    "id": "home-bung-furn",
+    "name": "Furnished bungalow home deep cleaning",
+    "price": 9999,
+    "mrp": 11499,
+    "duration": "9 hrs",
+    "kind": "Full bungalow / duplex"
+   },
+   {
+    "id": "home-partial",
+    "name": "Partial home cleaning",
+    "price": 2499,
+    "duration": "4 hrs",
+    "kind": "Partial home cleaning"
+   },
+   {
+    "id": "home-custom",
+    "name": "Customise: living / bedroom / balcony combo",
+    "price": 1999,
+    "duration": "3 hrs",
+    "kind": "Partial home cleaning"
+   }
+  ]
+ },
+ {
+  "slug": "cockroach-control",
+  "label": "Cockroach Control",
+  "packages": [
+   {
+    "id": "roach-kb-removal",
+    "name": "Cockroach control (includes utensil removal)",
+    "price": 1499,
+    "mrp": 1799,
+    "duration": "2.5 hrs",
+    "kind": "Kitchen / bathroom"
+   },
+   {
+    "id": "roach-kb-plain",
+    "name": "Cockroach control (no utensil removal)",
+    "price": 1249,
+    "mrp": 1499,
+    "duration": "2 hrs",
+    "kind": "Kitchen / bathroom"
+   },
+   {
+    "id": "roach-apt-cust",
+    "name": "Apartment pest control (utensil removal by customer)",
+    "price": 1749,
+    "duration": "2.5 hrs",
+    "kind": "Apartment / bungalow"
+   },
+   {
+    "id": "roach-bung-cust",
+    "name": "Bungalow pest control (utensil removal by customer)",
+    "price": 2199,
+    "duration": "3 hrs",
+    "kind": "Apartment / bungalow"
+   },
+   {
+    "id": "roach-apt-incl",
+    "name": "Apartment pest control (utensil removal included)",
+    "price": 1999,
+    "duration": "3 hrs",
+    "kind": "Apartment / bungalow"
+   },
+   {
+    "id": "roach-bung-incl",
+    "name": "Bungalow pest control (utensil removal included)",
+    "price": 2499,
+    "duration": "3.5 hrs",
+    "kind": "Apartment / bungalow"
+   }
+  ]
+ },
+ {
+  "slug": "termite-control",
+  "label": "Termite Control",
+  "packages": [
+   {
+    "id": "term-apt",
+    "name": "Apartment termite control",
+    "price": 2999,
+    "mrp": 3499,
+    "duration": "3 hrs",
+    "kind": "Apartment termite control"
+   },
+   {
+    "id": "term-bung",
+    "name": "Bungalow termite control",
+    "price": 4499,
+    "mrp": 4999,
+    "duration": "4 hrs",
+    "kind": "Bungalow termite control"
+   }
+  ]
+ },
+ {
+  "slug": "ants-bedbugs-control",
+  "label": "Ants & Bed Bugs Control",
+  "packages": [
+   {
+    "id": "bug-bed",
+    "name": "Bed bugs control",
+    "price": 1599,
+    "mrp": 1899,
+    "duration": "2 hrs",
+    "kind": "Bed bugs control"
+   },
+   {
+    "id": "bug-ants-apt",
+    "name": "Ants control (apartment)",
+    "price": 799,
+    "duration": "1 hr",
+    "kind": "Ants control"
+   },
+   {
+    "id": "bug-ants-bung",
+    "name": "Ants control (bungalow)",
+    "price": 1099,
+    "duration": "1.5 hrs",
+    "kind": "Ants control"
+   }
+  ]
+ },
+ {
+  "slug": "salon-women",
+  "label": "Salon for Women",
+  "packages": [
+   {
+    "id": "sw-packages-1",
+    "name": "Combo: waxing, facial & threading",
+    "price": 1999,
+    "mrp": 2399,
+    "duration": "2.5 hrs",
+    "kind": "Packages"
+   },
+   {
+    "id": "sw-packages-2",
+    "name": "Combo: manicure & pedicure",
+    "price": 1049,
+    "mrp": 1259,
+    "duration": "1.5 hrs",
+    "kind": "Packages"
+   },
+   {
+    "id": "sw-packages-3",
+    "name": "Combo: full body waxing",
+    "price": 1499,
+    "mrp": 1799,
+    "duration": "1.5 hrs",
+    "kind": "Packages"
+   },
+   {
+    "id": "sw-waxing-1",
+    "name": "Full arms (incl. underarms)",
+    "price": 399,
+    "duration": "30 min",
+    "kind": "Waxing"
+   },
+   {
+    "id": "sw-waxing-2",
+    "name": "Full legs",
+    "price": 499,
+    "duration": "40 min",
+    "kind": "Waxing"
+   },
+   {
+    "id": "sw-waxing-3",
+    "name": "Underarms",
+    "price": 99,
+    "duration": "10 min",
+    "kind": "Waxing"
+   },
+   {
+    "id": "sw-waxing-4",
+    "name": "Half legs",
+    "price": 299,
+    "duration": "20 min",
+    "kind": "Waxing"
+   },
+   {
+    "id": "sw-waxing-5",
+    "name": "Stomach",
+    "price": 249,
+    "duration": "15 min",
+    "kind": "Waxing"
+   },
+   {
+    "id": "sw-waxing-6",
+    "name": "Full body",
+    "price": 1299,
+    "duration": "1.5 hrs",
+    "kind": "Waxing"
+   },
+   {
+    "id": "sw-facial-1",
+    "name": "Hydrating facial",
+    "price": 1199,
+    "duration": "1 hr",
+    "kind": "Facials"
+   },
+   {
+    "id": "sw-facial-2",
+    "name": "Brightening facial",
+    "price": 1399,
+    "duration": "1 hr",
+    "kind": "Facials"
+   },
+   {
+    "id": "sw-facial-3",
+    "name": "Anti-ageing facial",
+    "price": 1699,
+    "duration": "1.25 hrs",
+    "kind": "Facials"
+   },
+   {
+    "id": "sw-cleanup-1",
+    "name": "Classic cleanup",
+    "price": 599,
+    "duration": "40 min",
+    "kind": "Cleanup"
+   },
+   {
+    "id": "sw-cleanup-2",
+    "name": "Fruit cleanup",
+    "price": 699,
+    "duration": "45 min",
+    "kind": "Cleanup"
+   },
+   {
+    "id": "sw-cleanup-3",
+    "name": "Charcoal cleanup",
+    "price": 799,
+    "duration": "45 min",
+    "kind": "Cleanup"
+   },
+   {
+    "id": "sw-mani-1",
+    "name": "Classic manicure",
+    "price": 499,
+    "duration": "40 min",
+    "kind": "Manicure"
+   },
+   {
+    "id": "sw-mani-2",
+    "name": "Gel polish manicure",
+    "price": 799,
+    "duration": "1 hr",
+    "kind": "Manicure"
+   },
+   {
+    "id": "sw-pedi-1",
+    "name": "Classic pedicure",
+    "price": 599,
+    "duration": "45 min",
+    "kind": "Pedicure"
+   },
+   {
+    "id": "sw-pedi-2",
+    "name": "Spa pedicure",
+    "price": 899,
+    "duration": "1 hr",
+    "kind": "Pedicure"
+   },
+   {
+    "id": "sw-threading-1",
+    "name": "Eyebrows",
+    "price": 49,
+    "duration": "10 min",
+    "kind": "Threading & face waxing"
+   },
+   {
+    "id": "sw-threading-2",
+    "name": "Upper lip",
+    "price": 29,
+    "duration": "5 min",
+    "kind": "Threading & face waxing"
+   },
+   {
+    "id": "sw-threading-3",
+    "name": "Full face threading",
+    "price": 199,
+    "duration": "20 min",
+    "kind": "Threading & face waxing"
+   },
+   {
+    "id": "sw-threading-4",
+    "name": "Full face waxing",
+    "price": 299,
+    "duration": "20 min",
+    "kind": "Threading & face waxing"
+   },
+   {
+    "id": "sw-bleach-1",
+    "name": "Face & neck bleach",
+    "price": 349,
+    "duration": "30 min",
+    "kind": "Bleach & detan"
+   },
+   {
+    "id": "sw-bleach-2",
+    "name": "Face detan",
+    "price": 299,
+    "duration": "30 min",
+    "kind": "Bleach & detan"
+   },
+   {
+    "id": "sw-bleach-3",
+    "name": "Full arms detan",
+    "price": 399,
+    "duration": "30 min",
+    "kind": "Bleach & detan"
+   }
+  ]
+ },
+ {
+  "slug": "spa-women",
+  "label": "Spa for Women",
+  "packages": [
+   {
+    "id": "spw-stress-1",
+    "name": "Swedish massage (60 min)",
+    "price": 1299,
+    "duration": "1 hr",
+    "kind": "Stress relief"
+   },
+   {
+    "id": "spw-stress-2",
+    "name": "Balinese massage (60 min)",
+    "price": 1499,
+    "duration": "1 hr",
+    "kind": "Stress relief"
+   },
+   {
+    "id": "spw-stress-3",
+    "name": "Aromatherapy massage (60 min)",
+    "price": 1399,
+    "duration": "1 hr",
+    "kind": "Stress relief"
+   },
+   {
+    "id": "spw-pain-1",
+    "name": "Deep tissue massage (60 min)",
+    "price": 1599,
+    "duration": "1 hr",
+    "kind": "Pain relief"
+   },
+   {
+    "id": "spw-pain-2",
+    "name": "Back & shoulder massage (30 min)",
+    "price": 899,
+    "duration": "30 min",
+    "kind": "Pain relief"
+   },
+   {
+    "id": "spw-pain-3",
+    "name": "Foot reflexology (30 min)",
+    "price": 699,
+    "duration": "30 min",
+    "kind": "Pain relief"
+   },
+   {
+    "id": "spw-scrub-1",
+    "name": "Full body scrub",
+    "price": 1499,
+    "duration": "45 min",
+    "kind": "Scrubs & polishing"
+   },
+   {
+    "id": "spw-scrub-2",
+    "name": "Body polishing",
+    "price": 1799,
+    "duration": "1 hr",
+    "kind": "Scrubs & polishing"
+   },
+   {
+    "id": "spw-addon-1",
+    "name": "Head massage (15 min)",
+    "price": 299,
+    "duration": "15 min",
+    "kind": "Add-ons"
+   },
+   {
+    "id": "spw-addon-2",
+    "name": "Hot stone upgrade",
+    "price": 399,
+    "duration": "15 min",
+    "kind": "Add-ons"
+   }
+  ]
+ },
+ {
+  "slug": "hair-studio-women",
+  "label": "Hair Studio for Women",
+  "packages": [
+   {
+    "id": "hw-cut-1",
+    "name": "Haircut & blow-dry",
+    "price": 699,
+    "duration": "1 hr",
+    "kind": "Haircut & styling"
+   },
+   {
+    "id": "hw-cut-2",
+    "name": "Hair trim",
+    "price": 399,
+    "duration": "30 min",
+    "kind": "Haircut & styling"
+   },
+   {
+    "id": "hw-cut-3",
+    "name": "Blow-dry & styling",
+    "price": 499,
+    "duration": "45 min",
+    "kind": "Haircut & styling"
+   },
+   {
+    "id": "hw-color-1",
+    "name": "Root touch-up",
+    "price": 999,
+    "duration": "1 hr",
+    "kind": "Hair colour"
+   },
+   {
+    "id": "hw-color-2",
+    "name": "Global hair colour",
+    "price": 2499,
+    "duration": "2 hrs",
+    "kind": "Hair colour"
+   },
+   {
+    "id": "hw-color-3",
+    "name": "Highlights",
+    "price": 2999,
+    "duration": "2.5 hrs",
+    "kind": "Hair colour"
+   },
+   {
+    "id": "hw-treat-1",
+    "name": "Hair spa",
+    "price": 999,
+    "duration": "1 hr",
+    "kind": "Hair treatments"
+   },
+   {
+    "id": "hw-treat-2",
+    "name": "Anti-dandruff treatment",
+    "price": 1199,
+    "duration": "1 hr",
+    "kind": "Hair treatments"
+   },
+   {
+    "id": "hw-smooth-1",
+    "name": "Keratin treatment",
+    "price": 3999,
+    "duration": "3 hrs",
+    "kind": "Smoothening & keratin"
+   },
+   {
+    "id": "hw-smooth-2",
+    "name": "Hair smoothening",
+    "price": 4499,
+    "duration": "3.5 hrs",
+    "kind": "Smoothening & keratin"
+   }
+  ]
+ },
+ {
+  "slug": "makeup-styling",
+  "label": "Makeup, Saree & Styling",
+  "packages": [
+   {
+    "id": "mk-makeup-1",
+    "name": "Party makeup",
+    "price": 1999,
+    "duration": "1 hr",
+    "kind": "Party makeup"
+   },
+   {
+    "id": "mk-makeup-2",
+    "name": "HD party makeup",
+    "price": 2999,
+    "duration": "1.25 hrs",
+    "kind": "Party makeup"
+   },
+   {
+    "id": "mk-makeup-3",
+    "name": "Eye makeup",
+    "price": 799,
+    "duration": "30 min",
+    "kind": "Party makeup"
+   },
+   {
+    "id": "mk-saree-1",
+    "name": "Saree draping",
+    "price": 499,
+    "duration": "20 min",
+    "kind": "Saree draping"
+   },
+   {
+    "id": "mk-saree-2",
+    "name": "Pre-pleating & box folding",
+    "price": 399,
+    "duration": "30 min",
+    "kind": "Saree draping"
+   },
+   {
+    "id": "mk-hair-1",
+    "name": "Bun or updo",
+    "price": 799,
+    "duration": "40 min",
+    "kind": "Hairstyling"
+   },
+   {
+    "id": "mk-hair-2",
+    "name": "Curls or waves",
+    "price": 699,
+    "duration": "40 min",
+    "kind": "Hairstyling"
+   },
+   {
+    "id": "mk-bridal-1",
+    "name": "Engagement makeup & hair",
+    "price": 5999,
+    "duration": "2.5 hrs",
+    "kind": "Bridal & engagement"
+   },
+   {
+    "id": "mk-bridal-2",
+    "name": "Bridal makeup & hair",
+    "price": 11999,
+    "duration": "3.5 hrs",
+    "kind": "Bridal & engagement"
+   }
+  ]
+ },
+ {
+  "slug": "salon-men",
+  "label": "Salon for Men",
+  "packages": [
+   {
+    "id": "men-cut",
+    "name": "Haircut for men",
+    "price": 429,
+    "duration": "45 min",
+    "kind": "Grooming"
+   },
+   {
+    "id": "men-beard",
+    "name": "Beard shape & trim",
+    "price": 249,
+    "duration": "30 min",
+    "kind": "Quick services"
+   },
+   {
+    "id": "men-massage",
+    "name": "Stress relief massage (60 min)",
+    "price": 1299,
+    "mrp": 1499,
+    "duration": "1 hr",
+    "kind": "Massage"
+   }
+  ]
+ },
+ {
+  "slug": "salon-royale",
+  "label": "Salon Royale",
+  "packages": [
+   {
+    "id": "roy-packages-1",
+    "name": "Combo: haircut, beard styling & facial",
+    "price": 1799,
+    "mrp": 2159,
+    "duration": "1.75 hrs",
+    "kind": "Packages"
+   },
+   {
+    "id": "roy-packages-2",
+    "name": "Combo: haircut & hair spa",
+    "price": 1199,
+    "mrp": 1439,
+    "duration": "1.25 hrs",
+    "kind": "Packages"
+   },
+   {
+    "id": "roy-packages-3",
+    "name": "Combo: haircut & head massage",
+    "price": 749,
+    "mrp": 899,
+    "duration": "1 hr",
+    "kind": "Packages"
+   },
+   {
+    "id": "roy-pedicure-1",
+    "name": "Classic pedicure",
+    "price": 699,
+    "duration": "45 min",
+    "kind": "Pedicure"
+   },
+   {
+    "id": "roy-pedicure-2",
+    "name": "Spa pedicure with foot massage",
+    "price": 999,
+    "duration": "1 hr",
+    "kind": "Pedicure"
+   },
+   {
+    "id": "roy-hair-1",
+    "name": "Advanced haircut & styling",
+    "price": 549,
+    "duration": "45 min",
+    "kind": "Hair care"
+   },
+   {
+    "id": "roy-hair-2",
+    "name": "Kids haircut",
+    "price": 449,
+    "duration": "30 min",
+    "kind": "Hair care"
+   },
+   {
+    "id": "roy-hair-3",
+    "name": "Hair spa",
+    "price": 899,
+    "duration": "45 min",
+    "kind": "Hair care"
+   },
+   {
+    "id": "roy-hair-4",
+    "name": "Anti-dandruff treatment",
+    "price": 1099,
+    "duration": "1 hr",
+    "kind": "Hair care"
+   },
+   {
+    "id": "roy-face-1",
+    "name": "Ozone cleanup",
+    "price": 899,
+    "duration": "45 min",
+    "kind": "Face care"
+   },
+   {
+    "id": "roy-face-2",
+    "name": "Luxury facial",
+    "price": 1499,
+    "duration": "1 hr",
+    "kind": "Face care"
+   },
+   {
+    "id": "roy-face-3",
+    "name": "Anti-tan facial",
+    "price": 1299,
+    "duration": "1 hr",
+    "kind": "Face care"
+   },
+   {
+    "id": "roy-shave-1",
+    "name": "Beard styling",
+    "price": 449,
+    "duration": "30 min",
+    "kind": "Shave/beard grooming"
+   },
+   {
+    "id": "roy-shave-2",
+    "name": "Classic hot-towel shave",
+    "price": 499,
+    "duration": "30 min",
+    "kind": "Shave/beard grooming"
+   },
+   {
+    "id": "roy-color-1",
+    "name": "Beard colour",
+    "price": 499,
+    "duration": "30 min",
+    "kind": "Hair color"
+   },
+   {
+    "id": "roy-color-2",
+    "name": "Global hair colour",
+    "price": 1199,
+    "duration": "1 hr",
+    "kind": "Hair color"
+   },
+   {
+    "id": "roy-color-3",
+    "name": "Fashion highlights",
+    "price": 1799,
+    "duration": "1.5 hrs",
+    "kind": "Hair color"
+   },
+   {
+    "id": "roy-massage-1",
+    "name": "Head massage (20 min)",
+    "price": 449,
+    "duration": "20 min",
+    "kind": "Massage"
+   },
+   {
+    "id": "roy-massage-2",
+    "name": "Head, neck & shoulder massage (30 min)",
+    "price": 699,
+    "duration": "30 min",
+    "kind": "Massage"
+   }
+  ]
+ },
+ {
+  "slug": "salon-prime",
+  "label": "Salon Prime",
+  "packages": [
+   {
+    "id": "prm-packages-1",
+    "name": "Combo: haircut & beard trim",
+    "price": 399,
+    "mrp": 479,
+    "duration": "45 min",
+    "kind": "Packages"
+   },
+   {
+    "id": "prm-packages-2",
+    "name": "Combo: haircut, cleanup & detan",
+    "price": 999,
+    "mrp": 1199,
+    "duration": "1.5 hrs",
+    "kind": "Packages"
+   },
+   {
+    "id": "prm-packages-3",
+    "name": "Combo: haircut & head massage",
+    "price": 499,
+    "mrp": 599,
+    "duration": "50 min",
+    "kind": "Packages"
+   },
+   {
+    "id": "prm-cut-1",
+    "name": "Haircut for men",
+    "price": 259,
+    "duration": "30 min",
+    "kind": "Haircut & beard styling"
+   },
+   {
+    "id": "prm-cut-2",
+    "name": "Kids haircut",
+    "price": 249,
+    "duration": "30 min",
+    "kind": "Haircut & beard styling"
+   },
+   {
+    "id": "prm-cut-3",
+    "name": "Beard trimming & styling",
+    "price": 249,
+    "duration": "20 min",
+    "kind": "Haircut & beard styling"
+   },
+   {
+    "id": "prm-cut-4",
+    "name": "Clean shave",
+    "price": 249,
+    "duration": "20 min",
+    "kind": "Haircut & beard styling"
+   },
+   {
+    "id": "prm-facial-1",
+    "name": "Basic cleanup",
+    "price": 499,
+    "duration": "30 min",
+    "kind": "Facial & cleanup"
+   },
+   {
+    "id": "prm-facial-2",
+    "name": "Fruit facial",
+    "price": 799,
+    "duration": "45 min",
+    "kind": "Facial & cleanup"
+   },
+   {
+    "id": "prm-detan-1",
+    "name": "Face & neck detan",
+    "price": 349,
+    "duration": "30 min",
+    "kind": "Detan"
+   },
+   {
+    "id": "prm-detan-2",
+    "name": "Full arms detan",
+    "price": 449,
+    "duration": "30 min",
+    "kind": "Detan"
+   },
+   {
+    "id": "prm-mani-1",
+    "name": "Manicure",
+    "price": 399,
+    "duration": "30 min",
+    "kind": "Manicure & pedicure"
+   },
+   {
+    "id": "prm-mani-2",
+    "name": "Pedicure",
+    "price": 499,
+    "duration": "40 min",
+    "kind": "Manicure & pedicure"
+   },
+   {
+    "id": "prm-massage-1",
+    "name": "Head massage (15 min)",
+    "price": 299,
+    "duration": "15 min",
+    "kind": "Massage"
+   },
+   {
+    "id": "prm-massage-2",
+    "name": "Back & shoulder massage (20 min)",
+    "price": 449,
+    "duration": "20 min",
+    "kind": "Massage"
+   },
+   {
+    "id": "prm-color-1",
+    "name": "Beard colour",
+    "price": 299,
+    "duration": "20 min",
+    "kind": "Hair color"
+   },
+   {
+    "id": "prm-color-2",
+    "name": "Global hair colour",
+    "price": 699,
+    "duration": "45 min",
+    "kind": "Hair color"
+   }
+  ]
+ },
+ {
+  "slug": "massage-men",
+  "label": "Massage for Men",
+  "packages": [
+   {
+    "id": "mm-stress-1",
+    "name": "Swedish massage (60 min)",
+    "price": 1299,
+    "duration": "1 hr",
+    "kind": "Stress relief"
+   },
+   {
+    "id": "mm-stress-2",
+    "name": "Aromatherapy massage (60 min)",
+    "price": 1399,
+    "duration": "1 hr",
+    "kind": "Stress relief"
+   },
+   {
+    "id": "mm-stress-3",
+    "name": "Balinese massage (60 min)",
+    "price": 1499,
+    "duration": "1 hr",
+    "kind": "Stress relief"
+   },
+   {
+    "id": "mm-pain-1",
+    "name": "Deep tissue massage (60 min)",
+    "price": 1599,
+    "duration": "1 hr",
+    "kind": "Pain relief"
+   },
+   {
+    "id": "mm-pain-2",
+    "name": "Back & shoulder massage (30 min)",
+    "price": 899,
+    "duration": "30 min",
+    "kind": "Pain relief"
+   },
+   {
+    "id": "mm-pain-3",
+    "name": "Foot reflexology (30 min)",
+    "price": 699,
+    "duration": "30 min",
+    "kind": "Pain relief"
+   },
+   {
+    "id": "mm-sport-1",
+    "name": "Sports massage (60 min)",
+    "price": 1699,
+    "duration": "1 hr",
+    "kind": "Post-workout"
+   },
+   {
+    "id": "mm-sport-2",
+    "name": "Leg recovery massage (30 min)",
+    "price": 899,
+    "duration": "30 min",
+    "kind": "Post-workout"
+   },
+   {
+    "id": "mm-addon-1",
+    "name": "Head massage (15 min)",
+    "price": 299,
+    "duration": "15 min",
+    "kind": "Add-ons"
+   },
+   {
+    "id": "mm-addon-2",
+    "name": "Hot stone upgrade",
+    "price": 399,
+    "duration": "15 min",
+    "kind": "Add-ons"
+   }
+  ]
+ },
+ {
+  "slug": "ac",
+  "label": "AC",
+  "packages": [
+   {
+    "id": "ac-annual",
+    "name": "Annual plan (2 times a year)",
+    "price": 1299,
+    "mrp": 1598,
+    "duration": "2 visits",
+    "kind": "Annual plan"
+   },
+   {
+    "id": "ac-foam-2",
+    "name": "Foam-jet service (2 ACs)",
+    "price": 1098,
+    "mrp": 1198,
+    "duration": "1.5 hrs",
+    "kind": "Service"
+   },
+   {
+    "id": "ac-foam-3",
+    "name": "Foam-jet service (3 ACs)",
+    "price": 1497,
+    "mrp": 1797,
+    "duration": "2 hrs",
+    "kind": "Service"
+   },
+   {
+    "id": "ac-foam-4",
+    "name": "Foam-jet service (4 ACs)",
+    "price": 1996,
+    "mrp": 2396,
+    "duration": "2.5 hrs",
+    "kind": "Service"
+   },
+   {
+    "id": "ac-repair",
+    "name": "AC repair",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Repair & gas refill"
+   },
+   {
+    "id": "ac-gas",
+    "name": "Gas refill & check-up",
+    "price": 2499,
+    "duration": "2 hrs",
+    "kind": "Repair & gas refill"
+   },
+   {
+    "id": "ac-install",
+    "name": "AC installation",
+    "price": 1499,
+    "duration": "2 hrs",
+    "kind": "Installation / uninstallation"
+   },
+   {
+    "id": "ac-uninstall",
+    "name": "AC uninstallation",
+    "price": 599,
+    "duration": "1 hr",
+    "kind": "Installation / uninstallation"
+   }
+  ]
+ },
+ {
+  "slug": "washing-machine",
+  "label": "Washing Machine",
+  "packages": [
+   {
+    "id": "wm-jet",
+    "name": "Washing machine jet-service",
+    "price": 599,
+    "duration": "1 hr",
+    "kind": "Jet-service"
+   },
+   {
+    "id": "wm-checkup",
+    "name": "Washing machine checkup",
+    "price": 249,
+    "duration": "45 min",
+    "kind": "Check-up"
+   },
+   {
+    "id": "wm-install",
+    "name": "Washing machine installation",
+    "price": 499,
+    "duration": "1 hr",
+    "kind": "Installation"
+   }
+  ]
+ },
+ {
+  "slug": "refrigerator",
+  "label": "Refrigerator",
+  "packages": [
+   {
+    "id": "fridge-checkup",
+    "name": "Refrigerator check-up",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Refrigerator check-up"
+   }
+  ]
+ },
+ {
+  "slug": "television",
+  "label": "Television",
+  "packages": [
+   {
+    "id": "tv-checkup",
+    "name": "TV check-up",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "TV check-up"
+   },
+   {
+    "id": "tv-install",
+    "name": "TV installation",
+    "price": 699,
+    "duration": "1 hr",
+    "kind": "TV installation"
+   },
+   {
+    "id": "tv-uninstall",
+    "name": "TV uninstallation",
+    "price": 399,
+    "duration": "45 min",
+    "kind": "TV uninstallation"
+   }
+  ]
+ },
+ {
+  "slug": "chimney",
+  "label": "Chimney",
+  "packages": [
+   {
+    "id": "chim-deep-stove",
+    "name": "Deep service with gas stove",
+    "price": 1049,
+    "mrp": 1248,
+    "duration": "2 hrs",
+    "kind": "Combos"
+   },
+   {
+    "id": "chim-basic-stove",
+    "name": "Basic service with gas stove",
+    "price": 799,
+    "mrp": 948,
+    "duration": "1.5 hrs",
+    "kind": "Combos"
+   },
+   {
+    "id": "chim-2visits",
+    "name": "2 visits: chimney deep service",
+    "price": 1399,
+    "mrp": 1598,
+    "duration": "2 visits",
+    "kind": "Combos"
+   },
+   {
+    "id": "chim-checkup",
+    "name": "Chimney check-up",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Repair"
+   },
+   {
+    "id": "chim-deep",
+    "name": "Deep chimney service",
+    "price": 849,
+    "mrp": 999,
+    "duration": "1.5 hrs",
+    "kind": "Service"
+   },
+   {
+    "id": "chim-basic",
+    "name": "Basic chimney service",
+    "price": 599,
+    "duration": "1 hr",
+    "kind": "Service"
+   },
+   {
+    "id": "chim-install",
+    "name": "Chimney installation",
+    "price": 1299,
+    "duration": "2 hrs",
+    "kind": "Installation / uninstallation"
+   },
+   {
+    "id": "chim-uninstall",
+    "name": "Chimney uninstallation",
+    "price": 599,
+    "duration": "1 hr",
+    "kind": "Installation / uninstallation"
+   },
+   {
+    "id": "chim-beyond",
+    "name": "Beyond chimney installation",
+    "price": 1799,
+    "duration": "2.5 hrs",
+    "kind": "Installation / uninstallation"
+   }
+  ]
+ },
+ {
+  "slug": "microwave",
+  "label": "Microwave",
+  "packages": [
+   {
+    "id": "micro-checkup",
+    "name": "Microwave check-up",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Microwave check-up"
+   }
+  ]
+ },
+ {
+  "slug": "stove",
+  "label": "Stove",
+  "packages": [
+   {
+    "id": "stove-hob-steam",
+    "name": "Hob steam service",
+    "price": 649,
+    "duration": "1 hr",
+    "kind": "Service"
+   },
+   {
+    "id": "stove-gas-steam",
+    "name": "Gas stove steam service",
+    "price": 499,
+    "duration": "45 min",
+    "kind": "Service"
+   },
+   {
+    "id": "stove-gas-check",
+    "name": "Gas stove check-up",
+    "price": 249,
+    "duration": "30 min",
+    "kind": "Repair"
+   },
+   {
+    "id": "stove-hob-check",
+    "name": "Hob check-up",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Repair"
+   }
+  ]
+ },
+ {
+  "slug": "laptop",
+  "label": "Laptop",
+  "packages": [
+   {
+    "id": "lap-service",
+    "name": "Laptop / desktop service",
+    "price": 799,
+    "duration": "1.5 hrs",
+    "kind": "Laptop / desktop service"
+   },
+   {
+    "id": "lap-upgrade",
+    "name": "System upgrade consultation",
+    "price": 199,
+    "duration": "30 min",
+    "kind": "System upgrade consultation"
+   },
+   {
+    "id": "lap-component",
+    "name": "Component installation",
+    "price": 599,
+    "duration": "1 hr",
+    "kind": "Component installation"
+   },
+   {
+    "id": "lap-checkup",
+    "name": "Laptop check-up",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Laptop check-up"
+   }
+  ]
+ },
+ {
+  "slug": "water-purifier",
+  "label": "RO / Water Purifier",
+  "packages": [
+   {
+    "id": "wp-repair",
+    "name": "Repair check-up",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Water purifier"
+   },
+   {
+    "id": "wp-filter-check",
+    "name": "Filter check-up",
+    "price": 249,
+    "duration": "30 min",
+    "kind": "Water purifier"
+   },
+   {
+    "id": "wp-filter-replace",
+    "name": "Complete filter replacement",
+    "price": 1999,
+    "mrp": 2399,
+    "duration": "1.5 hrs",
+    "kind": "Water purifier"
+   },
+   {
+    "id": "wp-wall-install",
+    "name": "Wall mounted RO installation",
+    "price": 699,
+    "duration": "1.5 hrs",
+    "kind": "Water purifier"
+   },
+   {
+    "id": "wp-counter-install",
+    "name": "Under the counter RO installation",
+    "price": 899,
+    "duration": "2 hrs",
+    "kind": "Water purifier"
+   },
+   {
+    "id": "wp-uninstall",
+    "name": "RO uninstallation",
+    "price": 399,
+    "duration": "45 min",
+    "kind": "Water purifier"
+   }
+  ]
+ },
+ {
+  "slug": "geyser",
+  "label": "Geyser",
+  "packages": [
+   {
+    "id": "gey-checkup",
+    "name": "Geyser check-up",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Repair & service"
+   },
+   {
+    "id": "gey-service",
+    "name": "Geyser service",
+    "price": 499,
+    "duration": "1 hr",
+    "kind": "Repair & service"
+   },
+   {
+    "id": "gey-install",
+    "name": "Geyser installation",
+    "price": 749,
+    "duration": "1.5 hrs",
+    "kind": "Installation / uninstallation"
+   },
+   {
+    "id": "gey-uninstall",
+    "name": "Geyser uninstallation",
+    "price": 449,
+    "duration": "1 hr",
+    "kind": "Installation / uninstallation"
+   }
+  ]
+ },
+ {
+  "slug": "electrician",
+  "label": "Electrician",
+  "packages": [
+   {
+    "id": "elec-switch-1",
+    "name": "Combo for switches & sockets",
+    "price": 249,
+    "mrp": 299,
+    "duration": "1 hr",
+    "kind": "Switch & socket"
+   },
+   {
+    "id": "elec-switch-2",
+    "name": "Switch replace / install",
+    "price": 69,
+    "duration": "20 min",
+    "kind": "Switch & socket"
+   },
+   {
+    "id": "elec-switch-3",
+    "name": "Socket replace / install",
+    "price": 79,
+    "duration": "20 min",
+    "kind": "Switch & socket"
+   },
+   {
+    "id": "elec-switch-4",
+    "name": "Full switchboard replace / install",
+    "price": 249,
+    "duration": "1 hr",
+    "kind": "Switch & socket"
+   },
+   {
+    "id": "elec-switch-5",
+    "name": "Fan regulator replace / install",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Switch & socket"
+   },
+   {
+    "id": "elec-switch-6",
+    "name": "Plug replacement",
+    "price": 59,
+    "duration": "15 min",
+    "kind": "Switch & socket"
+   },
+   {
+    "id": "elec-fan-1",
+    "name": "Combo for fans",
+    "price": 349,
+    "mrp": 419,
+    "duration": "1.5 hrs",
+    "kind": "Fan"
+   },
+   {
+    "id": "elec-fan-2",
+    "name": "Fan repair",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Fan"
+   },
+   {
+    "id": "elec-fan-3",
+    "name": "Regular ceiling fan replace / install",
+    "price": 119,
+    "duration": "45 min",
+    "kind": "Fan"
+   },
+   {
+    "id": "elec-fan-4",
+    "name": "Smart / BLDC ceiling fan replace / install",
+    "price": 199,
+    "duration": "1 hr",
+    "kind": "Fan"
+   },
+   {
+    "id": "elec-fan-5",
+    "name": "Decorative fan replace / install",
+    "price": 299,
+    "duration": "1 hr",
+    "kind": "Fan"
+   },
+   {
+    "id": "elec-fan-6",
+    "name": "Exhaust fan replace / install",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Fan"
+   },
+   {
+    "id": "elec-fan-7",
+    "name": "Wall / table fan replace / install",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Fan"
+   },
+   {
+    "id": "elec-light-1",
+    "name": "Combo for lights",
+    "price": 299,
+    "mrp": 359,
+    "duration": "1 hr",
+    "kind": "Light"
+   },
+   {
+    "id": "elec-light-2",
+    "name": "Tube light replace / install",
+    "price": 79,
+    "duration": "30 min",
+    "kind": "Light"
+   },
+   {
+    "id": "elec-light-3",
+    "name": "Ceiling lights replace / install",
+    "price": 129,
+    "duration": "45 min",
+    "kind": "Light"
+   },
+   {
+    "id": "elec-light-4",
+    "name": "Bulb & holder replace / install",
+    "price": 59,
+    "duration": "20 min",
+    "kind": "Light"
+   },
+   {
+    "id": "elec-light-5",
+    "name": "Wall mounted lights replace / install",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Light"
+   },
+   {
+    "id": "elec-light-6",
+    "name": "Outdoor lights replace / install",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Light"
+   },
+   {
+    "id": "elec-light-7",
+    "name": "Hanging lights replace / install",
+    "price": 199,
+    "duration": "1 hr",
+    "kind": "Light"
+   },
+   {
+    "id": "elec-light-8",
+    "name": "Chandelier replace / install",
+    "price": 599,
+    "duration": "2 hrs",
+    "kind": "Light"
+   },
+   {
+    "id": "elec-wiring-1",
+    "name": "External with clips (per 5m)",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Wiring"
+   },
+   {
+    "id": "elec-wiring-2",
+    "name": "External with casing (per 5m)",
+    "price": 299,
+    "duration": "1 hr",
+    "kind": "Wiring"
+   },
+   {
+    "id": "elec-wiring-3",
+    "name": "Internal",
+    "price": 499,
+    "duration": "2 hrs",
+    "kind": "Wiring"
+   },
+   {
+    "id": "elec-mcb-1",
+    "name": "MCB switch replace / install",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "MCB, fuse & inverter"
+   },
+   {
+    "id": "elec-mcb-2",
+    "name": "Main board replace / install",
+    "price": 699,
+    "duration": "2 hrs",
+    "kind": "MCB, fuse & inverter"
+   },
+   {
+    "id": "elec-mcb-3",
+    "name": "Submeter installation",
+    "price": 449,
+    "duration": "1 hr",
+    "kind": "MCB, fuse & inverter"
+   },
+   {
+    "id": "elec-mcb-4",
+    "name": "Inverter check-up / service / install / uninstall",
+    "price": 299,
+    "duration": "1 hr",
+    "kind": "MCB, fuse & inverter"
+   },
+   {
+    "id": "elec-mcb-5",
+    "name": "Stabiliser installation",
+    "price": 199,
+    "duration": "30 min",
+    "kind": "MCB, fuse & inverter"
+   },
+   {
+    "id": "elec-door-1",
+    "name": "Doorbell replace / install",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Doorbell & security"
+   },
+   {
+    "id": "elec-door-2",
+    "name": "Video door phone (without display)",
+    "price": 399,
+    "duration": "1 hr",
+    "kind": "Doorbell & security"
+   },
+   {
+    "id": "elec-door-3",
+    "name": "Video door phone (with display)",
+    "price": 599,
+    "duration": "1.5 hrs",
+    "kind": "Doorbell & security"
+   },
+   {
+    "id": "elec-door-4",
+    "name": "Wireless CCTV install / uninstall",
+    "price": 349,
+    "duration": "1 hr",
+    "kind": "Doorbell & security"
+   },
+   {
+    "id": "elec-tv-1",
+    "name": "TV installation",
+    "price": 399,
+    "duration": "1 hr",
+    "kind": "TV & speaker"
+   },
+   {
+    "id": "elec-tv-2",
+    "name": "TV uninstallation",
+    "price": 249,
+    "duration": "45 min",
+    "kind": "TV & speaker"
+   },
+   {
+    "id": "elec-tv-3",
+    "name": "TV socket installation",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "TV & speaker"
+   },
+   {
+    "id": "elec-tv-4",
+    "name": "Sound bar installation",
+    "price": 349,
+    "duration": "1 hr",
+    "kind": "TV & speaker"
+   },
+   {
+    "id": "elec-tv-5",
+    "name": "Home theatre installation",
+    "price": 699,
+    "duration": "2 hrs",
+    "kind": "TV & speaker"
+   },
+   {
+    "id": "elec-festive-1",
+    "name": "Light installation (per string)",
+    "price": 49,
+    "duration": "15 min",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "elec-festive-2",
+    "name": "Light uninstallation (per light)",
+    "price": 29,
+    "duration": "10 min",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "elec-festive-3",
+    "name": "Balcony lights installation (starry)",
+    "price": 399,
+    "duration": "1 hr",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "elec-festive-4",
+    "name": "Balcony lights installation (string)",
+    "price": 299,
+    "duration": "1 hr",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "elec-festive-5",
+    "name": "Railing lights installation (rope)",
+    "price": 349,
+    "duration": "1 hr",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "elec-festive-6",
+    "name": "Railing lights installation (string)",
+    "price": 249,
+    "duration": "45 min",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "elec-ev-1",
+    "name": "2-wheeler EV charger installation",
+    "price": 499,
+    "duration": "1 hr",
+    "kind": "EV plug installation"
+   },
+   {
+    "id": "elec-ev-2",
+    "name": "4-wheeler EV charger installation",
+    "price": 1499,
+    "duration": "2.5 hrs",
+    "kind": "EV plug installation"
+   },
+   {
+    "id": "elec-consult-1",
+    "name": "Electrician consultation",
+    "price": 49,
+    "duration": "30 min",
+    "kind": "Book a consultation"
+   }
+  ]
+ },
+ {
+  "slug": "plumber",
+  "label": "Plumber",
+  "packages": [
+   {
+    "id": "plumb-tap-1",
+    "name": "Combo for tap & mixer",
+    "price": 249,
+    "mrp": 299,
+    "duration": "1 hr",
+    "kind": "Tap & mixer"
+   },
+   {
+    "id": "plumb-tap-2",
+    "name": "Tap repair",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Tap & mixer"
+   },
+   {
+    "id": "plumb-tap-3",
+    "name": "Tap installation / replacement",
+    "price": 129,
+    "duration": "30 min",
+    "kind": "Tap & mixer"
+   },
+   {
+    "id": "plumb-tap-4",
+    "name": "Tap accessory installation",
+    "price": 79,
+    "duration": "20 min",
+    "kind": "Tap & mixer"
+   },
+   {
+    "id": "plumb-toilet-1",
+    "name": "Combo for toilet",
+    "price": 399,
+    "mrp": 479,
+    "duration": "1.5 hrs",
+    "kind": "Toilet"
+   },
+   {
+    "id": "plumb-toilet-2",
+    "name": "Jet spray repair / replacement",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Toilet"
+   },
+   {
+    "id": "plumb-toilet-3",
+    "name": "Toilet seat cover installation",
+    "price": 149,
+    "duration": "30 min",
+    "kind": "Toilet"
+   },
+   {
+    "id": "plumb-toilet-4",
+    "name": "Flush tank repair",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Toilet"
+   },
+   {
+    "id": "plumb-toilet-5",
+    "name": "External flush tank replacement",
+    "price": 349,
+    "duration": "1 hr",
+    "kind": "Toilet"
+   },
+   {
+    "id": "plumb-toilet-6",
+    "name": "Toilet repair",
+    "price": 249,
+    "duration": "1 hr",
+    "kind": "Toilet"
+   },
+   {
+    "id": "plumb-toilet-7",
+    "name": "Toilet replacement",
+    "price": 1299,
+    "duration": "3 hrs",
+    "kind": "Toilet"
+   },
+   {
+    "id": "plumb-toilet-8",
+    "name": "Pot blockage",
+    "price": 349,
+    "duration": "1 hr",
+    "kind": "Toilet"
+   },
+   {
+    "id": "plumb-bath-1",
+    "name": "Shower repair",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Bath & shower"
+   },
+   {
+    "id": "plumb-bath-2",
+    "name": "Shower installation",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Bath & shower"
+   },
+   {
+    "id": "plumb-bath-3",
+    "name": "Shower filter installation",
+    "price": 149,
+    "duration": "30 min",
+    "kind": "Bath & shower"
+   },
+   {
+    "id": "plumb-bath-4",
+    "name": "Shower mixer tap installation",
+    "price": 299,
+    "duration": "1 hr",
+    "kind": "Bath & shower"
+   },
+   {
+    "id": "plumb-acc-1",
+    "name": "Combo for bath accessories",
+    "price": 249,
+    "mrp": 299,
+    "duration": "1 hr",
+    "kind": "Bath accessories"
+   },
+   {
+    "id": "plumb-acc-2",
+    "name": "Soap holder installation",
+    "price": 79,
+    "duration": "20 min",
+    "kind": "Bath accessories"
+   },
+   {
+    "id": "plumb-acc-3",
+    "name": "Towel holder installation",
+    "price": 99,
+    "duration": "20 min",
+    "kind": "Bath accessories"
+   },
+   {
+    "id": "plumb-acc-4",
+    "name": "Shelf installation",
+    "price": 119,
+    "duration": "30 min",
+    "kind": "Bath accessories"
+   },
+   {
+    "id": "plumb-basin-1",
+    "name": "Wash basin leakage repair",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Basin & sink"
+   },
+   {
+    "id": "plumb-basin-2",
+    "name": "Wash basin blockage removal",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Basin & sink"
+   },
+   {
+    "id": "plumb-basin-3",
+    "name": "Wash basin installation",
+    "price": 599,
+    "duration": "1.5 hrs",
+    "kind": "Basin & sink"
+   },
+   {
+    "id": "plumb-basin-4",
+    "name": "Waste coupling installation",
+    "price": 129,
+    "duration": "30 min",
+    "kind": "Basin & sink"
+   },
+   {
+    "id": "plumb-drain-1",
+    "name": "Combo for drainage & blockage",
+    "price": 399,
+    "mrp": 479,
+    "duration": "1.5 hrs",
+    "kind": "Drainage & blockage"
+   },
+   {
+    "id": "plumb-drain-2",
+    "name": "Drain cover installation",
+    "price": 99,
+    "duration": "20 min",
+    "kind": "Drainage & blockage"
+   },
+   {
+    "id": "plumb-drain-3",
+    "name": "Drain blockage removal",
+    "price": 249,
+    "duration": "1 hr",
+    "kind": "Drainage & blockage"
+   },
+   {
+    "id": "plumb-appliance-1",
+    "name": "Connection hose installation",
+    "price": 99,
+    "duration": "20 min",
+    "kind": "Appliance connection"
+   },
+   {
+    "id": "plumb-appliance-2",
+    "name": "Washing machine inlet installation",
+    "price": 149,
+    "duration": "30 min",
+    "kind": "Appliance connection"
+   },
+   {
+    "id": "plumb-appliance-3",
+    "name": "RO water connection installation",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Appliance connection"
+   },
+   {
+    "id": "plumb-appliance-4",
+    "name": "Geyser connection leakage repair",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Appliance connection"
+   },
+   {
+    "id": "plumb-appliance-5",
+    "name": "Shut-off valve leakage repair",
+    "price": 149,
+    "duration": "30 min",
+    "kind": "Appliance connection"
+   },
+   {
+    "id": "plumb-tank-1",
+    "name": "Combo for water tank & motor",
+    "price": 699,
+    "mrp": 839,
+    "duration": "2 hrs",
+    "kind": "Water tank & motor"
+   },
+   {
+    "id": "plumb-tank-2",
+    "name": "Overhead water tank installation",
+    "price": 999,
+    "duration": "3 hrs",
+    "kind": "Water tank & motor"
+   },
+   {
+    "id": "plumb-tank-3",
+    "name": "Water tank repair",
+    "price": 349,
+    "duration": "1 hr",
+    "kind": "Water tank & motor"
+   },
+   {
+    "id": "plumb-tank-4",
+    "name": "Motor installation",
+    "price": 599,
+    "duration": "1.5 hrs",
+    "kind": "Water tank & motor"
+   },
+   {
+    "id": "plumb-consult-1",
+    "name": "Plumber consultation",
+    "price": 49,
+    "duration": "30 min",
+    "kind": "At home consultation"
+   }
+  ]
+ },
+ {
+  "slug": "carpenter",
+  "label": "Carpenter",
+  "packages": [
+   {
+    "id": "carp-door-1",
+    "name": "Combo for wooden door",
+    "price": 349,
+    "mrp": 419,
+    "duration": "1.5 hrs",
+    "kind": "Wooden door"
+   },
+   {
+    "id": "carp-door-2",
+    "name": "Door repair",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Wooden door"
+   },
+   {
+    "id": "carp-door-3",
+    "name": "New door installation",
+    "price": 999,
+    "duration": "3 hrs",
+    "kind": "Wooden door"
+   },
+   {
+    "id": "carp-door-4",
+    "name": "Door locks & latches repair",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Wooden door"
+   },
+   {
+    "id": "carp-door-5",
+    "name": "Door hinges repair / replacement",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Wooden door"
+   },
+   {
+    "id": "carp-door-6",
+    "name": "Door accessories & mesh installation",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Wooden door"
+   },
+   {
+    "id": "carp-cupboard-1",
+    "name": "Combo for cupboard & drawer",
+    "price": 299,
+    "mrp": 359,
+    "duration": "1.5 hrs",
+    "kind": "Cupboard & drawer"
+   },
+   {
+    "id": "carp-cupboard-2",
+    "name": "Cupboard repair & installation",
+    "price": 249,
+    "duration": "1 hr",
+    "kind": "Cupboard & drawer"
+   },
+   {
+    "id": "carp-cupboard-3",
+    "name": "Cupboard & drawer locks",
+    "price": 129,
+    "duration": "30 min",
+    "kind": "Cupboard & drawer"
+   },
+   {
+    "id": "carp-cupboard-4",
+    "name": "Drawer repair & installation",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Cupboard & drawer"
+   },
+   {
+    "id": "carp-decor-1",
+    "name": "Combo for décor installation",
+    "price": 249,
+    "mrp": 299,
+    "duration": "1 hr",
+    "kind": "Décor & mirror"
+   },
+   {
+    "id": "carp-decor-2",
+    "name": "Décor installation (small)",
+    "price": 79,
+    "duration": "20 min",
+    "kind": "Décor & mirror"
+   },
+   {
+    "id": "carp-decor-3",
+    "name": "Décor installation (large)",
+    "price": 149,
+    "duration": "30 min",
+    "kind": "Décor & mirror"
+   },
+   {
+    "id": "carp-decor-4",
+    "name": "Mirror installation",
+    "price": 149,
+    "duration": "30 min",
+    "kind": "Décor & mirror"
+   },
+   {
+    "id": "carp-decor-5",
+    "name": "Ceiling hook / fastener installation",
+    "price": 99,
+    "duration": "20 min",
+    "kind": "Décor & mirror"
+   },
+   {
+    "id": "carp-shelf-1",
+    "name": "Combo for shelves & cabinets",
+    "price": 349,
+    "mrp": 419,
+    "duration": "1.5 hrs",
+    "kind": "Shelf & cabinet"
+   },
+   {
+    "id": "carp-shelf-2",
+    "name": "Shelf installation",
+    "price": 119,
+    "duration": "30 min",
+    "kind": "Shelf & cabinet"
+   },
+   {
+    "id": "carp-shelf-3",
+    "name": "Wall cabinet assembly & installation",
+    "price": 399,
+    "duration": "1.5 hrs",
+    "kind": "Shelf & cabinet"
+   },
+   {
+    "id": "carp-shelf-4",
+    "name": "Bathroom mirror cabinet installation",
+    "price": 249,
+    "duration": "1 hr",
+    "kind": "Shelf & cabinet"
+   },
+   {
+    "id": "carp-lock-1",
+    "name": "Combo for door locks",
+    "price": 299,
+    "mrp": 359,
+    "duration": "1 hr",
+    "kind": "Lock & hinge"
+   },
+   {
+    "id": "carp-lock-2",
+    "name": "Combo for hinges & channels",
+    "price": 299,
+    "mrp": 359,
+    "duration": "1 hr",
+    "kind": "Lock & hinge"
+   },
+   {
+    "id": "carp-lock-3",
+    "name": "Door locks & latches repair",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Lock & hinge"
+   },
+   {
+    "id": "carp-lock-4",
+    "name": "Door lock replace / install",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Lock & hinge"
+   },
+   {
+    "id": "carp-lock-5",
+    "name": "Cupboard & drawer locks",
+    "price": 129,
+    "duration": "30 min",
+    "kind": "Lock & hinge"
+   },
+   {
+    "id": "carp-lock-6",
+    "name": "Channel repair & replacement",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Lock & hinge"
+   },
+   {
+    "id": "carp-curtain-1",
+    "name": "Combo for curtains & windows",
+    "price": 299,
+    "mrp": 359,
+    "duration": "1 hr",
+    "kind": "Curtain & window"
+   },
+   {
+    "id": "carp-curtain-2",
+    "name": "Curtain rod installation",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Curtain & window"
+   },
+   {
+    "id": "carp-curtain-3",
+    "name": "Mosquito net installation",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Curtain & window"
+   },
+   {
+    "id": "carp-curtain-4",
+    "name": "Blinds fitting inspection & measurement",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Curtain & window"
+   },
+   {
+    "id": "carp-curtain-5",
+    "name": "Window accessories",
+    "price": 129,
+    "duration": "30 min",
+    "kind": "Curtain & window"
+   },
+   {
+    "id": "carp-curtain-6",
+    "name": "Window AC frame install / uninstall",
+    "price": 399,
+    "duration": "1.5 hrs",
+    "kind": "Curtain & window"
+   },
+   {
+    "id": "carp-curtain-7",
+    "name": "Window misalignment / jam repair",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Curtain & window"
+   },
+   {
+    "id": "carp-repair-1",
+    "name": "Combo for furniture repair",
+    "price": 449,
+    "mrp": 539,
+    "duration": "2 hrs",
+    "kind": "Furniture repair"
+   },
+   {
+    "id": "carp-repair-2",
+    "name": "Wooden bed repair",
+    "price": 299,
+    "duration": "1 hr",
+    "kind": "Furniture repair"
+   },
+   {
+    "id": "carp-repair-3",
+    "name": "Wooden chair, table, sofa repair",
+    "price": 249,
+    "duration": "1 hr",
+    "kind": "Furniture repair"
+   },
+   {
+    "id": "carp-assembly-1",
+    "name": "Single bed assembly",
+    "price": 499,
+    "duration": "1 hr",
+    "kind": "Furniture assembly"
+   },
+   {
+    "id": "carp-assembly-2",
+    "name": "Double bed assembly",
+    "price": 699,
+    "duration": "1.5 hrs",
+    "kind": "Furniture assembly"
+   },
+   {
+    "id": "carp-assembly-3",
+    "name": "Hydraulic bed assembly",
+    "price": 999,
+    "duration": "2 hrs",
+    "kind": "Furniture assembly"
+   },
+   {
+    "id": "carp-assembly-4",
+    "name": "Study table assembly",
+    "price": 349,
+    "duration": "45 min",
+    "kind": "Furniture assembly"
+   },
+   {
+    "id": "carp-assembly-5",
+    "name": "Coffee table assembly",
+    "price": 249,
+    "duration": "45 min",
+    "kind": "Furniture assembly"
+   },
+   {
+    "id": "carp-assembly-6",
+    "name": "Cabinet assembly",
+    "price": 399,
+    "duration": "1 hr",
+    "kind": "Furniture assembly"
+   },
+   {
+    "id": "carp-assembly-7",
+    "name": "Shoe rack assembly",
+    "price": 249,
+    "duration": "45 min",
+    "kind": "Furniture assembly"
+   },
+   {
+    "id": "carp-kitchen-1",
+    "name": "Combo for kitchen fittings",
+    "price": 349,
+    "mrp": 419,
+    "duration": "1.5 hrs",
+    "kind": "Kitchen fittings"
+   },
+   {
+    "id": "carp-kitchen-2",
+    "name": "Drawer & cabinet",
+    "price": 249,
+    "duration": "1 hr",
+    "kind": "Kitchen fittings"
+   },
+   {
+    "id": "carp-kitchen-3",
+    "name": "Utensil rack installation",
+    "price": 149,
+    "duration": "30 min",
+    "kind": "Kitchen fittings"
+   },
+   {
+    "id": "carp-kitchen-4",
+    "name": "Shelf installation",
+    "price": 119,
+    "duration": "30 min",
+    "kind": "Kitchen fittings"
+   },
+   {
+    "id": "carp-bath-1",
+    "name": "Combo for bath fittings",
+    "price": 299,
+    "mrp": 359,
+    "duration": "1 hr",
+    "kind": "Bath fittings & mirrors"
+   },
+   {
+    "id": "carp-bath-2",
+    "name": "Bathroom mirror cabinet installation",
+    "price": 249,
+    "duration": "1 hr",
+    "kind": "Bath fittings & mirrors"
+   },
+   {
+    "id": "carp-bath-3",
+    "name": "Bath accessories installation",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Bath fittings & mirrors"
+   },
+   {
+    "id": "carp-bath-4",
+    "name": "Shelf installation",
+    "price": 119,
+    "duration": "30 min",
+    "kind": "Bath fittings & mirrors"
+   },
+   {
+    "id": "carp-balcony-1",
+    "name": "Clothes hanger installation",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Balcony fittings"
+   },
+   {
+    "id": "carp-balcony-2",
+    "name": "Cloth drying rope installation",
+    "price": 99,
+    "duration": "30 min",
+    "kind": "Balcony fittings"
+   },
+   {
+    "id": "carp-balcony-3",
+    "name": "Ceiling hook installation",
+    "price": 99,
+    "duration": "20 min",
+    "kind": "Balcony fittings"
+   },
+   {
+    "id": "carp-consult-1",
+    "name": "Book a carpenter",
+    "price": 49,
+    "duration": "30 min",
+    "kind": "At home consultation"
+   }
+  ]
+ },
+ {
+  "slug": "insta-help",
+  "label": "Instant Help",
+  "packages": [
+   {
+    "id": "ih-hourly-1",
+    "name": "1 hour of help",
+    "price": 199,
+    "duration": "1 hr",
+    "kind": "Hourly help"
+   },
+   {
+    "id": "ih-hourly-2",
+    "name": "2 hours of help",
+    "price": 379,
+    "mrp": 398,
+    "duration": "2 hrs",
+    "kind": "Hourly help"
+   },
+   {
+    "id": "ih-hourly-3",
+    "name": "3 hours of help",
+    "price": 549,
+    "mrp": 597,
+    "duration": "3 hrs",
+    "kind": "Hourly help"
+   },
+   {
+    "id": "ih-tasks-1",
+    "name": "Dishwashing",
+    "price": 149,
+    "duration": "45 min",
+    "kind": "Quick tasks"
+   },
+   {
+    "id": "ih-tasks-2",
+    "name": "Laundry & folding",
+    "price": 179,
+    "duration": "1 hr",
+    "kind": "Quick tasks"
+   },
+   {
+    "id": "ih-tasks-3",
+    "name": "Kitchen prep",
+    "price": 199,
+    "duration": "1 hr",
+    "kind": "Quick tasks"
+   },
+   {
+    "id": "ih-tasks-4",
+    "name": "Dusting & tidying",
+    "price": 169,
+    "duration": "1 hr",
+    "kind": "Quick tasks"
+   }
+  ]
+ },
+ {
+  "slug": "furniture-assembly",
+  "label": "Furniture Assembly",
+  "packages": [
+   {
+    "id": "fa-assemble-1",
+    "name": "Bed assembly",
+    "price": 699,
+    "duration": "1.5 hrs",
+    "kind": "Assembly"
+   },
+   {
+    "id": "fa-assemble-2",
+    "name": "Wardrobe assembly",
+    "price": 899,
+    "duration": "2 hrs",
+    "kind": "Assembly"
+   },
+   {
+    "id": "fa-assemble-3",
+    "name": "Table / desk assembly",
+    "price": 399,
+    "duration": "1 hr",
+    "kind": "Assembly"
+   },
+   {
+    "id": "fa-assemble-4",
+    "name": "Chair / stool assembly",
+    "price": 149,
+    "duration": "20 min",
+    "kind": "Assembly"
+   },
+   {
+    "id": "fa-dismantle-1",
+    "name": "Bed dismantling",
+    "price": 499,
+    "duration": "1 hr",
+    "kind": "Dismantling"
+   },
+   {
+    "id": "fa-dismantle-2",
+    "name": "Wardrobe dismantling",
+    "price": 599,
+    "duration": "1.5 hrs",
+    "kind": "Dismantling"
+   }
+  ]
+ },
+ {
+  "slug": "flatpack-assembly",
+  "label": "Flat-pack Furniture Assembly",
+  "packages": [
+   {
+    "id": "fp-flatpack-1",
+    "name": "Flat-pack bed",
+    "price": 649,
+    "duration": "1.5 hrs",
+    "kind": "Flat-pack assembly"
+   },
+   {
+    "id": "fp-flatpack-2",
+    "name": "Flat-pack wardrobe",
+    "price": 849,
+    "duration": "2 hrs",
+    "kind": "Flat-pack assembly"
+   },
+   {
+    "id": "fp-flatpack-3",
+    "name": "Flat-pack chest of drawers",
+    "price": 449,
+    "duration": "1 hr",
+    "kind": "Flat-pack assembly"
+   },
+   {
+    "id": "fp-flatpack-4",
+    "name": "Flat-pack bookshelf",
+    "price": 299,
+    "duration": "45 min",
+    "kind": "Flat-pack assembly"
+   }
+  ]
+ },
+ {
+  "slug": "tile-grouting",
+  "label": "Tile Grouting",
+  "packages": [
+   {
+    "id": "tg-grout-1",
+    "name": "Bathroom floor grouting",
+    "price": 899,
+    "duration": "2 hrs",
+    "kind": "Tile grouting"
+   },
+   {
+    "id": "tg-grout-2",
+    "name": "Bathroom wall & floor grouting",
+    "price": 1799,
+    "duration": "4 hrs",
+    "kind": "Tile grouting"
+   },
+   {
+    "id": "tg-grout-3",
+    "name": "Kitchen backsplash grouting",
+    "price": 999,
+    "duration": "2.5 hrs",
+    "kind": "Tile grouting"
+   },
+   {
+    "id": "tg-grout-4",
+    "name": "Floor grouting (per 100 sq ft)",
+    "price": 699,
+    "duration": "2 hrs",
+    "kind": "Tile grouting"
+   }
+  ]
+ },
+ {
+  "slug": "festive-lights",
+  "label": "Festive Lights Installation",
+  "packages": [
+   {
+    "id": "fl-festive-1",
+    "name": "Light installation (per string)",
+    "price": 49,
+    "duration": "15 min",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "fl-festive-2",
+    "name": "Light uninstallation (per light)",
+    "price": 29,
+    "duration": "10 min",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "fl-festive-3",
+    "name": "Balcony lights installation (starry)",
+    "price": 399,
+    "duration": "1 hr",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "fl-festive-4",
+    "name": "Balcony lights installation (string)",
+    "price": 299,
+    "duration": "1 hr",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "fl-festive-5",
+    "name": "Railing lights installation (rope)",
+    "price": 349,
+    "duration": "1 hr",
+    "kind": "Festive lights"
+   },
+   {
+    "id": "fl-festive-6",
+    "name": "Railing lights installation (string)",
+    "price": 249,
+    "duration": "45 min",
+    "kind": "Festive lights"
+   }
+  ]
+ },
+ {
+  "slug": "wall-panels",
+  "label": "Wall Panels",
+  "packages": [
+   {
+    "id": "wp-panels-1",
+    "name": "Fluted panels (per 10 sq ft)",
+    "price": 1499,
+    "duration": "1 day",
+    "kind": "Wall panels"
+   },
+   {
+    "id": "wp-panels-2",
+    "name": "Louvre panels (per 10 sq ft)",
+    "price": 1299,
+    "duration": "1 day",
+    "kind": "Wall panels"
+   },
+   {
+    "id": "wp-panels-3",
+    "name": "Marble-finish sheets (per 10 sq ft)",
+    "price": 1799,
+    "duration": "1 day",
+    "kind": "Wall panels"
+   },
+   {
+    "id": "wp-consult-1",
+    "name": "Wall panel design consultation",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Design consultation"
+   }
+  ]
+ },
+ {
+  "slug": "painting",
+  "label": "Painting & Waterproofing",
+  "packages": [
+   {
+    "id": "paint-visit",
+    "name": "Wall painting consultation",
+    "price": 199,
+    "duration": "45 min",
+    "kind": "Painting"
+   },
+   {
+    "id": "paint-room",
+    "name": "1 room repaint (up to 120 sq ft)",
+    "price": 4999,
+    "mrp": 5999,
+    "duration": "2 days",
+    "kind": "Painting"
+   },
+   {
+    "id": "paint-water",
+    "name": "Terrace waterproofing",
+    "price": 8999,
+    "duration": "2 days",
+    "kind": "Waterproofing"
+   }
+  ]
+ }
+]

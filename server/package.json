@@ -1,24 +1,37 @@
 {
-  "name": "server",
+  "name": "servify-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Servify API: accounts, sessions and Google sign-in",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test --test-concurrency=1",
+    "seed": "node scripts/seed.js",
+    "ai-check": "node scripts/ai-check.js",
+    "gemini-models": "node scripts/gemini-models.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "google-auth-library": "^11.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20"
   }
 }
