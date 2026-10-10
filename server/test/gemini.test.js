@@ -37,13 +37,13 @@ test("the schema is converted to Gemini's format", () => {
 
 test("a request carries the key, the photo, the prompt and the schema, and thoughts are skipped", async () => {
   const fetch = fakeFetch(200, answer(ASSIST, [{ text: "thinking about taps…", thought: true }]));
-  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "free-key", model: "gemini-2.5-flash", fetch }) });
+  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "free-key", model: "gemini-3.8-flash", fetch }) });
   const r = await ai.assist({ text: "tap leaking", image: PHOTO });
   assert.equal(r.service.slug, "plumber");
   assert.equal(r.items[0].id, "plumb-tap-2");
 
   const [call] = fetch.calls;
-  assert.match(call.url, /\/v1beta\/models\/gemini-2\.5-flash:generateContent$/);
+  assert.match(call.url, /\/v1beta\/models\/gemini-3\.8-flash:generateContent$/);
   assert.equal(call.headers["x-goog-api-key"], "free-key");
   assert.match(call.body.systemInstruction.parts[0].text, /booking assistant for Servify/);
   assert.deepEqual(call.body.contents[0].parts[0], { inlineData: { mimeType: "image/jpeg", data: "QUJD" } });
@@ -54,10 +54,10 @@ test("a request carries the key, the photo, the prompt and the schema, and thoug
 
 test("the parts check can use its own model", async () => {
   const fetch = fakeFetch(200, answer({ identified: true, partName: "6A MCB", description: "Breaker.", fairLow: 150, fairHigh: 400, confidence: "high", notes: "" }));
-  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", model: "gemini-2.5-flash", partsModel: "gemini-2.5-pro", fetch }) });
+  const ai = aiAssistant({ backend: geminiBackend({ apiKey: "k", model: "gemini-3.8-flash", partsModel: "gemini-3.8-pro", fetch }) });
   const p = await ai.priceParts({ image: PHOTO, note: "", job: "Electrician" });
   assert.equal(p.name, "6A MCB");
-  assert.match(fetch.calls[0].url, /gemini-2\.5-pro:generateContent/);
+  assert.match(fetch.calls[0].url, /gemini-3\.8-pro:generateContent/);
 });
 
 test("out of free quota: the basic assistant answers instead", async () => {
@@ -74,8 +74,14 @@ test("out of free quota: the basic assistant answers instead", async () => {
 });
 
 test("set-up mistakes and blocked answers", async () => {
-  const wrongModel = geminiBackend({ apiKey: "k", model: "gemini-9", fetch: fakeFetch(404, { error: { message: "not found" } }) });
+  const retired = "This model models/gemini-9 is no longer available to new users. Please update your code to use models/gemini-10-flash.";
+  const wrongModel = geminiBackend({ apiKey: "k", model: "gemini-9", fetch: fakeFetch(404, { error: { message: retired } }) });
+  const logged = [];
+  const realError = console.error;
+  console.error = (line) => logged.push(line);
   await assert.rejects(wrongModel.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.fallback && e.reason === "setup" && /GEMINI_MODEL/.test(e.message));
+  console.error = realError;
+  assert.ok(logged.some((line) => line.includes("GEMINI_MODEL=gemini-10-flash")), "suggests the replacement model");
   const badKey = geminiBackend({ apiKey: "k", fetch: fakeFetch(403, { error: { message: "denied" } }) });
   await assert.rejects(badKey.json({ kind: "assist", system: "s", text: "t", schema: ASSIST_SCHEMA }), (e) => e.fallback && /GEMINI_API_KEY/.test(e.message));
   const blocked = geminiBackend({ apiKey: "k", fetch: fakeFetch(200, { promptFeedback: { blockReason: "SAFETY" } }) });

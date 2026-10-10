@@ -26,7 +26,7 @@ const failed = (status, message, reason) => Object.assign(httpError(status, mess
  * free AI Studio key. Errors worth falling back from (quota, outage, setup)
  * are marked `fallback`.
  */
-function geminiBackend({ apiKey, model = "gemini-2.5-flash", partsModel, fetch: doFetch = fetch, timeoutMs = 60000 }) {
+function geminiBackend({ apiKey, model = "gemini-3.8-flash", partsModel, fetch: doFetch = fetch, timeoutMs = 60000 }) {
   return {
     name: "gemini",
     async json({ kind, system, image, text, schema }) {
@@ -57,7 +57,12 @@ function geminiBackend({ apiKey, model = "gemini-2.5-flash", partsModel, fetch: 
         const why = data?.error?.message || res.statusText;
         console.error(`Gemini (${m}) answered ${res.status}: ${why}`);
         if (res.status === 429) throw failed(503, "The AI assistant has reached its limit for now. Please try again later.", "limit");
-        if (res.status === 404) throw failed(502, `The AI model "${m}" wasn't found. Check GEMINI_MODEL in server/.env.`, "setup");
+        if (res.status === 404) {
+          // Google names the replacement when it retires a model ("…use models/gemini-x-flash…").
+          const suggested = [...why.matchAll(/models\/([\w.-]+)/g)].map((x) => x[1]).find((name) => name !== m);
+          if (suggested) console.error(`→ Put GEMINI_MODEL=${suggested} in server/.env and restart the server.`);
+          throw failed(502, `The AI model "${m}" wasn't found. Check GEMINI_MODEL in server/.env.`, "setup");
+        }
         if (res.status === 400 || res.status === 401 || res.status === 403) {
           throw failed(502, "The AI assistant isn't set up correctly on this server. Check GEMINI_API_KEY and GEMINI_MODEL.", "setup");
         }

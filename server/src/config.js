@@ -34,7 +34,7 @@ module.exports = {
   aiPartsModel: env.AI_PARTS_MODEL || "claude-opus-5-5",
   // Google's Gemini, which has a free tier. Used ahead of Claude when its key is set.
   geminiApiKey: env.GEMINI_API_KEY || "",
-  geminiModel: env.GEMINI_MODEL || "gemini-2.5-flash",
+  geminiModel: env.GEMINI_MODEL || "gemini-3.8-flash",
   geminiPartsModel: env.GEMINI_PARTS_MODEL || "",
   // "gemini", "claude" or "basic" (free keyword matching). Unset: picked from the keys present.
   aiProvider: ["gemini", "claude", "basic"].includes(env.AI_PROVIDER) ? env.AI_PROVIDER : "",

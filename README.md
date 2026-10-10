@@ -154,7 +154,7 @@ Two features use an AI model, and you choose which one in `server/.env`:
 
 | Provider | Setting | Cost | Notes |
 |---|---|---|---|
-| **Gemini** (Google) | `GEMINI_API_KEY`, `GEMINI_MODEL` (default `gemini-2.5-flash`) | Free tier with daily limits | Get a key at aistudio.google.com → Get API key. On the free tier Google may use what's sent to improve its products. |
+| **Gemini** (Google) | `GEMINI_API_KEY`, `GEMINI_MODEL` (default `gemini-3.8-flash`) | Free tier with daily limits | Get a key at aistudio.google.com → Get API key. On the free tier Google may use what's sent to improve its products. |
 | **Claude** (Anthropic) | `ANTHROPIC_API_KEY`, `AI_MODEL` (default `claude-haiku-5-5`), `AI_PARTS_MODEL` (default `claude-opus-5-5`) | Pay as you go | Also checks new professionals' ID photos. |
 | **Basic mode** | none | Free | Keyword matching in English, Telugu, Hindi and Urdu, plus a price list of common parts. Can't read photos. |
 
