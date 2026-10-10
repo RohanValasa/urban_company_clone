@@ -150,8 +150,18 @@ Notes:
 
 ### AI features (Claude)
 
-Three features use Claude (`claude-opus-5-5`) through the Anthropic SDK. They
-need `ANTHROPIC_API_KEY` in `server/.env`; without it they show as switched off.
+Three features use Claude through the Anthropic SDK. They need
+`ANTHROPIC_API_KEY` in `server/.env`; without it they show as switched off.
+
+Which model each feature uses is a setting in `server/.env`:
+
+| Setting | Default | Used for |
+|---|---|---|
+| `AI_MODEL` | `claude-haiku-5-5` | Ask Servify AI. Cheap and quick, fine for most problems. |
+| `AI_PARTS_MODEL` | `claude-opus-5-5` | Spare-part price check. Needs more knowledge, and is used less often. |
+
+Set `AI_MODEL=claude-opus-5-5` for the most accurate photo diagnosis, at about
+40 times the cost. The ID check for new professionals always uses Opus.
 
 1. **Ask Servify AI** (`/ask`, and the shortcut on the home page). The customer
    types, speaks or photographs the problem. Typing and speaking work in

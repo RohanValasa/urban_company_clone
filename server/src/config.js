@@ -28,6 +28,10 @@ module.exports = {
   // Claude checks ID photos when an Anthropic credential is available.
   hasAnthropicKey: Boolean(env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN),
   aiRateLimit: Number(env.AI_RATE_LIMIT) || 30,
+  // Haiku is cheap and quick for the booking assistant; the parts price check
+  // is rarer and needs more knowledge, so it uses Opus.
+  aiModel: env.AI_MODEL || "claude-haiku-5-5",
+  aiPartsModel: env.AI_PARTS_MODEL || "claude-opus-5-5",
   fieldKey: env.FIELD_KEY || "",
   clientOrigins: (env.CLIENT_ORIGIN || "http://localhost:5173").split(",").map((o) => o.trim()),
   authRateLimit: Number(env.AUTH_RATE_LIMIT) || 20,

@@ -3,9 +3,11 @@ const CATALOG = require("../data/catalog.json");
 const { httpError } = require("./http");
 const { slotAt, nowInIndia, todayInIndia } = require("./slots");
 
-const MODEL = "claude-opus-5-5";
-// Refusals are rare here, but when one happens the API retries on a fallback model.
-const FALLBACK = { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" };
+// Refusals are rare here, but when one happens the API can retry on a fallback
+// model. Only these models accept that option (Haiku doesn't).
+const FALLBACK_MODELS = ["claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"];
+const fallbackFor = (model) =>
+  FALLBACK_MODELS.includes(model) ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" } : {};
 
 const SERVICE = new Map(CATALOG.map((s) => [s.slug, s]));
 const PACKAGE = new Map(CATALOG.flatMap((s) => s.packages.map((p) => [p.id, { ...p, service: s }])));
@@ -124,7 +126,7 @@ function apiError(err) {
  * Claude-powered helpers. Without an Anthropic key they are switched off and
  * the routes answer 503, since there's no sensible offline stand-in.
  */
-function aiAssistant({ hasCredentials, client }) {
+function aiAssistant({ hasCredentials, client, model = "claude-haiku-5-5", partsModel = "claude-opus-5-5" }) {
   if (!hasCredentials && !client) {
     const off = async () => {
       throw httpError(503, "AI features are off on this server. Add ANTHROPIC_API_KEY to server/.env to turn them on.");
@@ -150,9 +152,9 @@ function aiAssistant({ hasCredentials, client }) {
     let answer;
     try {
       const response = await anthropic.beta.messages.create({
-        model: MODEL,
+        model,
         max_tokens: 16000,
-        ...FALLBACK,
+        ...fallbackFor(model),
         output_config: { effort: "low", format: { type: "json_schema", schema: ASSIST_SCHEMA } },
         // The catalogue is the same on every call, so it's cached.
         system: [{ type: "text", text: ASSIST_SYSTEM, cache_control: { type: "ephemeral" } }],
@@ -205,9 +207,9 @@ function aiAssistant({ hasCredentials, client }) {
     let answer;
     try {
       const response = await anthropic.beta.messages.create({
-        model: MODEL,
+        model: partsModel,
         max_tokens: 16000,
-        ...FALLBACK,
+        ...fallbackFor(partsModel),
         output_config: { effort: "medium", format: { type: "json_schema", schema: PARTS_SCHEMA } },
         system: PARTS_SYSTEM,
         messages: [

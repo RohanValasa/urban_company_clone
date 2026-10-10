@@ -94,7 +94,10 @@ test("a photo and Telugu text become catalogue packages at catalogue prices, wit
   assert.equal(out.slotUnavailable, false);
 
   const sent = claude.requests[0];
-  assert.equal(sent.model, "claude-opus-5-5");
+  // The assistant runs on Haiku, which takes no fallback option.
+  assert.equal(sent.model, "claude-haiku-5-5");
+  assert.equal(sent.fallbacks, undefined);
+  assert.equal(sent.betas, undefined);
   assert.equal(sent.output_config.format.type, "json_schema");
   assert.equal(sent.system[0].cache_control.type, "ephemeral");
   assert.match(sent.system[0].text, /plumb/);
@@ -166,6 +169,9 @@ test("a spare part: AI fair price, customer approval, and it's added to what's c
   assert.equal(part.verdict, "high"); // 320 is more than 25% over 250
   assert.equal(part.status, "pending");
   assert.match(claude.requests[0].messages[0].content[1].text, /<technician_note>half-turn spindle/);
+  // The price check runs on Opus, with the refusal fallback.
+  assert.equal(claude.requests[0].model, "claude-opus-5-5");
+  assert.equal(claude.requests[0].fallbacks, "default");
 
   // Can't finish while the customer hasn't answered; only the customer can answer.
   assert.equal((await ravi("POST", `/pro/jobs/${id}/complete`, {})).status, 409);

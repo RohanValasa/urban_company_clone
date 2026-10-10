@@ -28,7 +28,7 @@ function createApp(
   {
     verifyGoogle = googleVerifier(config.googleClientId),
     checkId = idChecker({ hasCredentials: config.hasAnthropicKey, isProd: config.isProd }),
-    ai = aiAssistant({ hasCredentials: config.hasAnthropicKey }),
+    ai = aiAssistant({ hasCredentials: config.hasAnthropicKey, model: config.aiModel, partsModel: config.aiPartsModel }),
     sendSms = smsSender(),
   } = {}
 ) {
