@@ -1,5 +1,6 @@
 // Fills the database with demo accounts for trying Servify end to end:
-// 50 customers and 100 approved professionals spread across Hyderabad.
+// 50 customers and 100 approved professionals, mostly in Hyderabad and the rest
+// in towns across Telangana.
 //
 //   npm run seed
 //

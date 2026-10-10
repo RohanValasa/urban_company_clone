@@ -197,6 +197,14 @@ Notes:
   `client/src/data/services.js`, run `npm run catalog` in `client/` to
   regenerate it; a server test fails while the two disagree.
 
+**Trying it with your key:** `npm run ai-check` in `server/` sends 12 typical
+requests through the assistant and reports, for each, whether the answer was
+right, how long it took and roughly what it cost. They are in English, Telugu,
+Hindi and Urdu, and include a safety case, a vague one and a trick one. Add a
+folder of photos to try those too: `npm run ai-check -- C:\path\to\photos`.
+Photos named `part…` go to the parts price check. A run costs a few rupees on
+Haiku.
+
 API: `POST /api/ai/assist` (`{ text?, image? }`), `POST /api/pro/jobs/:id/parts`
 (`{ image, quoted, note? }`) and `POST /api/bookings/:id/parts/:partId`
 (`{ decision: "approve" | "decline" }`).
