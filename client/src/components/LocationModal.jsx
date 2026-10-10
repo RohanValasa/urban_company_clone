@@ -153,7 +153,7 @@ function Picker({ onClose, onPick }) {
         {status === "done" && results.length === 0 && (
           <p className="loc-empty">No places in Telangana match “{query.trim()}”.</p>
         )}
-        {status === "idle" && <p className="loc-empty">We serve all of Telangana. Search for your town or area.</p>}
+        {status === "idle" && <p className="loc-empty">We currently serve Telangana only.</p>}
         <ul>
           {results.map((r, i) => (
             <motion.li key={r.id} custom={i} variants={row} initial="hidden" animate="show">
