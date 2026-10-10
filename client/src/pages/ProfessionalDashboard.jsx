@@ -10,6 +10,7 @@ import { api } from "../lib/api";
 import { getConfig } from "../lib/config";
 import { addressLine, rupees } from "../lib/format";
 import { formatSlot } from "../lib/slots";
+import { compressImage } from "../lib/image";
 
 const STATUS_LABEL = {
   assigned: "Accepted",
@@ -23,7 +24,104 @@ const ACTIVE = ["assigned", "on-the-way", "arrived", "in-progress"];
 const CELEBRATE_MS = 2200;
 
 const services = (items) => items.map((i) => (i.qty > 1 ? `${i.name} × ${i.qty}` : i.name)).join(", ");
-const payoutOf = (job) => job.bill.total - job.bill.taxesAndFee;
+// What the professional keeps: the service minus Servify's taxes and fee, plus parts they fitted.
+const payoutOf = (job) => job.bill.total - job.bill.taxesAndFee + (job.partsTotal || 0);
+
+const VERDICT_LABEL = { fair: "Fair price", "slightly-high": "A little high", high: "High" };
+const PART_STATUS = { pending: "Waiting for the customer", approved: "Approved", declined: "Declined" };
+
+/** Photograph a part, enter your price; the AI shows the customer a fair range to approve against. */
+function PartCheck({ job, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [note, setNote] = useState("");
+  const [quoted, setQuoted] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const pick = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      setPhoto(await compressImage(file, 1280, 0.82));
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await api(`/pro/jobs/${job.id}/parts`, {
+        method: "POST",
+        body: { image: { mediaType: photo.mediaType, data: photo.data }, note, quoted: Number(quoted) },
+      });
+      setPhoto(null);
+      setNote("");
+      setQuoted("");
+      setOpen(false);
+      onChange();
+    } catch (err) {
+      setError(err.message);
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="part-check">
+      {job.parts.length > 0 && (
+        <ul className="part-list">
+          {job.parts.map((p) => (
+            <li key={p.id} className={`is-${p.status}`}>
+              <div>
+                <strong>🔩 {p.name}</strong>
+                <span>
+                  Your price ₹{p.quoted.toLocaleString("en-IN")} · usual ₹{p.fairLow.toLocaleString("en-IN")}–₹{p.fairHigh.toLocaleString("en-IN")} ·{" "}
+                  {VERDICT_LABEL[p.verdict]}
+                </span>
+              </div>
+              <span className={`part-pill is-${p.status}`}>{PART_STATUS[p.status]}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {!open ? (
+        <button type="button" className="btn-ghost" onClick={() => setOpen(true)}>🔩 Needs a spare part? Check a fair price</button>
+      ) : (
+        <form className="part-form" onSubmit={submit}>
+          <p className="co-hint">
+            Take a photo of the part (the old one is fine) and enter your price. The AI shows the customer the usual price in
+            Telangana, and they approve it before you fit it.
+          </p>
+          <label className="ask-photo-btn">
+            <input type="file" accept="image/*" capture="environment" onChange={pick} />
+            📷 {photo ? "Retake photo" : "Photo of the part"}
+          </label>
+          {photo && <img className="part-preview" src={photo.preview} alt="The part" />}
+          <div className="part-fields">
+            <label>
+              What is it? <em>(optional)</em>
+              <input value={note} maxLength={200} onChange={(e) => setNote(e.target.value)} placeholder="e.g. 6A MCB, tap spindle" />
+            </label>
+            <label>
+              Your price (₹)
+              <input inputMode="numeric" value={quoted} onChange={(e) => setQuoted(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="300" />
+            </label>
+          </div>
+          {error && <p className="auth-error">{error}</p>}
+          <div className="part-actions">
+            <button className="btn" disabled={!photo || !quoted || busy}>{busy ? "Checking the price…" : "Check price & send to customer"}</button>
+            <button type="button" className="btn-ghost" onClick={() => setOpen(false)} disabled={busy}>Cancel</button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
 
 /** Seconds left on an offer, ticking down. */
 function Countdown({ until }) {
@@ -69,8 +167,15 @@ function OtpEntry({ onSubmit, busy }) {
 /** Closing a job: collect what's owed (cash or a UPI QR), unless it was paid at booking. */
 function Settle({ job, upi, busy, onDone }) {
   const [showQr, setShowQr] = useState(false);
-  const prepaid = job.payment.status !== "due";
-  if (prepaid) {
+  const due = job.amountDue;
+  if (job.parts.some((p) => p.status === "pending")) {
+    return (
+      <div className="settle">
+        <p className="settle-wait">⏳ Waiting for {job.customerName || "the customer"} to approve or decline the spare part on their phone.</p>
+      </div>
+    );
+  }
+  if (due === 0) {
     return (
       <div className="settle">
         <p className="settle-paid">✓ Paid by UPI when booking. Nothing to collect.</p>
@@ -83,14 +188,19 @@ function Settle({ job, upi, busy, onDone }) {
   return (
     <div className="settle">
       <p className="settle-due">
-        Collect <strong>{rupees(job.bill.total)}</strong> from {job.customerName || "the customer"}
+        Collect <strong>{rupees(due)}</strong> from {job.customerName || "the customer"}
+        {job.partsTotal > 0 && (
+          <span className="settle-split">
+            {job.payment.status === "due" ? `Service ${rupees(job.bill.total)} + parts ${rupees(job.partsTotal)}` : `Service paid online · parts ${rupees(job.partsTotal)}`}
+          </span>
+        )}
       </p>
       {upi && (
         <>
           <button className="btn-ghost" onClick={() => setShowQr((v) => !v)}>
             {showQr ? "Hide QR" : "📱 Show UPI QR to customer"}
           </button>
-          {showQr && <UpiQr upi={upi} amount={job.bill.total} note={`Servify job #${job.id.slice(-6).toUpperCase()}`} />}
+          {showQr && <UpiQr upi={upi} amount={due} note={`Servify job #${job.id.slice(-6).toUpperCase()}`} />}
         </>
       )}
       <div className="settle-actions">
@@ -164,7 +274,7 @@ export default function ProfessionalDashboard() {
 
   const complete = (job, collected, how) =>
     act(job.id, async () => {
-      setCelebrate({ amount: job.bill.total, how });
+      setCelebrate({ amount: job.amountDue || job.bill.total, how });
       await new Promise((r) => setTimeout(r, CELEBRATE_MS));
       await api(`/pro/jobs/${job.id}/complete`, { method: "POST", body: collected ? { collected } : {} });
       setCelebrate(null);
@@ -246,6 +356,7 @@ export default function ProfessionalDashboard() {
                       🕘 {formatSlot(o.slot)} · 📍 {o.area}
                       {o.distanceKm != null && ` · ${o.distanceKm} km away`}
                     </span>
+                    {o.note && <p className="job-note" dir="auto">📝 {o.note}</p>}
                   </div>
                   <div className="offer-side">
                     <span className="job-payout">{rupees(o.payout)}</span>
@@ -281,13 +392,14 @@ export default function ProfessionalDashboard() {
                 </div>
                 <div className="job-customer">
                   <span>👤 {j.customerName}</span>
+                  {j.note && <span className="job-note" dir="auto">📝 {j.note}</span>}
                   <span>📍 {addressLine(j.address)}</span>
                   <span>
                     📞 <a href={`tel:+91${j.phone}`}>+91 {j.phone}</a>
                     {j.avoidCalling && <em> · prefers no call before arrival</em>}
                   </span>
                   <span>
-                    💳 {j.payment.status === "due" ? `Collect ${rupees(j.bill.total)} at the end` : "Paid by UPI"} · you earn{" "}
+                    💳 {j.amountDue > 0 ? `Collect ${rupees(j.amountDue)} at the end` : "Paid by UPI"} · you earn{" "}
                     <strong>{rupees(payoutOf(j))}</strong>
                   </span>
                 </div>
@@ -320,7 +432,10 @@ export default function ProfessionalDashboard() {
                   />
                 )}
                 {j.status === "in-progress" && (
-                  <Settle job={j} upi={upi} busy={busy === j.id} onDone={(collected, how) => complete(j, collected, how)} />
+                  <>
+                    <PartCheck job={j} onChange={load} />
+                    <Settle job={j} upi={upi} busy={busy === j.id} onDone={(collected, how) => complete(j, collected, how)} />
+                  </>
                 )}
               </li>
             ))}

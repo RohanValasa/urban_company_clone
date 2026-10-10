@@ -18,6 +18,44 @@ const STEPS = [
 ];
 const CANCELLABLE = ["searching", "unassigned", "assigned"];
 
+const VERDICT = {
+  fair: { label: "Fair price", tone: "fair" },
+  "slightly-high": { label: "A little above the usual price", tone: "warn" },
+  high: { label: "Well above the usual price", tone: "high" },
+};
+
+/** A spare part the professional wants to fit, with the AI's fair price range. */
+function PartCard({ part, busy, onDecide }) {
+  const verdict = VERDICT[part.verdict];
+  return (
+    <div className={`part-card is-${part.status}`}>
+      <div className="part-top">
+        <div>
+          <strong>🔩 {part.name}</strong>
+          {part.description && <span>{part.description}</span>}
+        </div>
+        <span className="part-quote">₹{part.quoted.toLocaleString("en-IN")}</span>
+      </div>
+      <div className="part-fair">
+        <span>
+          Usual price in Telangana: <strong>₹{part.fairLow.toLocaleString("en-IN")}–₹{part.fairHigh.toLocaleString("en-IN")}</strong>
+        </span>
+        <span className={`part-verdict is-${verdict.tone}`}>{verdict.label}</span>
+      </div>
+      {part.notes && <p className="part-notes">{part.notes}</p>}
+      <p className="part-ai">AI estimate from the professional's photo{part.confidence === "low" ? " (not very sure)" : ""}. Ask them if anything looks off.</p>
+      {part.status === "pending" ? (
+        <div className="part-actions">
+          <button className="btn" disabled={busy} onClick={() => onDecide("approve")}>Approve ₹{part.quoted.toLocaleString("en-IN")}</button>
+          <button className="btn-ghost" disabled={busy} onClick={() => onDecide("decline")}>Decline</button>
+        </div>
+      ) : (
+        <p className={`part-status is-${part.status}`}>{part.status === "approved" ? "✓ You approved this part" : "✕ You declined this part"}</p>
+      )}
+    </div>
+  );
+}
+
 /** Seconds until `at`, ticking; 0 once it's passed. */
 function useSecondsUntil(at) {
   const [now, setNow] = useState(() => Date.now());
@@ -60,7 +98,7 @@ function headline(b, eta) {
     case "arrived":
       return { title: `${name} has arrived`, sub: "Share the start code below with them so they can begin." };
     case "in-progress":
-      return { title: `${name} is working on it`, sub: b.payment.status === "due" ? `Pay ${rupees(b.bill.total)} by cash or UPI when the job is done.` : "Already paid — sit back and relax." };
+      return { title: `${name} is working on it`, sub: b.amountDue > 0 ? `Pay ${rupees(b.amountDue)} by cash or UPI when the job is done.` : "Already paid — sit back and relax." };
     case "completed":
       return { title: "Service completed", sub: "Thanks for booking with Servify!" };
     default:
@@ -75,11 +113,11 @@ export default function Track() {
   const [error, setError] = useState("");
   const retryIn = useSecondsUntil(b?.status === "unassigned" ? b.dispatch?.retryAt : null);
 
-  const act = async (path) => {
+  const act = async (path, body) => {
     setBusy(true);
     setError("");
     try {
-      const res = await api(`/bookings/${id}/${path}`, { method: "POST" });
+      const res = await api(`/bookings/${id}/${path}`, { method: "POST", body });
       setBooking(res.booking);
     } catch (err) {
       setError(err.message);
@@ -154,6 +192,15 @@ export default function Track() {
             </motion.div>
           )}
 
+          {b.parts?.length > 0 && (
+            <section className="parts">
+              <h2>Spare parts</h2>
+              {b.parts.map((p) => (
+                <PartCard key={p.id} part={p} busy={busy} onDecide={(decision) => act(`parts/${p.id}`, { decision })} />
+              ))}
+            </section>
+          )}
+
           {error && <p className="auth-error">{error}</p>}
 
           {home && <LiveMap home={home} pro={moving ? { lat: b.tracking.lat, lng: b.tracking.lng } : null} className="track-map" />}
@@ -216,9 +263,16 @@ export default function Track() {
             </ul>
             <p>🕘 {formatSlot(b.slot)}</p>
             <p>📍 {addressLine(b.address)}</p>
+            {b.note && <p dir="auto">📝 {b.note}</p>}
             <p>
               💳 {b.payment.status === "paid" ? "Paid" : b.payment.method === "upi" ? "UPI" : "Cash on delivery"} · <strong>{rupees(b.bill.total)}</strong>
             </p>
+            {b.partsTotal > 0 && (
+              <p>
+                🔩 Spare parts · <strong>{rupees(b.partsTotal)}</strong>
+                {b.status !== "completed" && " (pay the professional at the end)"}
+              </p>
+            )}
           </div>
 
           {CANCELLABLE.includes(b.status) && (

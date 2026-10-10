@@ -68,6 +68,7 @@ export default function Nav() {
             {s.label}
           </Link>
         ))}
+        <Link to="/ask" className="nav-ai">✨ Ask AI</Link>
       </div>
 
       <div className="nav-tools" ref={menusRef}>

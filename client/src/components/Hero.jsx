@@ -63,6 +63,14 @@ export default function Hero() {
 
         <SplitHeading text="Home services at your doorstep" className="hero-title" />
 
+        <Link to="/ask" className="hero-ai">
+          <span className="hero-ai-icons" aria-hidden="true">📸 🎙️</span>
+          <span>
+            <strong>Not sure what to book?</strong> Snap a photo or say the problem in Telugu, Hindi, Urdu or English
+          </span>
+          <em aria-hidden="true">→</em>
+        </Link>
+
         <motion.div
           className="tile-card"
           variants={tiles}

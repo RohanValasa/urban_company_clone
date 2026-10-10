@@ -5,6 +5,7 @@ const { httpError, requireUser } = require("../lib/http");
 const { quote } = require("../lib/pricing");
 const { subscribe, openStream } = require("../lib/live");
 const { notify } = require("../lib/notify");
+const { slotInput } = require("../lib/slots");
 
 const PRO_FIELDS = "name phone avatar provider.rating";
 
@@ -18,26 +19,6 @@ async function viewableBooking(id, user) {
   const mine = booking && (booking.user.equals(user._id) || booking.professional?._id.equals(user._id));
   if (!mine) throw httpError(404, "That booking doesn't exist.");
   return booking;
-}
-
-const IST_OFFSET_MIN = 330;
-const FIRST_SLOT = 8 * 60; // 8:00 AM
-const LAST_SLOT = 19 * 60 + 30; // 7:30 PM
-const MIN_LEAD_MS = 60 * 60 * 1000;
-const MAX_AHEAD_MS = 8 * 24 * 60 * 60 * 1000;
-
-/** A start time on the half hour, within opening hours (IST), over an hour away and within a week. */
-function slotInput(raw, now = Date.now()) {
-  const slot = new Date(raw);
-  if (typeof raw !== "string" || Number.isNaN(slot.getTime())) throw new ValidationError("Pick a time slot.");
-  const minutes = (slot.getUTCHours() * 60 + slot.getUTCMinutes() + IST_OFFSET_MIN) % 1440;
-  const onHalfHour = minutes % 30 === 0 && slot.getUTCSeconds() === 0 && slot.getUTCMilliseconds() === 0;
-  if (!onHalfHour || minutes < FIRST_SLOT || minutes > LAST_SLOT) {
-    throw new ValidationError("Slots run every half hour from 8:00 AM to 7:30 PM.");
-  }
-  if (slot.getTime() < now + MIN_LEAD_MS) throw new ValidationError("That slot has passed. Please pick a later one.");
-  if (slot.getTime() > now + MAX_AHEAD_MS) throw new ValidationError("You can book up to a week ahead.");
-  return slot;
 }
 
 async function isFirstBooking(userId) {
@@ -111,6 +92,7 @@ function bookingsRouter({ session, dispatch, retryCooldownMs }) {
       address: address.toPublic(),
       slot,
       avoidCalling: Boolean(body.avoidCalling),
+      note: typeof body.note === "string" ? body.note.trim().slice(0, 500) : "",
       bill,
       payment: { method: body.payment, status: body.payment === "upi" ? "awaiting-confirmation" : "due" },
     });
@@ -139,6 +121,28 @@ function bookingsRouter({ session, dispatch, retryCooldownMs }) {
     await booking.save();
     await dispatch.announce(booking);
     if (pro) notify(pro, { kind: "cancelled", bookingId: booking.id, title: "Job cancelled", body: `${booking.customerName} cancelled the booking.` });
+    res.json({ booking: view(booking, req.user) });
+  });
+
+  // The customer agrees to (or turns down) a spare part the professional proposed.
+  router.post("/:id/parts/:partId", async (req, res) => {
+    const booking = await viewableBooking(req.params.id, req.user);
+    if (!booking.user.equals(req.user._id)) throw httpError(404, "That booking doesn't exist.");
+    const part = booking.parts.id(req.params.partId);
+    if (!part) throw httpError(404, "That part isn't on this booking.");
+    if (!["approve", "decline"].includes(req.body?.decision)) throw new ValidationError("Approve or decline the part.");
+    if (part.status !== "pending") throw httpError(409, `You already ${part.status} this part.`);
+    if (booking.status !== "in-progress") throw httpError(409, "Parts can only be changed while the job is in progress.");
+    part.status = req.body.decision === "approve" ? "approved" : "declined";
+    part.decidedAt = new Date();
+    await booking.save();
+    await dispatch.announce(booking);
+    notify(booking.professional._id, {
+      kind: part.status === "approved" ? "part-approved" : "part-declined",
+      bookingId: booking.id,
+      title: `${booking.customerName} ${part.status} the ${part.name}`,
+      body: part.status === "approved" ? `Add ₹${part.quoted} to what you collect.` : "Carry on without it, or talk to the customer.",
+    });
     res.json({ booking: view(booking, req.user) });
   });
 

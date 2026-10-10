@@ -15,6 +15,9 @@ const ICONS = {
   started: "🧰",
   completed: "✅",
   cancelled: "✖️",
+  part: "🔩",
+  "part-approved": "👍",
+  "part-declined": "✋",
 };
 
 /**

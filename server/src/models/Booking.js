@@ -39,6 +39,23 @@ const bookingSchema = new Schema(
     },
     slot: { type: Date, required: true },
     avoidCalling: { type: Boolean, default: false },
+    // For the professional: what's wrong, in the customer's words or the AI assistant's.
+    note: { type: String, default: "" },
+    // Spare parts the professional proposes at the job, each with the AI's fair price range.
+    parts: [
+      {
+        name: String,
+        description: String,
+        notes: String,
+        fairLow: Number,
+        fairHigh: Number,
+        confidence: { type: String, enum: ["low", "medium", "high"] },
+        quoted: Number,
+        status: { type: String, enum: ["pending", "approved", "declined"], default: "pending" },
+        addedAt: { type: Date, default: Date.now },
+        decidedAt: Date,
+      },
+    ],
     bill: {
       itemTotal: Number,
       mrpTotal: Number,
@@ -84,6 +101,33 @@ const bookingSchema = new Schema(
   { timestamps: true }
 );
 
+/** How a quoted price compares with the fair range: fair, slightly-high (up to 25% over) or high. */
+const verdictOf = (part) =>
+  part.quoted <= part.fairHigh ? "fair" : part.quoted <= part.fairHigh * 1.25 ? "slightly-high" : "high";
+
+const partView = (p) => ({
+  id: p.id,
+  name: p.name,
+  description: p.description,
+  notes: p.notes,
+  fairLow: p.fairLow,
+  fairHigh: p.fairHigh,
+  confidence: p.confidence,
+  quoted: p.quoted,
+  status: p.status,
+  verdict: verdictOf(p),
+});
+
+/** Approved parts, paid to the professional on top of the bill. */
+bookingSchema.methods.partsTotal = function partsTotal() {
+  return (this.parts || []).filter((p) => p.status === "approved").reduce((sum, p) => sum + p.quoted, 0);
+};
+
+/** What the professional collects at the end: the bill if it wasn't paid online, plus approved parts. */
+bookingSchema.methods.amountDue = function amountDue() {
+  return (this.payment.status === "due" ? this.bill.total : 0) + this.partsTotal();
+};
+
 const position = (t) => (t?.lat == null ? null : { lat: t.lat, lng: t.lng, at: t.at });
 
 /** Name and number of the assigned professional, once `professional` is populated. */
@@ -97,10 +141,14 @@ const proCard = (pro) =>
  * only ever shown to the customer.
  */
 bookingSchema.methods.toPublic = function toPublic({ forCustomer = false, retryCooldownMs = 0 } = {}) {
-  const { id, items, phone, address, slot, avoidCalling, bill, payment, status, createdAt, customerName } = this;
+  const { id, items, phone, address, slot, avoidCalling, bill, payment, status, createdAt, customerName, note } = this;
   const d = this.dispatch || {};
   return {
     id, items, phone, address, slot, avoidCalling, bill, status, createdAt, customerName,
+    note: note || "",
+    parts: (this.parts || []).map(partView),
+    partsTotal: this.partsTotal(),
+    amountDue: this.amountDue(),
     payment: { method: payment.method, status: payment.status, collectedAs: payment.collectedAs || null },
     professional: proCard(this.professional),
     tracking: position(this.tracking),
@@ -130,6 +178,7 @@ bookingSchema.methods.toOffer = function toOffer(distanceKm) {
     payout: bill.total - bill.taxesAndFee,
     payment: payment.method,
     area: this.address.area,
+    note: this.note || "",
     location: { lat: this.address.lat, lng: this.address.lng },
     distanceKm: distanceKm == null ? null : Math.round(distanceKm * 10) / 10,
     expiresAt: this.dispatch.offerExpiresAt,

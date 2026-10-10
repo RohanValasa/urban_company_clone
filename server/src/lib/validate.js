@@ -134,4 +134,17 @@ function loginIdentifier(raw) {
   throw new ValidationError("Enter your email or 10-digit phone number.");
 }
 
-module.exports = { ValidationError, signupInput, loginIdentifier, phoneInput, providerInput, str, ROLES, ID_TYPES };
+/** An optional photo sent as { mediaType, data } with base64 data. */
+function imageInput(image, { required = false } = {}) {
+  if (image == null || image === "") {
+    if (required) throw new ValidationError("Add a photo.");
+    return null;
+  }
+  if (!IMAGE_TYPES.includes(image?.mediaType) || typeof image?.data !== "string" || !/^[A-Za-z0-9+/=]+$/.test(image.data)) {
+    throw new ValidationError("Upload the photo as a JPEG, PNG or WebP image.");
+  }
+  if (image.data.length * 0.75 > MAX_IMAGE_BYTES) throw new ValidationError("That photo is too large. Please use one under 4 MB.");
+  return { mediaType: image.mediaType, data: image.data };
+}
+
+module.exports = { ValidationError, signupInput, loginIdentifier, phoneInput, providerInput, imageInput, str, ROLES, ID_TYPES };

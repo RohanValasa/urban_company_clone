@@ -26,7 +26,8 @@ module.exports = {
   // How long a customer waits before asking again when nobody accepted.
   retryCooldownSeconds: Number(env.RETRY_COOLDOWN_SECONDS) || 120,
   // Claude checks ID photos when an Anthropic credential is available.
-  aiIdCheck: Boolean(env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN),
+  hasAnthropicKey: Boolean(env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN),
+  aiRateLimit: Number(env.AI_RATE_LIMIT) || 30,
   fieldKey: env.FIELD_KEY || "",
   clientOrigins: (env.CLIENT_ORIGIN || "http://localhost:5173").split(",").map((o) => o.trim()),
   authRateLimit: Number(env.AUTH_RATE_LIMIT) || 20,

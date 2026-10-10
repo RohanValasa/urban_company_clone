@@ -13,12 +13,13 @@ async function main() {
   app.listen(config.port, () => {
     console.log(`Servify API on http://localhost:${config.port}`);
     if (!config.googleClientId) console.log("GOOGLE_CLIENT_ID is not set, so Google sign-in is off.");
-    if (!config.aiIdCheck) {
+    if (!config.hasAnthropicKey) {
       console.log(
         config.isProd
           ? "No Anthropic API key: new professionals' IDs wait for review."
           : "No Anthropic API key: new professionals' IDs are approved automatically (development only)."
       );
+      console.log("The AI assistant and parts price check are off until ANTHROPIC_API_KEY is set.");
     }
   });
 }

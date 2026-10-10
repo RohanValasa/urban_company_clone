@@ -14,6 +14,7 @@ import SlotSheet from "../components/checkout/SlotSheet";
 import OfferSheet from "../components/checkout/OfferSheet";
 import BillSheet, { BillRows } from "../components/checkout/BillSheet";
 import UpiQr from "../components/checkout/UpiQr";
+import { clearDraft, readDraft } from "../lib/aiDraft";
 
 const TIPS = [50, 75, 100];
 const PAYMENTS = [
@@ -78,7 +79,12 @@ export default function Checkout() {
   const [addingAddress, setAddingAddress] = useState(false);
   const [resumeAddress, setResumeAddress] = useState(false);
 
-  const [slot, setSlot] = useState(null);
+  // The AI assistant may have suggested a time and written a note for the professional.
+  const [slot, setSlot] = useState(() => {
+    const draft = readDraft();
+    return draft?.slot && slotStillOpen(draft.slot) ? draft.slot : null;
+  });
+  const [note, setNote] = useState(() => readDraft()?.note || "");
   const [payment, setPayment] = useState(null);
   const [tip, setTip] = useState(0);
   const [customTip, setCustomTip] = useState("");
@@ -207,10 +213,11 @@ export default function Checkout() {
     try {
       const { booking } = await api("/bookings", {
         method: "POST",
-        body: { items: cartLines, coupon, tip, payment, addressId: address.id, slot, avoidCalling },
+        body: { items: cartLines, coupon, tip, payment, addressId: address.id, slot, avoidCalling, note },
       });
       setPlaced(booking);
       clear();
+      clearDraft();
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setPlaceError(err.message);
@@ -406,6 +413,17 @@ export default function Checkout() {
             <label className="co-check">
               <input type="checkbox" checked={avoidCalling} onChange={(e) => setAvoidCalling(e.target.checked)} />
               Avoid calling before reaching the location
+            </label>
+            <label className="co-note">
+              <span>Note for the professional <em>(optional)</em></span>
+              <textarea
+                dir="auto"
+                rows={2}
+                maxLength={500}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="What's wrong, or anything they should bring"
+              />
             </label>
           </div>
 

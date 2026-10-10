@@ -5,7 +5,7 @@ const { User } = require("../models/User");
 const { httpError, requireUser } = require("../lib/http");
 const { publish } = require("../lib/live");
 const { notify } = require("../lib/notify");
-const { providerInput } = require("../lib/validate");
+const { providerInput, imageInput, ValidationError } = require("../lib/validate");
 const { SKILLS, SKILL_KEYS } = require("../lib/skills");
 const { inTelangana, distanceKm } = require("../lib/geo");
 const { when } = require("../lib/dispatch");
@@ -24,7 +24,7 @@ const firstName = (name) => name.split(" ")[0];
  * Everything a professional does: their profile, going online, answering job
  * offers, and moving a job from "on the way" to "completed".
  */
-function proRouter({ session, dispatch, checkId, sendSms, seal }) {
+function proRouter({ session, dispatch, checkId, sendSms, seal, ai, aiLimiter }) {
   const router = express.Router();
   router.use(requireUser(session));
   router.use((req, res, next) => {
@@ -168,7 +168,10 @@ function proRouter({ session, dispatch, checkId, sendSms, seal }) {
   router.post("/jobs/:id/complete", async (req, res) => {
     const job = await myJob(req);
     if (job.status !== "in-progress") throw httpError(409, "Start the job with the customer's OTP first.");
-    if (job.payment.status === "due") {
+    if (job.parts.some((p) => p.status === "pending")) {
+      throw httpError(409, "The customer hasn't answered about a spare part yet. Ask them to approve or decline it.");
+    }
+    if (job.amountDue() > 0) {
       const collected = req.body?.collected;
       if (!["cash", "upi"].includes(collected)) throw httpError(400, "Collect the payment by cash or UPI before completing.");
       job.payment.collectedAs = collected;
@@ -188,6 +191,31 @@ function proRouter({ session, dispatch, checkId, sendSms, seal }) {
       body: `Thanks for booking with Servify. ${firstName(req.user.name)} marked the job done on ${when(job.completedAt)}.`,
     });
     res.json({ job: job.toPublic() });
+  });
+
+  // A spare part the job needs: the AI checks the photo for a fair price, then
+  // the customer approves or declines the professional's quote.
+  router.post("/jobs/:id/parts", aiLimiter, async (req, res) => {
+    const job = await myJob(req);
+    if (job.status !== "in-progress") throw httpError(409, "Start the job before adding a spare part.");
+    if (job.parts.length >= 10) throw httpError(409, "That's the most parts one job can have.");
+    const image = imageInput(req.body?.image, { required: true });
+    const quoted = Number(req.body?.quoted);
+    if (!Number.isInteger(quoted) || quoted < 1 || quoted > 200000) throw new ValidationError("Enter your price for the part in whole rupees.");
+    const note = typeof req.body?.note === "string" ? req.body.note.trim().slice(0, 200) : "";
+
+    const estimate = await ai.priceParts({ image, note, job: job.items.map((i) => i.name).join(", ") });
+    job.parts.push({ ...estimate, quoted, status: "pending" });
+    await job.save();
+    await dispatch.announce(job);
+    const part = job.parts[job.parts.length - 1];
+    notify(job.user, {
+      kind: "part",
+      bookingId: job.id,
+      title: `${firstName(req.user.name)} needs a ${part.name}: ₹${quoted}`,
+      body: `Fair price is about ₹${part.fairLow}–₹${part.fairHigh}. Approve or decline it on your booking.`,
+    });
+    res.status(201).json({ job: job.toPublic() });
   });
 
   // Sent every few seconds from the professional's phone while they travel.

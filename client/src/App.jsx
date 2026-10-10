@@ -17,6 +17,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { UIProvider } from "./context/UIContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
 import ProOnboarding from "./pages/ProOnboarding";
+import AskAI from "./pages/AskAI";
 import "./App.css";
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
               <Route path="/" element={<Services />} />
               <Route path="/collection/:slug" element={<Collection />} />
               <Route path="/s/:slug" element={<ServicePage />} />
+              <Route path="/ask" element={<AskAI />} />
               <Route path="/cart" element={<Checkout />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route

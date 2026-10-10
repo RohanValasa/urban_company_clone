@@ -13,6 +13,8 @@ const { openStream } = require("./lib/live");
 const { onNotifications } = require("./lib/notify");
 const { dispatcher } = require("./lib/dispatch");
 const { idChecker } = require("./lib/idcheck");
+const { aiAssistant } = require("./lib/assistant");
+const { aiRouter } = require("./routes/ai");
 const { smsSender } = require("./lib/sms");
 const { sealer } = require("./lib/seal");
 const { SKILLS } = require("./lib/skills");
@@ -25,7 +27,8 @@ function createApp(
   config,
   {
     verifyGoogle = googleVerifier(config.googleClientId),
-    checkId = idChecker({ hasCredentials: config.aiIdCheck, isProd: config.isProd }),
+    checkId = idChecker({ hasCredentials: config.hasAnthropicKey, isProd: config.isProd }),
+    ai = aiAssistant({ hasCredentials: config.hasAnthropicKey }),
     sendSms = smsSender(),
   } = {}
 ) {
@@ -41,8 +44,8 @@ function createApp(
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
   app.use(cors({ origin: config.clientOrigins, credentials: true }));
-  // The onboarding form carries an ID photo; everything else is small.
-  app.use("/api/pro/profile", express.json({ limit: "6mb" }));
+  // The onboarding form, the AI assistant and the parts check carry a photo.
+  app.use(["/api/pro/profile", "/api/ai/assist", "/api/pro/jobs/:id/parts"], express.json({ limit: "6mb" }));
   app.use(express.json({ limit: "20kb" }));
   app.use(cookieParser());
 
@@ -53,6 +56,7 @@ function createApp(
       upi: config.upiId ? { id: config.upiId, name: config.upiName } : null,
       skills: SKILLS,
       offerSeconds: offerMs / 1000,
+      ai: ai.enabled,
     })
   );
 
@@ -73,8 +77,18 @@ function createApp(
   });
   app.use("/api/auth", authLimiter, authRouter({ session, verifyGoogle }));
   app.use("/api/account", accountRouter({ session }));
+  // Each AI call costs money, so every account gets a budget (per hour).
+  const aiLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: config.aiRateLimit ?? 30,
+    keyGenerator: (req) => String(req.user._id),
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: { error: "You've used the AI assistant a lot this hour. Please try again a bit later." },
+  });
+  app.use("/api/ai", aiRouter({ session, ai, aiLimiter }));
   app.use("/api/bookings", bookingsRouter({ session, dispatch, retryCooldownMs }));
-  app.use("/api/pro", proRouter({ session, dispatch, checkId, sendSms, seal }));
+  app.use("/api/pro", proRouter({ session, dispatch, checkId, sendSms, seal, ai, aiLimiter }));
 
   app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));
 

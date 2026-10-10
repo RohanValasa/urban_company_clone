@@ -106,7 +106,7 @@ Signing up with "I provide a service" opens a four-step profile at
 
 Jobs only start arriving once all four are done and the ID is approved.
 
-The ID check needs `ANTHROPIC_API_KEY` in `server/.env`. Without one, IDs are
+The ID check uses the same `ANTHROPIC_API_KEY` as the [AI features](#ai-features-claude). Without one, IDs are
 approved automatically in development and left "pending" in production.
 
 ### Booking a professional
@@ -147,6 +147,49 @@ Notes:
   in as. The professional can choose **Simulate the drive** to send a fake
   route instead of real GPS.
 - Real GPS only works on `https://` or `localhost`.
+
+### AI features (Claude)
+
+Three features use Claude (`claude-opus-5-5`) through the Anthropic SDK. They
+need `ANTHROPIC_API_KEY` in `server/.env`; without it they show as switched off.
+
+1. **Ask Servify AI** (`/ask`, and the shortcut on the home page). The customer
+   types, speaks or photographs the problem. Typing and speaking work in
+   English, Telugu, Hindi or Urdu, including Telugu written in English letters.
+   Claude works out what's wrong and suggests the service and packages, using
+   catalogue prices. It also gives a safety tip when there's a hazard and
+   understands times like "repu morning" (tomorrow morning).
+   **Add to cart & book** opens checkout with that time already picked, and with
+   a note for the professional saying what's wrong and what to bring.
+2. **Voice booking.** The mic button uses the browser's own speech recognition
+   (Chrome, Edge, Safari) in Telugu, Hindi, Urdu or English. The browser turns
+   the speech into text, so it's sent to the browser maker's speech service,
+   not to Servify.
+3. **Fair parts price.** During a job, the professional photographs a spare part
+   and enters their price. Claude identifies the part and estimates the usual
+   price in Telangana.
+   - The customer sees both on their tracking page, marked "Fair price", "A
+     little above" or "Well above", and approves or declines.
+   - The job can't be closed while a part is waiting for an answer.
+   - Approved parts are added to what the professional collects, including on
+     jobs already paid online.
+
+Notes:
+
+- Photos are sent to Claude and never stored. Only the diagnosis text and the
+  part's estimate are saved.
+- Each account can make `AI_RATE_LIMIT` AI requests an hour (30 by default),
+  because every request costs money. The catalogue part of the prompt is
+  cached, which makes repeat requests cheaper.
+- The prices are estimates. The customer always confirms before anything is
+  booked or charged.
+- The assistant chooses from `server/src/data/catalog.json`. After changing
+  `client/src/data/services.js`, run `npm run catalog` in `client/` to
+  regenerate it; a server test fails while the two disagree.
+
+API: `POST /api/ai/assist` (`{ text?, image? }`), `POST /api/pro/jobs/:id/parts`
+(`{ image, quoted, note? }`) and `POST /api/bookings/:id/parts/:partId`
+(`{ decision: "approve" | "decline" }`).
 
 ### Turning on "Sign in with Google"
 
